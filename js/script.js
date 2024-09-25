@@ -1,14 +1,14 @@
 (function () {
-  // Global default options
-  window.SwiperDefaults = {
+  // Default configurations
+  var defaultSwiperOptions = {
     loop: false,
-    autoplay: { delay: 2500, disableOnInteraction: true },
+    autoplay: { delay: 2500, disableOnInteraction: false },
     speed: 300,
     effect: "slide",
     crossFade: false,
     slidesPerView: 1,
     spaceBetween: 10,
-    fullHeight: true,
+    fullHeight: false,
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
       768: { slidesPerView: 2, spaceBetween: 16 },
@@ -41,57 +41,56 @@
     slideDuplicateActiveClass: "is-active",
   };
 
+  // Merge user-defined SwiperDefaults into defaultSwiperOptions
+  if (window.SwiperDefaults) {
+    defaultSwiperOptions = mergeOptions(defaultSwiperOptions, window.SwiperDefaults);
+  }
+
   function initSwipers() {
-    document
-      .querySelectorAll(".slider-main_component")
-      .forEach(function (container) {
-        const instanceOptions = getInstanceOptions(container);
-        const swiperConfig = mergeOptions(
-          window.SwiperDefaults,
-          instanceOptions
-        );
+    document.querySelectorAll(".slider-main_component").forEach(function (container) {
+      const instanceOptions = getInstanceOptions(container);
+      const swiperConfig = mergeOptions(defaultSwiperOptions, instanceOptions);
 
-        const swiperElement = container.querySelector(".swiper");
-        if (!swiperElement) {
-          console.warn("Swiper element not found:", container);
-          return;
-        }
+      const swiperElement = container.querySelector(".swiper");
+      if (!swiperElement) {
+        console.warn("Swiper element not found:", container);
+        return;
+      }
 
-        const slidesCount =
-          swiperElement.querySelectorAll(".swiper-slide").length;
+      const slidesCount = swiperElement.querySelectorAll(".swiper-slide").length;
 
-        if (slidesCount <= 1) {
-          swiperConfig.navigation = false;
-          swiperConfig.pagination = false;
-          swiperConfig.autoplay = false;
-          swiperConfig.allowTouchMove = false;
-          swiperConfig.keyboard.enabled = false;
-        }
+      if (slidesCount <= 1) {
+        swiperConfig.navigation = false;
+        swiperConfig.pagination = false;
+        swiperConfig.autoplay = false;
+        swiperConfig.allowTouchMove = false;
+        swiperConfig.keyboard.enabled = false;
+      }
 
-        adjustSelectors(swiperConfig, container);
+      adjustSelectors(swiperConfig, container);
 
-        // Adjust 'on' handlers based on the effect and fullHeight
-        swiperConfig.on = {
-          init: function () {
-            if (this.params.effect === "fade") {
-              adjustSlidesZIndex(this);
-            }
+      // Adjust 'on' handlers based on the effect and fullHeight
+      swiperConfig.on = {
+        init: function () {
+          if (this.params.effect === "fade") {
+            adjustSlidesZIndex(this);
+          }
 
-            if (this.params.fullHeight) {
-              setSlidesFullHeight(this);
-            } else {
-              adjustSlidesHeight(this);
-            }
-          },
-          slideChangeTransitionStart: function () {
-            if (this.params.effect === "fade") {
-              adjustSlidesZIndex(this);
-            }
-          },
-        };
+          if (this.params.fullHeight) {
+            setSlidesFullHeight(this);
+          } else {
+            adjustSlidesHeight(this);
+          }
+        },
+        slideChangeTransitionStart: function () {
+          if (this.params.effect === "fade") {
+            adjustSlidesZIndex(this);
+          }
+        },
+      };
 
-        new Swiper(swiperElement, swiperConfig);
-      });
+      new Swiper(swiperElement, swiperConfig);
+    });
   }
 
   function getInstanceOptions(container) {
@@ -102,10 +101,7 @@
     }
 
     if (container.hasAttribute("data-slider-duration")) {
-      options.speed = parseInt(
-        container.getAttribute("data-slider-duration"),
-        10
-      );
+      options.speed = parseInt(container.getAttribute("data-slider-duration"), 10);
     }
 
     // Get effect from data attribute
@@ -128,8 +124,7 @@
 
     // Get fullHeight setting from data attribute
     if (container.hasAttribute("data-full-height")) {
-      options.fullHeight =
-        container.getAttribute("data-full-height") === "true";
+      options.fullHeight = container.getAttribute("data-full-height") === "true";
     }
 
     return options;
@@ -163,14 +158,10 @@
     }
     if (config.navigation) {
       if (config.navigation.nextEl) {
-        config.navigation.nextEl = container.querySelector(
-          config.navigation.nextEl
-        );
+        config.navigation.nextEl = container.querySelector(config.navigation.nextEl);
       }
       if (config.navigation.prevEl) {
-        config.navigation.prevEl = container.querySelector(
-          config.navigation.prevEl
-        );
+        config.navigation.prevEl = container.querySelector(config.navigation.prevEl);
       }
     }
     if (config.scrollbar && config.scrollbar.el) {
@@ -196,8 +187,7 @@
   function adjustSlidesZIndex(swiper) {
     swiper.slides.forEach((slide, index) => {
       slide.style.zIndex = index === swiper.activeIndex ? 2 : 1;
-      slide.style.pointerEvents =
-        index === swiper.activeIndex ? "auto" : "none";
+      slide.style.pointerEvents = index === swiper.activeIndex ? "auto" : "none";
     });
   }
 
