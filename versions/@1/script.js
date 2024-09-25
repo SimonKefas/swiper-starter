@@ -2,13 +2,13 @@
   // Global default options
   window.SwiperDefaults = {
     loop: false,
-    autoplay: { delay: 2500, disableOnInteraction: false },
+    autoplay: { delay: 2500, disableOnInteraction: true },
     speed: 300,
     effect: "slide",
     crossFade: false,
     slidesPerView: 1,
     spaceBetween: 10,
-    fullHeight: false, // New option added
+    fullHeight: true,
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
       768: { slidesPerView: 2, spaceBetween: 16 },
