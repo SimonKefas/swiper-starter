@@ -81,8 +81,6 @@
           init: function () {
             const swiper = this;
 
-            console.log("Swiper initialized:", swiper);
-
             // Existing code for height adjustments
             if (swiper.params.effect === "fade") {
               adjustSlidesZIndex(swiper);
@@ -94,33 +92,37 @@
               adjustSlidesHeight(swiper);
             }
 
-            // New code for progress bar
+            // Updated code for progress bar
             if (swiper.params.progressBar && swiper.params.autoplay) {
-              const progressBar = container.querySelector(
-                ".swiper-progress-bar"
-              );
-              console.log("ProgressBar Element:", progressBar);
-
+              const progressBar = container.querySelector(".swiper-progress-bar");
               if (progressBar) {
                 swiper.progressBar = progressBar;
                 const delay = swiper.params.autoplay.delay + swiper.params.speed;
-                const animationCSS = `swiper-progress-bar-animation ${delay}ms linear infinite`;
 
-                console.log("Setting progress bar animation:", animationCSS);
-
-                progressBar.style.animation = animationCSS;
-                progressBar.style.WebkitAnimation = animationCSS;
-                progressBar.style.msAnimation = animationCSS;
+                // Set animation properties individually
+                progressBar.style.animationName = "swiper-progress-bar-animation";
+                progressBar.style.animationDuration = `${delay}ms`;
+                progressBar.style.animationTimingFunction = "linear";
+                progressBar.style.animationIterationCount = "infinite";
                 progressBar.style.animationPlayState = "running";
-              } else {
-                console.warn("Progress bar element not found.");
+
+                // Vendor prefixes
+                progressBar.style.webkitAnimationName = "swiper-progress-bar-animation";
+                progressBar.style.webkitAnimationDuration = `${delay}ms`;
+                progressBar.style.webkitAnimationTimingFunction = "linear";
+                progressBar.style.webkitAnimationIterationCount = "infinite";
+                progressBar.style.webkitAnimationPlayState = "running";
+
+                progressBar.style.msAnimationName = "swiper-progress-bar-animation";
+                progressBar.style.msAnimationDuration = `${delay}ms`;
+                progressBar.style.msAnimationTimingFunction = "linear";
+                progressBar.style.msAnimationIterationCount = "infinite";
+                progressBar.style.msAnimationPlayState = "running";
               }
             }
           },
           slideChangeTransitionStart: function () {
             const swiper = this;
-
-            console.log("Slide changed:", swiper.activeIndex);
 
             if (swiper.params.effect === "fade") {
               adjustSlidesZIndex(swiper);
@@ -130,36 +132,57 @@
             if (swiper.params.progressBar && swiper.params.autoplay) {
               const progressBar = swiper.progressBar;
               if (progressBar) {
-                progressBar.style.animation = "none";
-                progressBar.style.WebkitAnimation = "none";
-                progressBar.style.msAnimation = "none";
+                // Pause and reset the animation
+                progressBar.style.animationPlayState = "paused";
+                progressBar.style.animationName = "none";
 
-                void progressBar.offsetWidth; // Trigger reflow
+                // Vendor prefixes
+                progressBar.style.webkitAnimationPlayState = "paused";
+                progressBar.style.webkitAnimationName = "none";
+                progressBar.style.msAnimationPlayState = "paused";
+                progressBar.style.msAnimationName = "none";
+
+                // Trigger reflow
+                void progressBar.offsetWidth;
 
                 const delay = swiper.params.autoplay.delay + swiper.params.speed;
-                const animationCSS = `swiper-progress-bar-animation ${delay}ms linear infinite`;
 
-                console.log("Restarting progress bar animation:", animationCSS);
-
-                progressBar.style.animation = animationCSS;
-                progressBar.style.WebkitAnimation = animationCSS;
-                progressBar.style.msAnimation = animationCSS;
+                // Restart the animation
+                progressBar.style.animationName = "swiper-progress-bar-animation";
+                progressBar.style.animationDuration = `${delay}ms`;
+                progressBar.style.animationTimingFunction = "linear";
+                progressBar.style.animationIterationCount = "infinite";
                 progressBar.style.animationPlayState = "running";
+
+                // Vendor prefixes
+                progressBar.style.webkitAnimationName = "swiper-progress-bar-animation";
+                progressBar.style.webkitAnimationDuration = `${delay}ms`;
+                progressBar.style.webkitAnimationTimingFunction = "linear";
+                progressBar.style.webkitAnimationIterationCount = "infinite";
+                progressBar.style.webkitAnimationPlayState = "running";
+
+                progressBar.style.msAnimationName = "swiper-progress-bar-animation";
+                progressBar.style.msAnimationDuration = `${delay}ms`;
+                progressBar.style.msAnimationTimingFunction = "linear";
+                progressBar.style.msAnimationIterationCount = "infinite";
+                progressBar.style.msAnimationPlayState = "running";
               }
             }
           },
           autoplayStop: function () {
             const swiper = this;
-            console.log("Autoplay stopped.");
             if (swiper.params.progressBar && swiper.progressBar) {
               swiper.progressBar.style.animationPlayState = "paused";
+              swiper.progressBar.style.webkitAnimationPlayState = "paused";
+              swiper.progressBar.style.msAnimationPlayState = "paused";
             }
           },
           autoplayStart: function () {
             const swiper = this;
-            console.log("Autoplay started.");
             if (swiper.params.progressBar && swiper.progressBar) {
               swiper.progressBar.style.animationPlayState = "running";
+              swiper.progressBar.style.webkitAnimationPlayState = "running";
+              swiper.progressBar.style.msAnimationPlayState = "running";
             }
           },
         };
@@ -176,7 +199,10 @@
     }
 
     if (container.hasAttribute("data-slider-duration")) {
-      options.speed = parseInt(container.getAttribute("data-slider-duration"), 10);
+      options.speed = parseInt(
+        container.getAttribute("data-slider-duration"),
+        10
+      );
     }
 
     // Get effect from data attribute
@@ -238,10 +264,14 @@
     }
     if (config.navigation) {
       if (config.navigation.nextEl) {
-        config.navigation.nextEl = container.querySelector(config.navigation.nextEl);
+        config.navigation.nextEl = container.querySelector(
+          config.navigation.nextEl
+        );
       }
       if (config.navigation.prevEl) {
-        config.navigation.prevEl = container.querySelector(config.navigation.prevEl);
+        config.navigation.prevEl = container.querySelector(
+          config.navigation.prevEl
+        );
       }
     }
     if (config.scrollbar && config.scrollbar.el) {
