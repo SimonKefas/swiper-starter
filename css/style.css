@@ -45,12 +45,3 @@
       -ms-transform: scaleX(1);
     }
   }
-  
-  /* Applying the animation with vendor prefixes */
-  .swiper-progress-bar {
-    animation: swiper-progress-bar-animation 4000ms linear infinite;
-    /* Vendor prefixes for animation */
-    -webkit-animation: swiper-progress-bar-animation 4000ms linear infinite;
-    -ms-animation: swiper-progress-bar-animation 4000ms linear infinite;
-  }
-  
