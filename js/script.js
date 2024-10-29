@@ -51,91 +51,95 @@
   }
 
   function initSwipers() {
-    document.querySelectorAll(".slider-main_component").forEach(function (container) {
-      const instanceOptions = getInstanceOptions(container);
-      const swiperConfig = mergeOptions(defaultSwiperOptions, instanceOptions);
+    document
+      .querySelectorAll(".slider-main_component")
+      .forEach(function (container) {
+        const instanceOptions = getInstanceOptions(container);
+        const swiperConfig = mergeOptions(defaultSwiperOptions, instanceOptions);
 
-      const swiperElement = container.querySelector(".swiper");
-      if (!swiperElement) {
-        console.warn("Swiper element not found:", container);
-        return;
-      }
+        const swiperElement = container.querySelector(".swiper");
+        if (!swiperElement) {
+          console.warn("Swiper element not found:", container);
+          return;
+        }
 
-      const slidesCount = swiperElement.querySelectorAll(".swiper-slide").length;
+        const slidesCount =
+          swiperElement.querySelectorAll(".swiper-slide").length;
 
-      if (slidesCount <= 1) {
-        swiperConfig.navigation = false;
-        swiperConfig.pagination = false;
-        swiperConfig.autoplay = false;
-        swiperConfig.allowTouchMove = false;
-        swiperConfig.keyboard.enabled = false;
-      }
+        if (slidesCount <= 1) {
+          swiperConfig.navigation = false;
+          swiperConfig.pagination = false;
+          swiperConfig.autoplay = false;
+          swiperConfig.allowTouchMove = false;
+          swiperConfig.keyboard.enabled = false;
+        }
 
-      adjustSelectors(swiperConfig, container);
+        adjustSelectors(swiperConfig, container);
 
-      // Adjust 'on' handlers based on the effect, fullHeight, and progressBar
-      swiperConfig.on = {
-        init: function () {
-          const swiper = this;
+        // Adjust 'on' handlers based on the effect, fullHeight, and progressBar
+        swiperConfig.on = {
+          init: function () {
+            const swiper = this;
 
-          // Existing code for height adjustments
-          if (swiper.params.effect === "fade") {
-            adjustSlidesZIndex(swiper);
-          }
-
-          if (swiper.params.fullHeight) {
-            setSlidesFullHeight(swiper);
-          } else {
-            adjustSlidesHeight(swiper);
-          }
-
-          // New code for progress bar
-          if (swiper.params.progressBar && swiper.params.autoplay) {
-            const swiperContainer = swiper.el;
-            const progressBar = swiperContainer.querySelector(".swiper-progress-bar");
-            if (progressBar) {
-              swiper.progressBar = progressBar;
-              const delay = swiper.params.autoplay.delay;
-              progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
-              progressBar.style.animationPlayState = "running";
+            // Existing code for height adjustments
+            if (swiper.params.effect === "fade") {
+              adjustSlidesZIndex(swiper);
             }
-          }
-        },
-        slideChangeTransitionStart: function () {
-          const swiper = this;
 
-          if (swiper.params.effect === "fade") {
-            adjustSlidesZIndex(swiper);
-          }
-
-          // Reset progress bar animation
-          if (swiper.params.progressBar && swiper.params.autoplay) {
-            const progressBar = swiper.progressBar;
-            if (progressBar) {
-              progressBar.style.animation = "none";
-              void progressBar.offsetWidth; // Trigger reflow
-              const delay = swiper.params.autoplay.delay;
-              progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
-              progressBar.style.animationPlayState = "running";
+            if (swiper.params.fullHeight) {
+              setSlidesFullHeight(swiper);
+            } else {
+              adjustSlidesHeight(swiper);
             }
-          }
-        },
-        autoplayStop: function () {
-          const swiper = this;
-          if (swiper.params.progressBar && swiper.progressBar) {
-            swiper.progressBar.style.animationPlayState = "paused";
-          }
-        },
-        autoplayStart: function () {
-          const swiper = this;
-          if (swiper.params.progressBar && swiper.progressBar) {
-            swiper.progressBar.style.animationPlayState = "running";
-          }
-        },
-      };
 
-      new Swiper(swiperElement, swiperConfig);
-    });
+            // New code for progress bar
+            if (swiper.params.progressBar && swiper.params.autoplay) {
+              const progressBar = container.querySelector(
+                ".swiper-progress-bar"
+              );
+              if (progressBar) {
+                swiper.progressBar = progressBar;
+                const delay = swiper.params.autoplay.delay + swiper.params.speed;
+                progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+                progressBar.style.animationPlayState = "running";
+              }
+            }
+          },
+          slideChangeTransitionStart: function () {
+            const swiper = this;
+
+            if (swiper.params.effect === "fade") {
+              adjustSlidesZIndex(swiper);
+            }
+
+            // Reset progress bar animation
+            if (swiper.params.progressBar && swiper.params.autoplay) {
+              const progressBar = swiper.progressBar;
+              if (progressBar) {
+                progressBar.style.animation = "none";
+                void progressBar.offsetWidth; // Trigger reflow
+                const delay = swiper.params.autoplay.delay + swiper.params.speed;
+                progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+                progressBar.style.animationPlayState = "running";
+              }
+            }
+          },
+          autoplayStop: function () {
+            const swiper = this;
+            if (swiper.params.progressBar && swiper.progressBar) {
+              swiper.progressBar.style.animationPlayState = "paused";
+            }
+          },
+          autoplayStart: function () {
+            const swiper = this;
+            if (swiper.params.progressBar && swiper.progressBar) {
+              swiper.progressBar.style.animationPlayState = "running";
+            }
+          },
+        };
+
+        new Swiper(swiperElement, swiperConfig);
+      });
   }
 
   function getInstanceOptions(container) {

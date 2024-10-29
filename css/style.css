@@ -1,0 +1,56 @@
+    /* Progress Bar */
+  .swiper-progress-bar {
+    width: 100%;
+    height: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    /* Vendor prefixes for transform */
+    -webkit-transform: scaleX(0);
+    -ms-transform: scaleX(0);
+    -webkit-transform-origin: left;
+    -ms-transform-origin: left;
+  }
+  
+  /* Progress Bar Animation */
+  @keyframes swiper-progress-bar-animation {
+    from {
+      transform: scaleX(0);
+      /* Vendor prefixes */
+      -webkit-transform: scaleX(0);
+      -ms-transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+      /* Vendor prefixes */
+      -webkit-transform: scaleX(1);
+      -ms-transform: scaleX(1);
+    }
+  }
+  
+  /* Vendor-prefixed @keyframes for broader support */
+  @-webkit-keyframes swiper-progress-bar-animation {
+    from {
+      -webkit-transform: scaleX(0);
+    }
+    to {
+      -webkit-transform: scaleX(1);
+    }
+  }
+  
+  @-ms-keyframes swiper-progress-bar-animation {
+    from {
+      -ms-transform: scaleX(0);
+    }
+    to {
+      -ms-transform: scaleX(1);
+    }
+  }
+  
+  /* Applying the animation with vendor prefixes */
+  .swiper-progress-bar {
+    animation: swiper-progress-bar-animation 4000ms linear infinite;
+    /* Vendor prefixes for animation */
+    -webkit-animation: swiper-progress-bar-animation 4000ms linear infinite;
+    -ms-animation: swiper-progress-bar-animation 4000ms linear infinite;
+  }
+  
