@@ -9,6 +9,7 @@
     slidesPerView: 1,
     spaceBetween: 10,
     fullHeight: false,
+    progressBar: false, // New option added
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
       768: { slidesPerView: 2, spaceBetween: 16 },
@@ -43,7 +44,10 @@
 
   // Merge user-defined SwiperDefaults into defaultSwiperOptions
   if (window.SwiperDefaults) {
-    defaultSwiperOptions = mergeOptions(defaultSwiperOptions, window.SwiperDefaults);
+    defaultSwiperOptions = mergeOptions(
+      defaultSwiperOptions,
+      window.SwiperDefaults
+    );
   }
 
   function initSwipers() {
@@ -69,22 +73,63 @@
 
       adjustSelectors(swiperConfig, container);
 
-      // Adjust 'on' handlers based on the effect and fullHeight
+      // Adjust 'on' handlers based on the effect, fullHeight, and progressBar
       swiperConfig.on = {
         init: function () {
-          if (this.params.effect === "fade") {
-            adjustSlidesZIndex(this);
+          const swiper = this;
+
+          // Existing code for height adjustments
+          if (swiper.params.effect === "fade") {
+            adjustSlidesZIndex(swiper);
           }
 
-          if (this.params.fullHeight) {
-            setSlidesFullHeight(this);
+          if (swiper.params.fullHeight) {
+            setSlidesFullHeight(swiper);
           } else {
-            adjustSlidesHeight(this);
+            adjustSlidesHeight(swiper);
+          }
+
+          // New code for progress bar
+          if (swiper.params.progressBar && swiper.params.autoplay) {
+            const swiperContainer = swiper.el;
+            const progressBar = swiperContainer.querySelector(".swiper-progress-bar");
+            if (progressBar) {
+              swiper.progressBar = progressBar;
+              const delay = swiper.params.autoplay.delay;
+              progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+              progressBar.style.animationPlayState = "running";
+            }
           }
         },
         slideChangeTransitionStart: function () {
-          if (this.params.effect === "fade") {
-            adjustSlidesZIndex(this);
+          const swiper = this;
+
+          if (swiper.params.effect === "fade") {
+            adjustSlidesZIndex(swiper);
+          }
+
+          // Reset progress bar animation
+          if (swiper.params.progressBar && swiper.params.autoplay) {
+            const progressBar = swiper.progressBar;
+            if (progressBar) {
+              progressBar.style.animation = "none";
+              void progressBar.offsetWidth; // Trigger reflow
+              const delay = swiper.params.autoplay.delay;
+              progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+              progressBar.style.animationPlayState = "running";
+            }
+          }
+        },
+        autoplayStop: function () {
+          const swiper = this;
+          if (swiper.params.progressBar && swiper.progressBar) {
+            swiper.progressBar.style.animationPlayState = "paused";
+          }
+        },
+        autoplayStart: function () {
+          const swiper = this;
+          if (swiper.params.progressBar && swiper.progressBar) {
+            swiper.progressBar.style.animationPlayState = "running";
           }
         },
       };
@@ -125,6 +170,11 @@
     // Get fullHeight setting from data attribute
     if (container.hasAttribute("data-full-height")) {
       options.fullHeight = container.getAttribute("data-full-height") === "true";
+    }
+
+    // Get progressBar setting from data attribute
+    if (container.hasAttribute("data-progress-bar")) {
+      options.progressBar = container.getAttribute("data-progress-bar") === "true";
     }
 
     return options;
