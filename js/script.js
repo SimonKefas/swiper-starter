@@ -81,6 +81,8 @@
           init: function () {
             const swiper = this;
 
+            console.log("Swiper initialized:", swiper);
+
             // Existing code for height adjustments
             if (swiper.params.effect === "fade") {
               adjustSlidesZIndex(swiper);
@@ -97,16 +99,28 @@
               const progressBar = container.querySelector(
                 ".swiper-progress-bar"
               );
+              console.log("ProgressBar Element:", progressBar);
+
               if (progressBar) {
                 swiper.progressBar = progressBar;
                 const delay = swiper.params.autoplay.delay + swiper.params.speed;
-                progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+                const animationCSS = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+
+                console.log("Setting progress bar animation:", animationCSS);
+
+                progressBar.style.animation = animationCSS;
+                progressBar.style.WebkitAnimation = animationCSS;
+                progressBar.style.msAnimation = animationCSS;
                 progressBar.style.animationPlayState = "running";
+              } else {
+                console.warn("Progress bar element not found.");
               }
             }
           },
           slideChangeTransitionStart: function () {
             const swiper = this;
+
+            console.log("Slide changed:", swiper.activeIndex);
 
             if (swiper.params.effect === "fade") {
               adjustSlidesZIndex(swiper);
@@ -117,21 +131,33 @@
               const progressBar = swiper.progressBar;
               if (progressBar) {
                 progressBar.style.animation = "none";
+                progressBar.style.WebkitAnimation = "none";
+                progressBar.style.msAnimation = "none";
+
                 void progressBar.offsetWidth; // Trigger reflow
+
                 const delay = swiper.params.autoplay.delay + swiper.params.speed;
-                progressBar.style.animation = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+                const animationCSS = `swiper-progress-bar-animation ${delay}ms linear infinite`;
+
+                console.log("Restarting progress bar animation:", animationCSS);
+
+                progressBar.style.animation = animationCSS;
+                progressBar.style.WebkitAnimation = animationCSS;
+                progressBar.style.msAnimation = animationCSS;
                 progressBar.style.animationPlayState = "running";
               }
             }
           },
           autoplayStop: function () {
             const swiper = this;
+            console.log("Autoplay stopped.");
             if (swiper.params.progressBar && swiper.progressBar) {
               swiper.progressBar.style.animationPlayState = "paused";
             }
           },
           autoplayStart: function () {
             const swiper = this;
+            console.log("Autoplay started.");
             if (swiper.params.progressBar && swiper.progressBar) {
               swiper.progressBar.style.animationPlayState = "running";
             }
