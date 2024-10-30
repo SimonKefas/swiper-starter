@@ -42,9 +42,35 @@
     slideDuplicateActiveClass: "is-active",
   };
 
+  // Define mergeOptions function before using it
+  function mergeOptions(defaults, instance) {
+    return deepMerge({}, defaults, instance);
+
+    function deepMerge(target, ...sources) {
+      sources.forEach((source) => {
+        Object.keys(source).forEach((key) => {
+          if (
+            source[key] &&
+            typeof source[key] === "object" &&
+            !Array.isArray(source[key])
+          ) {
+            if (!target[key]) target[key] = {};
+            deepMerge(target[key], source[key]);
+          } else {
+            target[key] = source[key];
+          }
+        });
+      });
+      return target;
+    }
+  }
+
   // Merge user-defined SwiperDefaults into defaultSwiperOptions
   if (window.SwiperDefaults) {
-    defaultSwiperOptions = mergeOptions(defaultSwiperOptions, window.SwiperDefaults);
+    defaultSwiperOptions = mergeOptions(
+      defaultSwiperOptions,
+      window.SwiperDefaults
+    );
   }
 
   function initSwipers() {
@@ -88,7 +114,7 @@
               adjustSlidesHeight(swiper);
             }
 
-            // New code for progress bar
+            // Progress bar functionality
             if (swiper.params.progressBar && swiper.params.autoplay) {
               const progressBar = container.querySelector(".swiper-progress-bar");
               if (progressBar) {
@@ -101,19 +127,6 @@
                 progressBar.style.animationTimingFunction = "linear";
                 progressBar.style.animationIterationCount = "infinite";
                 progressBar.style.animationPlayState = "running";
-
-                // Vendor prefixes
-                progressBar.style.webkitAnimationName = "swiper-progress-bar-animation";
-                progressBar.style.webkitAnimationDuration = `${delay}ms`;
-                progressBar.style.webkitAnimationTimingFunction = "linear";
-                progressBar.style.webkitAnimationIterationCount = "infinite";
-                progressBar.style.webkitAnimationPlayState = "running";
-
-                progressBar.style.msAnimationName = "swiper-progress-bar-animation";
-                progressBar.style.msAnimationDuration = `${delay}ms`;
-                progressBar.style.msAnimationTimingFunction = "linear";
-                progressBar.style.msAnimationIterationCount = "infinite";
-                progressBar.style.msAnimationPlayState = "running";
               }
             }
           },
@@ -132,12 +145,6 @@
                 progressBar.style.animationPlayState = "paused";
                 progressBar.style.animationName = "none";
 
-                // Vendor prefixes
-                progressBar.style.webkitAnimationPlayState = "paused";
-                progressBar.style.webkitAnimationName = "none";
-                progressBar.style.msAnimationPlayState = "paused";
-                progressBar.style.msAnimationName = "none";
-
                 // Trigger reflow
                 void progressBar.offsetWidth;
 
@@ -149,19 +156,6 @@
                 progressBar.style.animationTimingFunction = "linear";
                 progressBar.style.animationIterationCount = "infinite";
                 progressBar.style.animationPlayState = "running";
-
-                // Vendor prefixes
-                progressBar.style.webkitAnimationName = "swiper-progress-bar-animation";
-                progressBar.style.webkitAnimationDuration = `${delay}ms`;
-                progressBar.style.webkitAnimationTimingFunction = "linear";
-                progressBar.style.webkitAnimationIterationCount = "infinite";
-                progressBar.style.webkitAnimationPlayState = "running";
-
-                progressBar.style.msAnimationName = "swiper-progress-bar-animation";
-                progressBar.style.msAnimationDuration = `${delay}ms`;
-                progressBar.style.msAnimationTimingFunction = "linear";
-                progressBar.style.msAnimationIterationCount = "infinite";
-                progressBar.style.msAnimationPlayState = "running";
               }
             }
           },
@@ -169,16 +163,12 @@
             const swiper = this;
             if (swiper.params.progressBar && swiper.progressBar) {
               swiper.progressBar.style.animationPlayState = "paused";
-              swiper.progressBar.style.webkitAnimationPlayState = "paused";
-              swiper.progressBar.style.msAnimationPlayState = "paused";
             }
           },
           autoplayStart: function () {
             const swiper = this;
             if (swiper.params.progressBar && swiper.progressBar) {
               swiper.progressBar.style.animationPlayState = "running";
-              swiper.progressBar.style.webkitAnimationPlayState = "running";
-              swiper.progressBar.style.msAnimationPlayState = "running";
             }
           },
         };
@@ -238,7 +228,10 @@
 
     // Get spaceBetween setting from data attribute
     if (container.hasAttribute("data-space-between")) {
-      options.spaceBetween = parseInt(container.getAttribute("data-space-between"), 10);
+      options.spaceBetween = parseInt(
+        container.getAttribute("data-space-between"),
+        10
+      );
     }
 
     // Get breakpoints setting from data attribute
@@ -262,7 +255,44 @@
     return options;
   }
 
-  // The rest of your script remains the same (mergeOptions, adjustSelectors, adjustSlidesHeight, etc.)
+  function adjustSelectors(config, container) {
+    if (config.pagination && config.pagination.el) {
+      config.pagination.el = container.querySelector(config.pagination.el);
+    }
+    if (config.navigation) {
+      if (config.navigation.nextEl) {
+        config.navigation.nextEl = container.querySelector(config.navigation.nextEl);
+      }
+      if (config.navigation.prevEl) {
+        config.navigation.prevEl = container.querySelector(config.navigation.prevEl);
+      }
+    }
+    if (config.scrollbar && config.scrollbar.el) {
+      config.scrollbar.el = container.querySelector(config.scrollbar.el);
+    }
+  }
+
+  function adjustSlidesHeight(swiper) {
+    const maxHeight = Math.max(
+      ...Array.from(swiper.slides).map((slide) => slide.offsetHeight)
+    );
+    swiper.slides.forEach((slide) => {
+      slide.style.height = `${maxHeight}px`;
+    });
+  }
+
+  function setSlidesFullHeight(swiper) {
+    swiper.slides.forEach((slide) => {
+      slide.style.height = "100%";
+    });
+  }
+
+  function adjustSlidesZIndex(swiper) {
+    swiper.slides.forEach((slide, index) => {
+      slide.style.zIndex = index === swiper.activeIndex ? 2 : 1;
+      slide.style.pointerEvents = index === swiper.activeIndex ? "auto" : "none";
+    });
+  }
 
   document.addEventListener("DOMContentLoaded", initSwipers);
 })();
