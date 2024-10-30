@@ -49,7 +49,10 @@
     function deepMerge(target, ...sources) {
       sources.forEach((source) => {
         Object.keys(source).forEach((key) => {
-          if (
+          if (source[key] === null) {
+            // If source[key] is null, delete target[key]
+            delete target[key];
+          } else if (
             source[key] &&
             typeof source[key] === "object" &&
             !Array.isArray(source[key])
@@ -88,6 +91,25 @@
 
         const slidesCount = swiperElement.querySelectorAll(".swiper-slide").length;
 
+        // Determine the maximum slidesPerView
+        let maxSlidesPerView = 1;
+        if (typeof swiperConfig.slidesPerView === 'number') {
+          maxSlidesPerView = swiperConfig.slidesPerView;
+        } else if (swiperConfig.slidesPerView === 'auto') {
+          maxSlidesPerView = slidesCount; // Assume max
+        } else if (swiperConfig.breakpoints) {
+          // Get maximum slidesPerView from breakpoints
+          const breakpointValues = Object.values(swiperConfig.breakpoints);
+          const spvValues = breakpointValues.map(bp => bp.slidesPerView || 1);
+          maxSlidesPerView = Math.max(...spvValues);
+        }
+
+        // Disable loop mode if not enough slides
+        if (slidesCount <= maxSlidesPerView) {
+          swiperConfig.loop = false;
+        }
+
+        // Disable navigation and other features if only one slide
         if (slidesCount <= 1) {
           swiperConfig.navigation = false;
           swiperConfig.pagination = false;
@@ -243,13 +265,13 @@
       }
     }
 
-    // If data-single-slide is true, set slidesPerView to 1 at all breakpoints
+    // If data-single-slide is true, set slidesPerView to 1 and remove breakpoints
     if (
       container.hasAttribute("data-single-slide") &&
       container.getAttribute("data-single-slide") === "true"
     ) {
       options.slidesPerView = 1;
-      options.breakpoints = {};
+      options.breakpoints = null; // Set to null to remove breakpoints
     }
 
     return options;
