@@ -42,7 +42,6 @@
     slideDuplicateActiveClass: "is-active",
   };
 
-  // Define mergeOptions function before using it
   function mergeOptions(defaults, instance) {
     return deepMerge({}, defaults, instance);
 
@@ -120,7 +119,10 @@
 
         adjustSelectors(swiperConfig, container);
 
-        // Adjust 'on' handlers based on the effect, fullHeight, and progressBar
+        // Add customSlider parameter to swiperConfig
+        swiperConfig.customSlider = instanceOptions.customSlider;
+
+        // Adjust 'on' handlers
         swiperConfig.on = {
           init: function () {
             const swiper = this;
@@ -151,6 +153,40 @@
                 progressBar.style.animationPlayState = "running";
               }
             }
+
+            // Custom Slider Synchronization
+            const customSlider = container.querySelector(".custom-slider");
+            const customSliderBar = container.querySelector(".custom-slider-bar");
+
+            if (swiper.params.customSlider && customSlider) {
+              // Draggable Slider
+              customSlider.min = 0;
+              customSlider.max = swiper.slides.length - 1;
+              customSlider.value = swiper.activeIndex;
+
+              // Update Swiper when slider changes
+              customSlider.addEventListener("input", function () {
+                swiper.slideTo(parseInt(this.value));
+              });
+
+              // Update slider when Swiper changes
+              swiper.on("slideChange", function () {
+                customSlider.value = swiper.activeIndex;
+              });
+            } else if (customSliderBar) {
+              // Visual Slider Only
+              const updateSliderBar = function () {
+                const progressPercentage =
+                  (swiper.activeIndex / (swiper.slides.length - 1)) * 100;
+                customSliderBar.style.width = `${progressPercentage}%`;
+              };
+
+              // Update on initialization
+              updateSliderBar();
+
+              // Update when Swiper changes
+              swiper.on("slideChange", updateSliderBar);
+            }
           },
           slideChangeTransitionStart: function () {
             const swiper = this;
@@ -178,6 +214,21 @@
                 progressBar.style.animationTimingFunction = "linear";
                 progressBar.style.animationIterationCount = "infinite";
                 progressBar.style.animationPlayState = "running";
+              }
+            }
+
+            // Update custom slider position
+            if (swiper.params.customSlider) {
+              const customSlider = container.querySelector(".custom-slider");
+              if (customSlider) {
+                customSlider.value = swiper.activeIndex;
+              }
+            } else {
+              const customSliderBar = container.querySelector(".custom-slider-bar");
+              if (customSliderBar) {
+                const progressPercentage =
+                  (swiper.activeIndex / (swiper.slides.length - 1)) * 100;
+                customSliderBar.style.width = `${progressPercentage}%`;
               }
             }
           },
@@ -272,6 +323,14 @@
     ) {
       options.slidesPerView = 1;
       options.breakpoints = null; // Set to null to remove breakpoints
+    }
+
+    // Get customSlider setting from data attribute
+    if (container.hasAttribute("data-custom-slider")) {
+      options.customSlider =
+        container.getAttribute("data-custom-slider") === "true";
+    } else {
+      options.customSlider = false;
     }
 
     return options;

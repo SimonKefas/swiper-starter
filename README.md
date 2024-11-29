@@ -1,59 +1,70 @@
-# Swiper Initializer Script
+# Swiper Starter Kit
 
-A customizable Swiper slider initializer script that supports global configurations, per-instance overrides, progress bar functionality, and responsive settings using data attributes.
+A customizable Swiper slider initializer script that simplifies the integration and configuration of Swiper sliders on your web projects. This script allows for global defaults, per-instance overrides using data attributes, progress bar functionality, custom draggable sliders, and responsive settings.
 
 ## Table of Contents
 
 - [Introduction](#introduction)
 - [Features](#features)
+- [Demo](#demo)
 - [Installation](#installation)
 - [Usage](#usage)
   - [HTML Structure](#html-structure)
-  - [Global Configuration](#global-configuration)
+  - [Including the Script](#including-the-script)
   - [Per-Instance Configuration](#per-instance-configuration)
   - [Data Attributes](#data-attributes)
-- [Progress Bar](#progress-bar)
 - [Examples](#examples)
-- [CSS Adjustments](#css-adjustments)
+  - [Example 1: Basic Slider](#example-1-basic-slider)
+  - [Example 2: Single Slide with Progress Bar](#example-2-single-slide-with-progress-bar)
+  - [Example 3: Draggable Custom Slider](#example-3-draggable-custom-slider)
+- [Customization](#customization)
+  - [CSS Adjustments](#css-adjustments)
 - [Notes](#notes)
 - [License](#license)
 
 ## Introduction
 
-This script simplifies the initialization of Swiper sliders with the ability to define global defaults and override them on a per-instance basis using data attributes. It also supports a progress bar that visualizes the autoplay timing.
+The Swiper Starter Kit provides an easy way to integrate Swiper sliders into your projects with minimal configuration. It supports global settings, which can be overridden on a per-instance basis using data attributes. The script includes advanced features like progress bars and custom draggable sliders that synchronize with the Swiper instance.
 
 ## Features
 
 - **Global Configuration**: Set default Swiper options for all sliders.
 - **Per-Instance Overrides**: Customize individual sliders using `data-` attributes.
-- **Progress Bar Support**: Add a progress bar that shows the time until the next slide is shown.
+- **Progress Bar Support**: Add a progress bar to visualize autoplay timing.
+- **Custom Draggable Slider**: Synchronize a custom draggable slider with the Swiper instance.
 - **Responsive Breakpoints**: Configure different settings for various screen sizes.
 - **Automatic Initialization**: Initializes all sliders with a specific class on `DOMContentLoaded`.
 - **Flexible Slides Per View**: Set `slidesPerView` and `spaceBetween` per instance.
 - **Single Slide Mode**: Option to display one slide at all breakpoints.
+- **Visual-Only Slider**: Option to display a non-interactive slider that reflects Swiper's position.
+
+## Demo
+
+You can view a live demo of the Swiper Starter Kit [here](#).
 
 ## Installation
 
-1. **Include Swiper's CSS and JS**:
+Include Swiper's CSS and JS in your HTML file:
 
-   ```html
-   <!-- Swiper CSS -->
-   <link
-     rel="stylesheet"
-     href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-   />
+```html
+<!-- Swiper CSS -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+/>
 
-   <!-- Swiper JS -->
-   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-   ```
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+```
 
-2. **Include the Swiper Initializer Script**:
+Include the Swiper Starter Kit script from the repository:
 
-   Place the `swiper-initializer.js` script after defining any global configurations.
+```html
+<!-- Swiper Starter Kit JS -->
+<script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
+```
 
-   ```html
-   <script src="path/to/swiper-initializer.js"></script>
-   ```
+**Note:** Replace the script URL with the actual path if you host the script yourself.
 
 ## Usage
 
@@ -78,59 +89,26 @@ Use the following structure for your Swiper slider:
     <!-- Scrollbar -->
     <div class="swiper-drag-wrapper"></div>
   </div>
-  <!-- Progress Bar (optional) -->
+  <!-- Optional Progress Bar -->
   <div class="swiper-progress-bar-wrapper">
     <div class="swiper-progress-bar"></div>
+  </div>
+  <!-- Optional Custom Slider -->
+  <div class="custom-slider-wrapper">
+    <!-- For Draggable Slider -->
+    <input type="range" class="custom-slider" min="0" max="100" value="0" />
+    <!-- For Visual-Only Slider -->
+    <!-- <div class="custom-slider-bar"></div> -->
   </div>
 </div>
 ```
 
-### Global Configuration
+### Including the Script
 
-Define global defaults using `window.SwiperDefaults` before including the initializer script. These settings apply to all sliders unless overridden per instance.
+Include the Swiper Starter Kit script after defining any global configurations:
 
 ```html
-<script>
-  window.SwiperDefaults = {
-    loop: false,
-    autoplay: {
-      delay: 3000,
-      disableOnInteraction: false,
-    },
-    speed: 500,
-    effect: "slide",
-    slidesPerView: 1,
-    spaceBetween: 10,
-    breakpoints: {
-      480: { slidesPerView: 1, spaceBetween: 10 },
-      768: { slidesPerView: 2, spaceBetween: 20 },
-      992: { slidesPerView: 3, spaceBetween: 30 },
-      1200: { slidesPerView: 4, spaceBetween: 40 },
-    },
-    pagination: {
-      el: ".swiper-bullet-wrapper",
-      clickable: true,
-    },
-    navigation: {
-      nextEl: ".swiper-next",
-      prevEl: ".swiper-prev",
-    },
-    scrollbar: {
-      el: ".swiper-drag-wrapper",
-      draggable: true,
-    },
-    keyboard: {
-      enabled: true,
-      onlyInViewport: true,
-    },
-    mousewheel: {
-      forceToAxis: true,
-    },
-    fullHeight: false,
-    observer: true,
-    observeParents: true,
-  };
-</script>
+<script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
 ```
 
 ### Per-Instance Configuration
@@ -149,47 +127,32 @@ Override global settings for individual sliders using `data-` attributes on the 
 - `data-space-between`: Space between slides in pixels (e.g., `"20"`)
 - `data-breakpoints`: JSON string for custom breakpoints (e.g., `'{"768": {"slidesPerView": 1}}'`)
 - `data-single-slide`: `"true"` or `"false"` to display one slide at all breakpoints
-
-#### Example:
-
-```html
-<div
-  class="slider-main_component"
-  data-autoplay="5000"
-  data-effect="fade"
-  data-progress-bar="true"
-  data-single-slide="true"
->
-  <!-- Swiper structure -->
-</div>
-```
-
-## Progress Bar
-
-To add a progress bar that shows when the next slide will be displayed during autoplay:
-
-1. **Enable the Progress Bar**:
-
-   Add `data-progress-bar="true"` to your `.slider-main_component` and ensure `autoplay` is enabled.
-
-2. **Add the Progress Bar Elements**:
-
-   Place the progress bar wrapper and bar outside the `.swiper` element but inside the `.slider-main_component`.
-
-   ```html
-   <!-- Progress Bar -->
-   <div class="swiper-progress-bar-wrapper">
-     <div class="swiper-progress-bar"></div>
-   </div>
-   ```
-
-3. **Customize the Styles**:
-
-   Use the provided CSS classes to style the progress bar.
+- `data-custom-slider`: `"true"` or `"false"` to enable a custom draggable slider
 
 ## Examples
 
-### Example 1: Single Slide at All Breakpoints with Progress Bar
+### Example 1: Basic Slider
+
+```html
+<div class="slider-main_component">
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">Slide 1</div>
+      <div class="swiper-slide">Slide 2</div>
+      <div class="swiper-slide">Slide 3</div>
+    </div>
+    <!-- Pagination -->
+    <div class="swiper-bullet-wrapper"></div>
+    <!-- Navigation -->
+    <div class="swiper-next"></div>
+    <div class="swiper-prev"></div>
+    <!-- Scrollbar -->
+    <div class="swiper-drag-wrapper"></div>
+  </div>
+</div>
+```
+
+### Example 2: Single Slide with Progress Bar
 
 ```html
 <div
@@ -199,7 +162,9 @@ To add a progress bar that shows when the next slide will be displayed during au
   data-single-slide="true"
 >
   <div class="swiper">
-    <!-- Swiper content -->
+    <div class="swiper-wrapper">
+      <!-- Slides -->
+    </div>
   </div>
   <!-- Progress Bar -->
   <div class="swiper-progress-bar-wrapper">
@@ -208,33 +173,37 @@ To add a progress bar that shows when the next slide will be displayed during au
 </div>
 ```
 
-### Example 2: Custom Slides Per View and Breakpoints
+### Example 3: Draggable Custom Slider
 
 ```html
-<div
-  class="slider-main_component"
-  data-slides-per-view="3"
-  data-breakpoints='{"768": {"slidesPerView": 2}, "1024": {"slidesPerView": 3}}'
->
+<div class="slider-main_component" data-custom-slider="true">
   <div class="swiper">
-    <!-- Swiper content -->
+    <div class="swiper-wrapper">
+      <!-- Slides -->
+    </div>
+  </div>
+  <!-- Custom Draggable Slider -->
+  <div class="custom-slider-wrapper">
+    <input type="range" class="custom-slider" min="0" max="100" value="0" />
   </div>
 </div>
 ```
 
-## CSS Adjustments
+## Customization
 
-To ensure slides can adjust their height appropriately and the progress bar displays correctly, include the following CSS:
+### CSS Adjustments
+
+Include the following CSS to ensure slides adjust their height appropriately and to style the progress bar and custom slider.
 
 ```css
-/* Allow slides to adjust their height */
+/* Swiper Core Styles */
 .slider-main_component .swiper,
 .slider-main_component .swiper-wrapper,
 .slider-main_component .swiper-slide {
   height: auto !important;
 }
 
-/* For full-height slides */
+/* Full-Height Slides */
 .slider-main_component[data-full-height="true"] {
   height: 100vh;
 }
@@ -245,11 +214,7 @@ To ensure slides can adjust their height appropriately and the progress bar disp
   height: 100% !important;
 }
 
-/* Position the progress bar */
-.slider-main_component {
-  position: relative;
-}
-
+/* Progress Bar Styles */
 .swiper-progress-bar-wrapper {
   position: absolute;
   bottom: 0;
@@ -278,34 +243,61 @@ To ensure slides can adjust their height appropriately and the progress bar disp
   }
 }
 
-/* Vendor prefixes for broader support */
-@-webkit-keyframes swiper-progress-bar-animation {
-  from {
-    -webkit-transform: scaleX(0);
-  }
-  to {
-    -webkit-transform: scaleX(1);
-  }
+/* Custom Draggable Slider Styles */
+.custom-slider-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 10px;
 }
 
-@-ms-keyframes swiper-progress-bar-animation {
-  from {
-    -ms-transform: scaleX(0);
-  }
-  to {
-    -ms-transform: scaleX(1);
-  }
+.custom-slider {
+  width: 100%;
+}
+
+/* Visual-Only Slider Styles */
+.custom-slider-wrapper {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.custom-slider-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: #007aff;
+  transition: width 0.3s ease;
 }
 ```
 
 ## Notes
 
-- **Order Matters**: Define `window.SwiperDefaults` before including the initializer script.
-- **Data Attribute Formatting**: When using `data-breakpoints`, ensure JSON is properly formatted.
-- **Vendor Prefixes**: The CSS includes vendor prefixes for broader browser support.
-- **Per-Instance Configurations**: Utilize data attributes to customize sliders without affecting others.
+- **Order Matters**: Include the Swiper CSS and JS before the Swiper Starter Kit script.
+- **Data Attribute Formatting**: Ensure JSON strings in `data-breakpoints` are properly formatted.
+- **Per-Instance Configurations**: Use data attributes to customize sliders individually.
 - **Testing**: Test sliders across different devices and browsers to ensure consistent behavior.
+- **Accessibility**: Add appropriate ARIA labels and roles to enhance accessibility.
 
 ## License
 
-This script is provided under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+**Disclaimer:** Replace `https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js` with the actual URL if the script is hosted elsewhere or if the repository structure changes.
+
+# The `script.js` Script
+
+Below is the complete `script.js` script referenced in the installation:
+
+```javascript
+// The script content is the same as provided earlier.
+// You can view the full script in the repository or include it directly via the script tag.
+
+<script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
+```
+
+**Note:** For the full script content, please refer to the script file in the repository or include it using the script tag above.
