@@ -112,21 +112,44 @@ Define global defaults using `window.SwiperDefaults` before including the initia
 <script>
   window.SwiperDefaults = {
     loop: false,
-    autoplay: {
-      delay: 3000,
-      disableOnInteraction: false,
-    },
-    speed: 500,
+    autoplay: { delay: 2500, disableOnInteraction: false },
+    speed: 300,
     effect: "slide",
+    crossFade: false,
     slidesPerView: 1,
     spaceBetween: 10,
+    fullHeight: false,
+    progressBar: false,
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
-      768: { slidesPerView: 2, spaceBetween: 20 },
-      992: { slidesPerView: 3, spaceBetween: 30 },
-      1200: { slidesPerView: 4, spaceBetween: 40 },
+      768: { slidesPerView: 2, spaceBetween: 16 },
+      992: { slidesPerView: 3, spaceBetween: 16 },
+      1200: { slidesPerView: 4, spaceBetween: 16 },
     },
-    // Additional Swiper options can be added here
+    pagination: {
+      el: ".swiper-bullet-wrapper",
+      bulletActiveClass: "is-active",
+      bulletClass: "swiper-bullet",
+      bulletElement: "button",
+      clickable: true,
+    },
+    navigation: {
+      nextEl: ".swiper-next",
+      prevEl: ".swiper-prev",
+      disabledClass: "is-disabled",
+    },
+    scrollbar: {
+      el: ".swiper-drag-wrapper",
+      draggable: true,
+      dragClass: "swiper-drag",
+      snapOnRelease: true,
+    },
+    keyboard: { enabled: true, onlyInViewport: false },
+    mousewheel: { forceToAxis: true },
+    observer: false,
+    observeParents: false,
+    slideActiveClass: "is-active",
+    slideDuplicateActiveClass: "is-active",
   };
 </script>
 ```
