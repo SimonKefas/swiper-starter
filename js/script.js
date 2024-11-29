@@ -9,7 +9,13 @@
     slidesPerView: 1,
     spaceBetween: 10,
     fullHeight: false,
-    progressBar: false, // New option added
+    progressBar: false,
+    centeredSlides: false,
+    slidesPerGroup: 1,
+    watchOverflow: true,
+    resistanceRatio: 0.85,
+    centerInsufficientSlides: false,
+    freeMode: false,
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
       768: { slidesPerView: 2, spaceBetween: 16 },
@@ -92,14 +98,16 @@
 
         // Determine the maximum slidesPerView
         let maxSlidesPerView = 1;
-        if (typeof swiperConfig.slidesPerView === 'number') {
+        if (typeof swiperConfig.slidesPerView === "number") {
           maxSlidesPerView = swiperConfig.slidesPerView;
-        } else if (swiperConfig.slidesPerView === 'auto') {
+        } else if (swiperConfig.slidesPerView === "auto") {
           maxSlidesPerView = slidesCount; // Assume max
         } else if (swiperConfig.breakpoints) {
           // Get maximum slidesPerView from breakpoints
           const breakpointValues = Object.values(swiperConfig.breakpoints);
-          const spvValues = breakpointValues.map(bp => bp.slidesPerView || 1);
+          const spvValues = breakpointValues.map(
+            (bp) => bp.slidesPerView || 1
+          );
           maxSlidesPerView = Math.max(...spvValues);
         }
 
@@ -176,8 +184,7 @@
             } else if (customSliderBar) {
               // Visual Slider Only
               const updateSliderBar = function () {
-                const progressPercentage =
-                  (swiper.activeIndex / (swiper.slides.length - 1)) * 100;
+                const progressPercentage = swiper.progress * 100;
                 customSliderBar.style.width = `${progressPercentage}%`;
               };
 
@@ -186,6 +193,7 @@
 
               // Update when Swiper changes
               swiper.on("slideChange", updateSliderBar);
+              swiper.on("progress", updateSliderBar);
             }
           },
           slideChangeTransitionStart: function () {
@@ -226,8 +234,7 @@
             } else {
               const customSliderBar = container.querySelector(".custom-slider-bar");
               if (customSliderBar) {
-                const progressPercentage =
-                  (swiper.activeIndex / (swiper.slides.length - 1)) * 100;
+                const progressPercentage = swiper.progress * 100;
                 customSliderBar.style.width = `${progressPercentage}%`;
               }
             }
@@ -331,6 +338,44 @@
         container.getAttribute("data-custom-slider") === "true";
     } else {
       options.customSlider = false;
+    }
+
+    // Get centeredSlides setting from data attribute
+    if (container.hasAttribute("data-centered-slides")) {
+      options.centeredSlides =
+        container.getAttribute("data-centered-slides") === "true";
+    }
+
+    // Get slidesPerGroup setting from data attribute
+    if (container.hasAttribute("data-slides-per-group")) {
+      options.slidesPerGroup = parseInt(
+        container.getAttribute("data-slides-per-group"),
+        10
+      );
+    }
+
+    // Get watchOverflow setting from data attribute
+    if (container.hasAttribute("data-watch-overflow")) {
+      options.watchOverflow =
+        container.getAttribute("data-watch-overflow") === "true";
+    }
+
+    // Get resistanceRatio setting from data attribute
+    if (container.hasAttribute("data-resistance-ratio")) {
+      options.resistanceRatio = parseFloat(
+        container.getAttribute("data-resistance-ratio")
+      );
+    }
+
+    // Get centerInsufficientSlides setting from data attribute
+    if (container.hasAttribute("data-center-insufficient-slides")) {
+      options.centerInsufficientSlides =
+        container.getAttribute("data-center-insufficient-slides") === "true";
+    }
+
+    // Get freeMode setting from data attribute
+    if (container.hasAttribute("data-free-mode")) {
+      options.freeMode = container.getAttribute("data-free-mode") === "true";
     }
 
     return options;

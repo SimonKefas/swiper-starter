@@ -12,13 +12,15 @@ A customizable Swiper slider initializer script that simplifies the integration 
   - [Including the Script](#including-the-script)
   - [Global Configuration](#global-configuration)
   - [Per-Instance Configuration](#per-instance-configuration)
+    - [Data Attributes](#data-attributes)
 - [Examples](#examples)
   - [Basic Slider](#basic-slider)
   - [Single Slide with Progress Bar](#single-slide-with-progress-bar)
   - [Draggable Custom Slider](#draggable-custom-slider)
+  - [Advanced Configuration](#advanced-configuration)
 - [Customization](#customization)
   - [CSS Adjustments](#css-adjustments)
-- [Full Script](#full-script)
+- [Notes](#notes)
 - [License](#license)
 
 ## Introduction
@@ -36,6 +38,7 @@ The Swiper Starter Kit provides an easy way to integrate Swiper sliders into you
 - **Flexible Slides Per View**: Set `slidesPerView` and `spaceBetween` per instance.
 - **Single Slide Mode**: Option to display one slide at all breakpoints.
 - **Visual-Only Slider**: Option to display a non-interactive slider that reflects Swiper's position.
+- **Advanced Control**: Configure slide behavior with additional data attributes.
 
 ## Installation
 
@@ -112,44 +115,21 @@ Define global defaults using `window.SwiperDefaults` before including the initia
 <script>
   window.SwiperDefaults = {
     loop: false,
-    autoplay: { delay: 2500, disableOnInteraction: false },
-    speed: 300,
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: false,
+    },
+    speed: 500,
     effect: "slide",
-    crossFade: false,
     slidesPerView: 1,
     spaceBetween: 10,
-    fullHeight: false,
-    progressBar: false,
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
-      768: { slidesPerView: 2, spaceBetween: 16 },
-      992: { slidesPerView: 3, spaceBetween: 16 },
-      1200: { slidesPerView: 4, spaceBetween: 16 },
+      768: { slidesPerView: 2, spaceBetween: 20 },
+      992: { slidesPerView: 3, spaceBetween: 30 },
+      1200: { slidesPerView: 4, spaceBetween: 40 },
     },
-    pagination: {
-      el: ".swiper-bullet-wrapper",
-      bulletActiveClass: "is-active",
-      bulletClass: "swiper-bullet",
-      bulletElement: "button",
-      clickable: true,
-    },
-    navigation: {
-      nextEl: ".swiper-next",
-      prevEl: ".swiper-prev",
-      disabledClass: "is-disabled",
-    },
-    scrollbar: {
-      el: ".swiper-drag-wrapper",
-      draggable: true,
-      dragClass: "swiper-drag",
-      snapOnRelease: true,
-    },
-    keyboard: { enabled: true, onlyInViewport: false },
-    mousewheel: { forceToAxis: true },
-    observer: false,
-    observeParents: false,
-    slideActiveClass: "is-active",
-    slideDuplicateActiveClass: "is-active",
+    // Additional Swiper options can be added here
   };
 </script>
 ```
@@ -166,11 +146,18 @@ Override global settings for individual sliders using `data-` attributes on the 
 - `data-effect`: `"slide"`, `"fade"`, `"cube"`, `"coverflow"`, `"flip"`
 - `data-full-height`: `"true"` or `"false"`
 - `data-progress-bar`: `"true"` or `"false"`
-- `data-slides-per-view`: Number of slides per view (e.g., `"1"`, `"auto"`)
+- `data-slides-per-view`: Number of slides per view (e.g., `"1"`, `"auto"`, `"3"`)
 - `data-space-between`: Space between slides in pixels (e.g., `"20"`)
 - `data-breakpoints`: JSON string for custom breakpoints (e.g., `'{"768": {"slidesPerView": 1}}'`)
 - `data-single-slide`: `"true"` or `"false"` to display one slide at all breakpoints
 - `data-custom-slider`: `"true"` or `"false"` to enable a custom draggable slider
+- **Advanced Attributes**:
+  - `data-centered-slides`: `"true"` or `"false"` to center slides within the slider.
+  - `data-slides-per-group`: Number of slides to move per swipe (e.g., `"1"`)
+  - `data-watch-overflow`: `"true"` or `"false"` to enable or disable stopping scrolling when there are not enough slides.
+  - `data-resistance-ratio`: Decimal between `0` and `1` to adjust swipe resistance (e.g., `"0.85"`)
+  - `data-center-insufficient-slides`: `"true"` or `"false"` to center slides when there are not enough to fill the viewport.
+  - `data-free-mode`: `"true"` or `"false"` to enable free scrolling without snapping to slides.
 
 ## Examples
 
@@ -235,6 +222,52 @@ Override global settings for individual sliders using `data-` attributes on the 
   </div>
 </div>
 ```
+
+### Advanced Configuration
+
+This example demonstrates how to configure a slider to allow scrolling all the way to the last slide when `slidesPerView` is greater than `1`, and to have the progress bar reach 100%.
+
+#### HTML Structure
+
+```html
+<div
+  class="slider-main_component"
+  data-slides-per-view="3"
+  data-centered-slides="false"
+  data-slides-per-group="1"
+  data-watch-overflow="false"
+  data-loop-mode="false"
+>
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <!-- Slides -->
+      <div class="swiper-slide">Slide 1</div>
+      <div class="swiper-slide">Slide 2</div>
+      <div class="swiper-slide">Slide 3</div>
+      <div class="swiper-slide">Slide 4</div>
+    </div>
+    <!-- Optional Navigation -->
+    <div class="swiper-next"></div>
+    <div class="swiper-prev"></div>
+  </div>
+  <!-- Visual Slider -->
+  <div class="custom-slider-wrapper">
+    <div class="custom-slider-bar"></div>
+  </div>
+</div>
+```
+
+#### Explanation of Attributes
+
+- `data-slides-per-view="3"`: Displays 3 slides at a time.
+- `data-centered-slides="false"`: Disables centering of slides.
+- `data-slides-per-group="1"`: Moves one slide per swipe, enabling snapping to individual slides.
+- `data-watch-overflow="false"`: Allows scrolling even if there aren't enough slides to fill the container.
+- `data-loop-mode="false"`: Disables looping to prevent the slider from returning to the start.
+
+#### Visual Slider Progress Bar
+
+The progress bar will now correctly fill from 0% to 100% as you scroll through the slides, thanks to the use of `swiper.progress` in the script's calculation.
 
 ## Customization
 
@@ -313,7 +346,20 @@ Include the following CSS to ensure slides adjust their height appropriately and
 }
 ```
 
+## Notes
+
+- **Order Matters**: Include the Swiper CSS and JS before the Swiper Starter Kit script.
+- **Data Attribute Formatting**: Ensure JSON strings in `data-breakpoints` are properly formatted.
+- **Per-Instance Configurations**: Use data attributes to customize sliders individually.
+- **Advanced Configurations**: Use the advanced data attributes to fine-tune slide behavior.
+- **Testing**: Test sliders across different devices and browsers to ensure consistent behavior.
+- **Accessibility**: Add appropriate ARIA labels and roles to enhance accessibility.
+- **Swiper API Reference**: For more detailed configurations, refer to the [Swiper API Documentation](https://swiperjs.com/swiper-api).
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
+
+**Note:** Replace the script URL in the `<script>` tag with the actual path if you host the script yourself or if the repository structure changes.
