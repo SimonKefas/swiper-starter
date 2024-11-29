@@ -294,7 +294,3 @@ Include the following CSS to ensure slides adjust their height appropriately and
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
----
-
-**Note:** Replace the script URL in the `<script>` tag with the actual path if you host the script yourself or if the repository structure changes.
