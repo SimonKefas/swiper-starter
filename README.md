@@ -288,6 +288,8 @@ Include the following CSS to ensure slides adjust their height appropriately and
   background-color: #007aff;
   transition: width 0.3s ease;
 }
+```
+
 
 ## License
 
