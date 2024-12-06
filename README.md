@@ -1,6 +1,12 @@
 # Swiper Starter Kit
 
-A customizable Swiper slider initializer script that streamlines integration and configuration of [Swiper](https://swiperjs.com/) sliders in your web projects. This kit supports global defaults, per-instance overrides via `data-` attributes, visual progress bars, custom draggable sliders, responsive breakpoints, and styling options such as custom slider colors.
+A customizable Swiper slider initializer script that integrates seamlessly with [Swiper](https://swiperjs.com/). This kit provides:
+
+- Easy global and per-instance configuration via `data-` attributes.
+- Optional progress bars to visualize autoplay.
+- A custom draggable range slider synchronized with Swiper slides.
+- Responsive breakpoints for different screen sizes.
+- Flexible styling options, including a configurable slider color via `data-slider-color`.
 
 ## Table of Contents
 
@@ -17,7 +23,7 @@ A customizable Swiper slider initializer script that streamlines integration and
   - [Basic Slider](#basic-slider)
   - [Single Slide with Progress Bar](#single-slide-with-progress-bar)
   - [Draggable Custom Slider](#draggable-custom-slider)
-  - [Custom Range Slider Color](#custom-range-slider-color)
+  - [Custom Slider Color](#custom-slider-color)
   - [Advanced Configuration](#advanced-configuration)
 - [Customization](#customization)
   - [CSS Adjustments](#css-adjustments)
@@ -27,27 +33,21 @@ A customizable Swiper slider initializer script that streamlines integration and
 
 ## Introduction
 
-The Swiper Starter Kit simplifies integrating Swiper sliders into your projects. It supports:
-
-- Global defaults and per-instance customization.
-- Optional progress bars to visualize autoplay timing.
-- A custom draggable slider synchronized with the Swiper's active slide.
-- Responsive breakpoints for various viewport sizes.
-- Styling options, including a configurable slider color via data attributes.
+The Swiper Starter Kit simplifies integrating Swiper sliders into your projects. It supports per-instance configuration with `data-` attributes, progress bars for autoplay, custom sliders for navigation, and responsive breakpoints. You can also style the custom range slider using `data-slider-color`, making it easy to theme each slider instance without editing global CSS.
 
 ## Features
 
-- **Global & Per-Instance Configuration**: Set global defaults, then override per slider with `data-` attributes.
-- **Progress Bar Support**: Add a visual progress bar to track autoplay timing.
-- **Custom Draggable Slider**: Control slides using a range input synchronized with Swiper.
-- **Responsive Breakpoints**: Adjust `slidesPerView`, `spaceBetween`, and other settings per viewport size.
-- **Single Slide Mode**: Force one slide at all breakpoints.
-- **Customizable Range Slider**: Use `data-slider-color` to style the slider track and thumb.
-- **Advanced Options**: Fine-tune behavior with attributes like `data-centered-slides`, `data-slides-per-group`, `data-watch-overflow`, and more.
+- **Global & Per-Instance Configuration**: Set global defaults, then override them per slider using data attributes.
+- **Progress Bar Support**: Add a visual progress bar to track autoplay progress.
+- **Custom Draggable Slider**: A synchronized range slider that updates with Swiper slides and vice versa.
+- **Responsive Breakpoints**: Customize `slidesPerView`, `spaceBetween`, and more for various screen sizes.
+- **Single Slide Mode**: Force a slider to show only one slide at all breakpoints.
+- **Custom Slider Color**: Use `data-slider-color` to easily change the slider’s track and thumb color.
+- **Advanced Options**: Fine-tune behavior with `data-centered-slides`, `data-slides-per-group`, `data-watch-overflow`, `data-resistance-ratio`, `data-free-mode`, etc.
 
 ## Installation
 
-Include Swiper's CSS and JS:
+Include Swiper’s CSS and JS in your HTML:
 
 ```html
 <!-- Swiper CSS -->
@@ -60,7 +60,7 @@ Include Swiper's CSS and JS:
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 ```
 
-Include the Swiper Starter Kit script:
+Include the Swiper Starter Kit script (the final version provided earlier):
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
@@ -70,16 +70,15 @@ Include the Swiper Starter Kit script:
 
 ### HTML Structure
 
-Your Swiper slider container might look like this:
+A typical Swiper container might look like:
 
 ```html
 <div class="slider-main_component" data-attributes...>
   <div class="swiper">
     <div class="swiper-wrapper">
       <!-- Slides -->
-      <div class="swiper-slide">Slide Content 1</div>
-      <div class="swiper-slide">Slide Content 2</div>
-      <!-- ... more slides ... -->
+      <div class="swiper-slide">Slide 1</div>
+      <div class="swiper-slide">Slide 2</div>
     </div>
     <!-- Optional Pagination -->
     <div class="swiper-bullet-wrapper"></div>
@@ -102,7 +101,7 @@ Your Swiper slider container might look like this:
 
 ### Including the Script
 
-Include the script after setting any global defaults:
+After defining any global defaults, include the initializer script:
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
@@ -110,7 +109,7 @@ Include the script after setting any global defaults:
 
 ### Global Configuration
 
-Define global defaults before including the script:
+Set global defaults before including the script:
 
 ```html
 <script>
@@ -130,29 +129,28 @@ Define global defaults before including the script:
       992: { slidesPerView: 3, spaceBetween: 30 },
       1200: { slidesPerView: 4, spaceBetween: 40 },
     },
-    // Additional Swiper options can be added here
   };
 </script>
 ```
 
 ### Per-Instance Configuration
 
-Use `data-` attributes on `.slider-main_component` to override global settings:
+Use `data-` attributes on `.slider-main_component` to override these settings.
 
 #### Data Attributes
 
 - `data-loop-mode`: `"true"` or `"false"`
-- `data-autoplay`: `"false"` or a delay in ms (e.g., `"5000"`)
-- `data-slider-duration`: Transition speed in ms (e.g., `"600"`)
+- `data-autoplay`: `"false"` or delay in milliseconds
+- `data-slider-duration`: Transition speed in milliseconds
 - `data-effect`: `"slide"`, `"fade"`, `"cube"`, `"coverflow"`, `"flip"`
 - `data-full-height`: `"true"` or `"false"`
 - `data-progress-bar`: `"true"` or `"false"`
-- `data-slides-per-view`: e.g., `"1"`, `"auto"`, `"3"`
+- `data-slides-per-view`: e.g., `"1"`, `"auto"`, or a number
 - `data-space-between`: e.g., `"20"` for 20px
-- `data-breakpoints`: JSON string for custom breakpoints (e.g., `'{"768":{"slidesPerView":1}}'`)
+- `data-breakpoints`: JSON string for custom breakpoints
 - `data-single-slide`: `"true"` or `"false"`
-- `data-custom-slider`: `"true"` or `"false"` to enable a custom draggable slider
-- `data-slider-color`: Set a color (e.g., `"#FF5722"`) for the custom slider track and thumb
+- `data-custom-slider`: `"true"` or `"false"` for a custom draggable slider
+- `data-slider-color`: A color value (e.g., `"#FF5722"`) to style the slider’s track and thumb
 - **Advanced Options**:
   - `data-centered-slides`
   - `data-slides-per-group`
@@ -207,8 +205,8 @@ Use `data-` attributes on `.slider-main_component` to override global settings:
 <div class="slider-main_component" data-custom-slider="true">
   <div class="swiper">
     <div class="swiper-wrapper">
-      <div class="swiper-slide">Slide 1</div>
-      <div class="swiper-slide">Slide 2</div>
+      <div class="swiper-slide">Slide A</div>
+      <div class="swiper-slide">Slide B</div>
     </div>
   </div>
   <div class="custom-slider-wrapper">
@@ -217,14 +215,14 @@ Use `data-` attributes on `.slider-main_component` to override global settings:
 </div>
 ```
 
-### Custom Range Slider Color
+### Custom Slider Color
 
 ```html
 <div class="slider-main_component" data-custom-slider="true" data-slider-color="#FF5722">
   <div class="swiper">
     <div class="swiper-wrapper">
-      <div class="swiper-slide">Slide 1</div>
-      <div class="swiper-slide">Slide 2</div>
+      <div class="swiper-slide">Slide X</div>
+      <div class="swiper-slide">Slide Y</div>
     </div>
   </div>
   <div class="custom-slider-wrapper">
@@ -233,54 +231,65 @@ Use `data-` attributes on `.slider-main_component` to override global settings:
 </div>
 ```
 
-This sets the custom slider's color to `#FF5722`. The script will apply this color as a CSS variable (`--slider-color`) to the `.custom-slider`.
+With `data-slider-color="#FF5722"`, the script sets `--slider-color` on the slider, allowing you to theme it dynamically.
 
 ### Advanced Configuration
 
-For scenarios like ensuring you can scroll all the way to the last slide, consider using `data-centered-slides` or adjusting `slidesPerView` and `slidesPerGroup`. If you experience difficulty making the last slide fully visible, enabling `centeredSlides` or `freeMode` may help.
+If you have multiple slides visible and want to ensure the user can scroll fully to the last slide, consider using attributes like `data-centered-slides="true"` or `data-free-mode="true"` to improve final slide visibility. Experiment with `data-slides-per-group` and other advanced attributes for a tailored experience.
 
 ## Customization
 
 ### CSS Adjustments
 
-Ensure slides adjust their height and style optional features like the progress bar as needed.
+Adjust slide heights, progress bars, and navigation elements as needed. The initializer script handles synchronization and slide logic; you control the look via CSS.
 
 ### Styling the Custom Range Slider
 
-Use CSS variables and pseudo-elements to style the slider:
+The script sets `--slider-color` and `--value-percent` dynamically. Ensure your CSS uses these variables. For example:
 
 ```css
 .custom-slider {
-  --slider-color: #007aff; /* Fallback if no data-slider-color is set */
+  --slider-color: #007aff;
+  --value-percent: 0%;
   appearance: none;
   width: 100%;
-  background: linear-gradient(to right, var(--slider-color) 0%, #ccc 0%);
+  background: transparent;
+  cursor: pointer;
+}
+
+.custom-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    var(--slider-color) 0%,
+    var(--slider-color) var(--value-percent),
+    #ccc var(--value-percent),
+    #ccc 100%
+  );
 }
 
 .custom-slider::-webkit-slider-thumb {
   appearance: none;
-  height: 20px;
-  width: 20px;
+  width: 27px;
+  height: 27px;
+  margin-top: -11px;
   background: var(--slider-color);
   border-radius: 50%;
   cursor: pointer;
 }
 ```
 
-The script sets `--slider-color` dynamically based on `data-slider-color`. You can also adjust other variables or create new attributes for further customization.
+This setup ensures that as Swiper slides or the user moves the slider, the track updates smoothly.
 
 ## Notes
 
-- **Centered Slides**: If you cannot fully scroll to the last slide, try `data-centered-slides="true"` or `data-free-mode="true"`.
-- **Testing**: Verify behavior across different devices, screen sizes, and browsers.
-- **Accessibility**: Add labels and roles for assistive technologies.
-- **Swiper API Reference**: For more advanced configurations, refer to the [Swiper API Documentation](https://swiperjs.com/swiper-api).
+- **Swiper → Slider**: When Swiper changes slides (autoplay, navigation, etc.), the slider updates its value and track automatically.
+- **Slider → Swiper**: When the user drags the slider, Swiper navigates to the corresponding slide.
+- **Last Slide Visibility**: If you have trouble making the final slide fully visible when using multiple slides per view, consider enabling `data-centered-slides` or `data-free-mode`.
+- **Testing & Accessibility**: Test across different devices and browsers. Add ARIA labels and roles for improved accessibility.
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
----
-
-**Note:**  
-The code and instructions above should be adapted to your specific project needs. The `data-slider-color` attribute and CSS variable integration let you easily theme your slider without modifying CSS for each instance. If you face issues with final slide visibility, consider using `centeredSlides` or `freeMode` to improve the user experience.

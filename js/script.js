@@ -56,7 +56,7 @@
       sources.forEach((source) => {
         Object.keys(source).forEach((key) => {
           if (source[key] === null) {
-            // If source[key] is null, delete target[key]
+            // If source[key] is null, remove the property
             delete target[key];
           } else if (
             source[key] &&
@@ -74,7 +74,7 @@
     }
   }
 
-  // Merge user-defined SwiperDefaults into defaultSwiperOptions
+  // Merge user-defined SwiperDefaults if provided
   if (window.SwiperDefaults) {
     defaultSwiperOptions = mergeOptions(
       defaultSwiperOptions,
@@ -102,20 +102,19 @@
         if (typeof swiperConfig.slidesPerView === 'number') {
           maxSlidesPerView = swiperConfig.slidesPerView;
         } else if (swiperConfig.slidesPerView === 'auto') {
-          maxSlidesPerView = slidesCount; // Assume max if auto
+          maxSlidesPerView = slidesCount; 
         } else if (swiperConfig.breakpoints) {
-          // Determine max slidesPerView from breakpoints
           const breakpointValues = Object.values(swiperConfig.breakpoints);
           const spvValues = breakpointValues.map(bp => bp.slidesPerView || 1);
           maxSlidesPerView = Math.max(...spvValues);
         }
 
-        // Disable loop mode if not enough slides
+        // Disable loop if not enough slides
         if (slidesCount <= maxSlidesPerView) {
           swiperConfig.loop = false;
         }
 
-        // Disable navigation, pagination, autoplay if only one slide
+        // If only one slide, disable navigation/pagination/autoplay/touch
         if (slidesCount <= 1) {
           swiperConfig.navigation = false;
           swiperConfig.pagination = false;
@@ -128,16 +127,15 @@
 
         adjustSelectors(swiperConfig, container);
 
-        // Add customSlider parameter to swiperConfig (from instanceOptions)
+        // Keep track of custom slider and slider color from instanceOptions
         swiperConfig.customSlider = instanceOptions.customSlider;
         swiperConfig.sliderColor = instanceOptions.sliderColor;
 
-        // Adjust 'on' handlers
         swiperConfig.on = {
           init: function () {
             const swiper = this;
 
-            // Height adjustments
+            // Adjust slide heights
             if (swiper.params.effect === "fade") {
               adjustSlidesZIndex(swiper);
             }
@@ -147,7 +145,7 @@
               adjustSlidesHeight(swiper);
             }
 
-            // Progress bar functionality
+            // Progress bar
             if (swiper.params.progressBar && swiper.params.autoplay) {
               const progressBar = container.querySelector(".swiper-progress-bar");
               if (progressBar) {
@@ -161,43 +159,55 @@
               }
             }
 
-            // Custom Slider Synchronization
+            // Custom slider synchronization
             const customSlider = container.querySelector(".custom-slider");
             const customSliderBar = container.querySelector(".custom-slider-bar");
 
-            // Apply slider color from data-slider-color if present
-            const sliderColor = swiper.params.sliderColor || '#007aff';
-            if (customSlider) {
-              customSlider.style.setProperty('--slider-color', sliderColor);
-            }
-
+            // Only proceed if customSlider is enabled and found
             if (swiper.params.customSlider && customSlider) {
-              // Draggable Slider Setup
+              // Apply slider color if provided
+              const sliderColor = swiper.params.sliderColor || '#007aff';
+              customSlider.style.setProperty('--slider-color', sliderColor);
+
+              // Set slider range based on slide count
               customSlider.min = 0;
               customSlider.max = swiper.slides.length - 1;
               customSlider.value = swiper.activeIndex;
 
-              // Update Swiper when slider changes
-              customSlider.addEventListener("input", function () {
-                swiper.slideTo(parseInt(this.value));
+              // Function to update slider track based on its current value
+              function updateSliderTrack() {
+                const min = parseInt(customSlider.min, 10) || 0;
+                const max = parseInt(customSlider.max, 10) || (swiper.slides.length - 1);
+                const value = parseInt(customSlider.value, 10);
+                const percentage = ((value - min) / (max - min)) * 100;
+                customSlider.style.setProperty('--value-percent', `${percentage}%`);
+              }
+
+              // Initialize track
+              updateSliderTrack();
+
+              // On slider input, go to that slide and update track
+              customSlider.addEventListener('input', function () {
+                swiper.slideTo(parseInt(this.value, 10));
+                updateSliderTrack();
               });
 
-              // Update slider when Swiper changes
-              swiper.on("slideChange", function () {
+              // On slide change, update slider value and track
+              swiper.on('slideChange', function () {
                 customSlider.value = swiper.activeIndex;
+                updateSliderTrack();
               });
+
             } else if (customSliderBar) {
-              // Visual Only Slider
+              // Visual only slider (no user interaction), if desired
               const updateSliderBar = function () {
-                // Use swiper.progress for accurate progress (0 to 1)
                 const progressPercentage = swiper.progress * 100;
                 customSliderBar.style.width = `${progressPercentage}%`;
               };
 
-              // Update on init and slide change
+              // Update on initialization and slide change
               updateSliderBar();
-              swiper.on("slideChange", updateSliderBar);
-              swiper.on("progress", updateSliderBar);
+              swiper.on('slideChange', updateSliderBar);
             }
           },
           slideChangeTransitionStart: function () {
@@ -213,7 +223,7 @@
               progressBar.style.animationPlayState = "paused";
               progressBar.style.animationName = "none";
 
-              void progressBar.offsetWidth; // Reflow
+              void progressBar.offsetWidth; // Force reflow
               const delay = swiper.params.autoplay.delay + swiper.params.speed;
 
               progressBar.style.animationName = "swiper-progress-bar-animation";
@@ -223,11 +233,16 @@
               progressBar.style.animationPlayState = "running";
             }
 
-            // Update custom slider position if draggable slider is used
+            // If using a custom slider, update it on slide change
             if (swiper.params.customSlider) {
               const customSlider = container.querySelector(".custom-slider");
               if (customSlider) {
                 customSlider.value = swiper.activeIndex;
+                const min = parseInt(customSlider.min, 10) || 0;
+                const max = parseInt(customSlider.max, 10) || (swiper.slides.length - 1);
+                const value = parseInt(customSlider.value, 10);
+                const percentage = ((value - min) / (max - min)) * 100;
+                customSlider.style.setProperty('--value-percent', `${percentage}%`);
               }
             } else {
               const customSliderBar = container.querySelector(".custom-slider-bar");
@@ -315,7 +330,7 @@
     if (container.hasAttribute("data-single-slide") &&
         container.getAttribute("data-single-slide") === "true") {
       options.slidesPerView = 1;
-      options.breakpoints = null; // Remove breakpoints if single-slide
+      options.breakpoints = null; 
     }
 
     if (container.hasAttribute("data-custom-slider")) {
@@ -350,7 +365,7 @@
       options.freeMode = container.getAttribute("data-free-mode") === "true";
     }
 
-    // Slider color for custom slider styling
+    // Slider color
     if (container.hasAttribute("data-slider-color")) {
       options.sliderColor = container.getAttribute("data-slider-color");
     }
