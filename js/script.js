@@ -10,12 +10,6 @@
     spaceBetween: 10,
     fullHeight: false,
     progressBar: false,
-    centeredSlides: false,
-    slidesPerGroup: 1,
-    watchOverflow: true,
-    resistanceRatio: 0.85,
-    centerInsufficientSlides: false,
-    freeMode: false,
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
       768: { slidesPerView: 2, spaceBetween: 16 },
@@ -46,6 +40,13 @@
     observeParents: false,
     slideActiveClass: "is-active",
     slideDuplicateActiveClass: "is-active",
+    // Additional defaults for advanced features
+    centeredSlides: false,
+    slidesPerGroup: 1,
+    watchOverflow: true,
+    resistanceRatio: 0.85,
+    centerInsufficientSlides: false,
+    freeMode: false,
   };
 
   function mergeOptions(defaults, instance) {
@@ -98,16 +99,14 @@
 
         // Determine the maximum slidesPerView
         let maxSlidesPerView = 1;
-        if (typeof swiperConfig.slidesPerView === "number") {
+        if (typeof swiperConfig.slidesPerView === 'number') {
           maxSlidesPerView = swiperConfig.slidesPerView;
-        } else if (swiperConfig.slidesPerView === "auto") {
-          maxSlidesPerView = slidesCount; // Assume max
+        } else if (swiperConfig.slidesPerView === 'auto') {
+          maxSlidesPerView = slidesCount; // Assume max if auto
         } else if (swiperConfig.breakpoints) {
-          // Get maximum slidesPerView from breakpoints
+          // Determine max slidesPerView from breakpoints
           const breakpointValues = Object.values(swiperConfig.breakpoints);
-          const spvValues = breakpointValues.map(
-            (bp) => bp.slidesPerView || 1
-          );
+          const spvValues = breakpointValues.map(bp => bp.slidesPerView || 1);
           maxSlidesPerView = Math.max(...spvValues);
         }
 
@@ -116,30 +115,32 @@
           swiperConfig.loop = false;
         }
 
-        // Disable navigation and other features if only one slide
+        // Disable navigation, pagination, autoplay if only one slide
         if (slidesCount <= 1) {
           swiperConfig.navigation = false;
           swiperConfig.pagination = false;
           swiperConfig.autoplay = false;
           swiperConfig.allowTouchMove = false;
-          swiperConfig.keyboard.enabled = false;
+          if (swiperConfig.keyboard) {
+            swiperConfig.keyboard.enabled = false;
+          }
         }
 
         adjustSelectors(swiperConfig, container);
 
-        // Add customSlider parameter to swiperConfig
+        // Add customSlider parameter to swiperConfig (from instanceOptions)
         swiperConfig.customSlider = instanceOptions.customSlider;
+        swiperConfig.sliderColor = instanceOptions.sliderColor;
 
         // Adjust 'on' handlers
         swiperConfig.on = {
           init: function () {
             const swiper = this;
 
-            // Existing code for height adjustments
+            // Height adjustments
             if (swiper.params.effect === "fade") {
               adjustSlidesZIndex(swiper);
             }
-
             if (swiper.params.fullHeight) {
               setSlidesFullHeight(swiper);
             } else {
@@ -152,8 +153,6 @@
               if (progressBar) {
                 swiper.progressBar = progressBar;
                 const delay = swiper.params.autoplay.delay + swiper.params.speed;
-
-                // Set animation properties individually
                 progressBar.style.animationName = "swiper-progress-bar-animation";
                 progressBar.style.animationDuration = `${delay}ms`;
                 progressBar.style.animationTimingFunction = "linear";
@@ -166,8 +165,14 @@
             const customSlider = container.querySelector(".custom-slider");
             const customSliderBar = container.querySelector(".custom-slider-bar");
 
+            // Apply slider color from data-slider-color if present
+            const sliderColor = swiper.params.sliderColor || '#007aff';
+            if (customSlider) {
+              customSlider.style.setProperty('--slider-color', sliderColor);
+            }
+
             if (swiper.params.customSlider && customSlider) {
-              // Draggable Slider
+              // Draggable Slider Setup
               customSlider.min = 0;
               customSlider.max = swiper.slides.length - 1;
               customSlider.value = swiper.activeIndex;
@@ -182,16 +187,15 @@
                 customSlider.value = swiper.activeIndex;
               });
             } else if (customSliderBar) {
-              // Visual Slider Only
+              // Visual Only Slider
               const updateSliderBar = function () {
+                // Use swiper.progress for accurate progress (0 to 1)
                 const progressPercentage = swiper.progress * 100;
                 customSliderBar.style.width = `${progressPercentage}%`;
               };
 
-              // Update on initialization
+              // Update on init and slide change
               updateSliderBar();
-
-              // Update when Swiper changes
               swiper.on("slideChange", updateSliderBar);
               swiper.on("progress", updateSliderBar);
             }
@@ -203,29 +207,23 @@
               adjustSlidesZIndex(swiper);
             }
 
-            // Reset progress bar animation
-            if (swiper.params.progressBar && swiper.params.autoplay) {
+            // Reset progress bar animation on slide change
+            if (swiper.params.progressBar && swiper.params.autoplay && swiper.progressBar) {
               const progressBar = swiper.progressBar;
-              if (progressBar) {
-                // Pause and reset the animation
-                progressBar.style.animationPlayState = "paused";
-                progressBar.style.animationName = "none";
+              progressBar.style.animationPlayState = "paused";
+              progressBar.style.animationName = "none";
 
-                // Trigger reflow
-                void progressBar.offsetWidth;
+              void progressBar.offsetWidth; // Reflow
+              const delay = swiper.params.autoplay.delay + swiper.params.speed;
 
-                const delay = swiper.params.autoplay.delay + swiper.params.speed;
-
-                // Restart the animation
-                progressBar.style.animationName = "swiper-progress-bar-animation";
-                progressBar.style.animationDuration = `${delay}ms`;
-                progressBar.style.animationTimingFunction = "linear";
-                progressBar.style.animationIterationCount = "infinite";
-                progressBar.style.animationPlayState = "running";
-              }
+              progressBar.style.animationName = "swiper-progress-bar-animation";
+              progressBar.style.animationDuration = `${delay}ms`;
+              progressBar.style.animationTimingFunction = "linear";
+              progressBar.style.animationIterationCount = "infinite";
+              progressBar.style.animationPlayState = "running";
             }
 
-            // Update custom slider position
+            // Update custom slider position if draggable slider is used
             if (swiper.params.customSlider) {
               const customSlider = container.querySelector(".custom-slider");
               if (customSlider) {
@@ -260,6 +258,7 @@
   function getInstanceOptions(container) {
     const options = {};
 
+    // Basic attributes
     if (container.hasAttribute("data-loop-mode")) {
       options.loop = container.getAttribute("data-loop-mode") === "true";
     }
@@ -268,12 +267,10 @@
       options.speed = parseInt(container.getAttribute("data-slider-duration"), 10);
     }
 
-    // Get effect from data attribute
     if (container.hasAttribute("data-effect")) {
       options.effect = container.getAttribute("data-effect");
     }
 
-    // Get autoplay setting from data attribute
     if (container.hasAttribute("data-autoplay")) {
       const autoplayValue = container.getAttribute("data-autoplay");
       if (autoplayValue === "false") {
@@ -286,17 +283,14 @@
       }
     }
 
-    // Get fullHeight setting from data attribute
     if (container.hasAttribute("data-full-height")) {
       options.fullHeight = container.getAttribute("data-full-height") === "true";
     }
 
-    // Get progressBar setting from data attribute
     if (container.hasAttribute("data-progress-bar")) {
       options.progressBar = container.getAttribute("data-progress-bar") === "true";
     }
 
-    // Get slidesPerView setting from data attribute
     if (container.hasAttribute("data-slides-per-view")) {
       const spv = container.getAttribute("data-slides-per-view");
       if (spv === "auto") {
@@ -306,15 +300,10 @@
       }
     }
 
-    // Get spaceBetween setting from data attribute
     if (container.hasAttribute("data-space-between")) {
-      options.spaceBetween = parseInt(
-        container.getAttribute("data-space-between"),
-        10
-      );
+      options.spaceBetween = parseInt(container.getAttribute("data-space-between"), 10);
     }
 
-    // Get breakpoints setting from data attribute
     if (container.hasAttribute("data-breakpoints")) {
       try {
         options.breakpoints = JSON.parse(container.getAttribute("data-breakpoints"));
@@ -323,59 +312,47 @@
       }
     }
 
-    // If data-single-slide is true, set slidesPerView to 1 and remove breakpoints
-    if (
-      container.hasAttribute("data-single-slide") &&
-      container.getAttribute("data-single-slide") === "true"
-    ) {
+    if (container.hasAttribute("data-single-slide") &&
+        container.getAttribute("data-single-slide") === "true") {
       options.slidesPerView = 1;
-      options.breakpoints = null; // Set to null to remove breakpoints
+      options.breakpoints = null; // Remove breakpoints if single-slide
     }
 
-    // Get customSlider setting from data attribute
     if (container.hasAttribute("data-custom-slider")) {
-      options.customSlider =
-        container.getAttribute("data-custom-slider") === "true";
+      options.customSlider = container.getAttribute("data-custom-slider") === "true";
     } else {
       options.customSlider = false;
     }
 
-    // Get centeredSlides setting from data attribute
+    // Advanced attributes
     if (container.hasAttribute("data-centered-slides")) {
-      options.centeredSlides =
-        container.getAttribute("data-centered-slides") === "true";
+      options.centeredSlides = container.getAttribute("data-centered-slides") === "true";
     }
 
-    // Get slidesPerGroup setting from data attribute
     if (container.hasAttribute("data-slides-per-group")) {
-      options.slidesPerGroup = parseInt(
-        container.getAttribute("data-slides-per-group"),
-        10
-      );
+      options.slidesPerGroup = parseInt(container.getAttribute("data-slides-per-group"), 10);
     }
 
-    // Get watchOverflow setting from data attribute
     if (container.hasAttribute("data-watch-overflow")) {
-      options.watchOverflow =
-        container.getAttribute("data-watch-overflow") === "true";
+      options.watchOverflow = container.getAttribute("data-watch-overflow") === "true";
     }
 
-    // Get resistanceRatio setting from data attribute
     if (container.hasAttribute("data-resistance-ratio")) {
-      options.resistanceRatio = parseFloat(
-        container.getAttribute("data-resistance-ratio")
-      );
+      options.resistanceRatio = parseFloat(container.getAttribute("data-resistance-ratio"));
     }
 
-    // Get centerInsufficientSlides setting from data attribute
     if (container.hasAttribute("data-center-insufficient-slides")) {
       options.centerInsufficientSlides =
         container.getAttribute("data-center-insufficient-slides") === "true";
     }
 
-    // Get freeMode setting from data attribute
     if (container.hasAttribute("data-free-mode")) {
       options.freeMode = container.getAttribute("data-free-mode") === "true";
+    }
+
+    // Slider color for custom slider styling
+    if (container.hasAttribute("data-slider-color")) {
+      options.sliderColor = container.getAttribute("data-slider-color");
     }
 
     return options;
