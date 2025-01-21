@@ -175,7 +175,7 @@ Use `data-` attributes on each `.slider-main_component`:
 - `data-autoplay`: `"false"` or delay in milliseconds (e.g., `"4000"`)
 - `data-slider-duration`: Transition speed in ms (e.g., `"600"`)
 - `data-effect`: `"slide"`, `"fade"`, `"cube"`, `"coverflow"`, or `"flip"`
-- `data-crossfade` : `"true"` or `"false"`
+- `data-crossfade` : `"true"` or `"false"` false by default
 - `data-full-height`: `"true"` or `"false"`
 - `data-progress-bar`: `"true"` or `"false"`
 - `data-slides-per-view`: e.g., `"1"`, `"auto"`, `"3"`
