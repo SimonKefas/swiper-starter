@@ -91,6 +91,13 @@
         const instanceOptions = getInstanceOptions(container);
         const swiperConfig = mergeOptions(defaultSwiperOptions, instanceOptions);
 
+        // If the effect is "fade" and crossFade is true, set fadeEffect
+        if (swiperConfig.effect === 'fade') {
+          swiperConfig.fadeEffect = {
+            crossFade: !!swiperConfig.crossFade
+          };
+        }
+
         const swiperElement = container.querySelector(".swiper");
         if (!swiperElement) {
           console.warn("Swiper element not found:", container);
@@ -315,6 +322,10 @@
 
     if (container.hasAttribute("data-effect")) {
       options.effect = container.getAttribute("data-effect");
+    }
+
+    if (container.hasAttribute("data-crossfade")) {
+      options.crossFade = container.getAttribute("data-crossfade") === "true";
     }
 
     if (container.hasAttribute("data-autoplay")) {
