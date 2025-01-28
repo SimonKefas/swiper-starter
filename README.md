@@ -1,18 +1,17 @@
 # Swiper Starter Kit
 
-A comprehensive [Swiper](https://swiperjs.com/) slider initializer script that offers:
+A feature-rich [Swiper](https://swiperjs.com/) slider initializer script that offers:
 
 - **Global & Per-Instance Configuration**  
-- **Top-Level Progress Bars**  
-- **Bullet-Based Progress Bars**  
+- **Optional Top-Level Progress Bars**  
+- **Optional Bullet-Based Progress Bars**  
 - **Custom Draggable Sliders**  
 - **Responsive Breakpoints**  
 - **Single Slide Mode**  
-- **Custom Slider Colors**  
-- **Intersection-Based Autoplay** *(Play only while in view)*  
-- **Fade + CrossFade Support**  
+- **Fade + CrossFade**  
+- **Intersection-Based Autoplay** *(Autoplay only in view)*  
 
-All configured via **data attributes** on each slider container, or via optional **global defaults**.
+All are configured via **data attributes** on each slider container, or via **optional global defaults**.
 
 ---
 
@@ -26,7 +25,7 @@ All configured via **data attributes** on each slider container, or via optional
   - [1. Include Swiper’s CSS and JS](#1-include-swipers-css-and-js)
   - [2. Include the Swiper Starter Kit Script](#2-include-the-swiper-starter-kit-script)
   - [3. Basic HTML Structure](#3-basic-html-structure)
-  - [4. (Optional) Global Configuration](#4-optional-global-configuration)
+  - [4. Optional Global Configuration](#4-optional-global-configuration)
   - [5. Integration](#5-integration)
 - [Data Attributes](#data-attributes)
 - [Examples](#examples)
@@ -37,9 +36,9 @@ All configured via **data attributes** on each slider container, or via optional
   - [Autoplay Only in View](#autoplay-only-in-view)
   - [Fade + CrossFade](#fade--crossfade)
 - [Customization](#customization)
-  - [Styling the Top-Level Progress Bar](#styling-the-top-level-progress-bar)
-  - [Styling Bullet-Based Progress Bars](#styling-bullet-based-progress-bars)
-  - [Styling the Range Slider](#styling-the-range-slider)
+  - [CSS for the Top-Level Progress Bar](#css-for-the-top-level-progress-bar)
+  - [CSS for Bullet-Based Progress Bars](#css-for-bullet-based-progress-bars)
+  - [CSS for the Custom Range Slider](#css-for-the-custom-range-slider)
 - [Notes & Edge Cases](#notes--edge-cases)
 - [License](#license)
 
@@ -47,79 +46,77 @@ All configured via **data attributes** on each slider container, or via optional
 
 ## Introduction
 
-The **Swiper Starter Kit** is built around [Swiper 11](https://swiperjs.com/). It aims to reduce repetitive boilerplate when integrating Swiper across multiple sliders on a single page. Each slider can have distinct settings, such as autoplay intervals, progress bars, custom draggable range sliders, bullet-based progress animations, and advanced breakpoints.
+The **Swiper Starter Kit** builds upon [Swiper 11](https://swiperjs.com/), reducing boilerplate for multiple sliders on a single page. You can enable or disable each feature via data attributes, such as:
+
+- **Autoplay** (time-based, optional intersection observer for in-view only)
+- **Top-Level Progress Bar** or **Bullet-Based Progress Bars** (synchronized with the autoplay cycle)
+- **Custom Draggable Sliders** 
+- **Single Slide Mode**, **Fade/CrossFade**, **Loop** with correct bullet synchronization, and more.
 
 ---
 
 ## Features
 
-1. **Global & Per-Instance**: Define global defaults with `window.SwiperDefaults`, then override via data attributes on each slider container.
-2. **Progress Bars**: 
-   - *Top-Level Bar*: A large progress bar at the bottom or top of your slider.
-   - *Bullet-Based Bar*: Each bullet can have a small fill that tracks the active slide’s progress.
-3. **Autoplay Sync**: Single-run animations each time a new slide starts, ensuring correct timing if the user drags or cancels autoplay.
-4. **Intersection-Based Autoplay**: Only run autoplay when the slider is in view (`data-autoplay-inview="true"`).
-5. **Custom Range Slider**: A draggable `input[type="range"]` that moves Swiper’s active slide, also updates when Swiper slides change.
-6. **Responsive Breakpoints**: Adjust slides and spacing for different screen widths.
-7. **Single Slide Mode**: Force `slidesPerView: 1` across breakpoints with `data-single-slide="true"`.
-8. **Fade + CrossFade**: If `data-effect="fade"` and `data-crossfade="true"`, the slides fade with cross-fading of content.
-9. **Advanced**: Additional attributes such as `data-centered-slides`, `data-slides-per-group`, `data-watch-overflow`, etc.
+1. **Global & Per-Instance Configuration**  
+   Use `window.SwiperDefaults` for global defaults; override them with `data-` attributes on each slider.
+
+2. **Optional Progress Bars**:
+   - **Top-Level Bar** (`data-progress-bar="true"`)  
+   - **Bullet-Based Progress** (`data-bullet-progress="true"`)  
+   Single-run fills each slide cycle, ensuring correct timing.
+
+3. **Loop Mode Fix**  
+   When loop is `true`, we use `swiper.realIndex` to ensure bullets and custom sliders point to the correct “real” slide.
+
+4. **Custom Draggable Sliders** (`data-custom-slider="true"`)  
+   A range input that moves Swiper’s slides and updates on slide changes.
+
+5. **Responsive Breakpoints**  
+   `data-breakpoints` with a JSON string for different `slidesPerView`, `spaceBetween`, etc.
+
+6. **Single Slide Mode** (`data-single-slide="true"`)  
+   Forces 1 slide at all breakpoints, ignoring other configs.
+
+7. **Fade + CrossFade**  
+   If `data-effect="fade"` and `data-crossfade="true"`, content cross-fades per slide.
+
+8. **Intersection-Based Autoplay** (`data-autoplay-inview="true"`)  
+   Autoplay only while in view, pausing otherwise.
 
 ---
 
 ## Prerequisites
 
-- **Swiper 11** (older or newer versions may also work, but this script is tested with v11).
-- **Modern Browser** for Intersection Observer usage (or provide a fallback if needed).
-- **Basic HTML/CSS** knowledge to style progress bars or slider tracks.
+- **Swiper 11**  
+- **Modern Browsers** (for Intersection Observer if using `data-autoplay-inview="true"`)
+- **Basic HTML/CSS** knowledge to style progress bars or custom sliders.
 
 ---
 
 ## Installation
 
-1. **Download or reference the `swiper-initializer.js`** script from your repository or via a CDN:
-   
-   ```html
-   <script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
-   ```
-
-2. **Include Swiper** itself:
-   
-   ```html
-   <!-- Swiper CSS -->
-   <link
-     rel="stylesheet"
-     href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-   />
-
-   <!-- Swiper JS (before body or head) -->
-   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-   ```
-
----
-
-## Usage
-
 ### 1. Include Swiper’s CSS and JS
 
-In `<head>` (CSS):
+In your `<head>`:
 
 ```html
+<!-- Swiper CSS -->
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
 />
 ```
 
-Before `</body>` or in `<head>` (JS):
+Before `</body>` (or in `<head>`):
 
 ```html
+<!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 ```
 
 ### 2. Include the Swiper Starter Kit Script
 
-After Swiper is included, load the initializer script:
+After including Swiper:
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
@@ -127,79 +124,68 @@ After Swiper is included, load the initializer script:
 
 ### 3. Basic HTML Structure
 
-Each slider container has `.slider-main_component` with a `.swiper` child:
+Each slider container needs `.slider-main_component`, containing a `.swiper` element:
 
 ```html
 <div class="slider-main_component" data-attributes...>
   <div class="swiper">
     <div class="swiper-wrapper">
-      <div class="swiper-slide">Slide 1</div>
-      <div class="swiper-slide">Slide 2</div>
-      <!-- More slides... -->
+      <!-- .swiper-slide elements -->
     </div>
-    <!-- Optional Pagination -->
-    <div class="swiper-bullet-wrapper"></div>
-    <!-- Optional Navigation -->
-    <div class="swiper-next"></div>
-    <div class="swiper-prev"></div>
-    <!-- Optional Scrollbar -->
-    <div class="swiper-drag-wrapper"></div>
+    <!-- Optional pagination, navigation, scrollbar, etc. -->
   </div>
   <!-- Optional top-level progress bar -->
   <div class="swiper-progress-bar-wrapper">
     <div class="swiper-progress-bar"></div>
   </div>
-  <!-- Optional custom range slider -->
+  <!-- Optional custom slider wrapper -->
   <div class="custom-slider-wrapper">
-    <input type="range" class="custom-slider" min="0" max="100" value="0" />
+    <input type="range" class="custom-slider" />
   </div>
 </div>
 ```
 
-### 4. (Optional) Global Configuration
+### 4. Optional Global Configuration
 
-Before including the script, define global defaults:
+You can define global defaults before including the script:
 
 ```html
 <script>
   window.SwiperDefaults = {
-    loop: false,
-    autoplay: {
-      delay: 3000,
-      disableOnInteraction: false,
-    },
+    loop: true,
+    autoplay: { delay: 3000, disableOnInteraction: false },
     speed: 500,
-    effect: "slide",
     slidesPerView: 1,
     spaceBetween: 10,
-    // Additional...
+    // Additional config...
   };
 </script>
 ```
 
 ### 5. Integration
 
-On page load (`DOMContentLoaded`), each `.slider-main_component` is automatically initialized with Swiper using the data attributes (see below).
+On page load (`DOMContentLoaded`), the script automatically initializes all `.slider-main_component` elements, merging global defaults with the data attributes found on each container.
 
 ---
 
 ## Data Attributes
 
-Attach these to each `.slider-main_component`:
+Attach to `.slider-main_component`:
 
 - **`data-loop-mode`**: `"true"` or `"false"`
 - **`data-autoplay`**: `"false"` or a delay in ms (e.g., `"3000"`)
 - **`data-slider-duration`**: Transition speed in ms (e.g., `"600"`)
 - **`data-effect`**: `"slide"`, `"fade"`, `"cube"`, `"coverflow"`, `"flip"`
-- **`data-crossfade`**: `"true"` or `"false"` if effect is `"fade"`
+- **`data-crossfade`**: `"true"` or `"false"` if using `"fade"`
 - **`data-full-height`**: `"true"` or `"false"`
-- **`data-progress-bar`**: `"true"` or `"false"` for a top-level progress bar
+- **`data-progress-bar`**: `"true"` or `"false"` (top-level bar)
+- **`data-bullet-progress`**: `"true"` or `"false"` (inject bullet-based progress bars)
 - **`data-slides-per-view`**: e.g., `"1"`, `"auto"`, `"3"`
-- **`data-space-between`**: e.g., `"16"`
-- **`data-breakpoints`**: A JSON string for custom breakpoints
-- **`data-single-slide`**: `"true"` or `"false"` (forces 1 slide across breakpoints)
+- **`data-space-between`**: e.g., `"20"`
+- **`data-breakpoints`**: JSON string for custom breakpoints
+- **`data-single-slide`**: `"true"` or `"false"` (forces 1 slide at all breakpoints)
 - **`data-custom-slider`**: `"true"` or `"false"`
-- **`data-slider-color`**: e.g., `"#FF5722"` for a custom slider track & thumb
+- **`data-slider-color`**: e.g., `"#FF5722"` for custom slider color
 - **Advanced**:
   - `data-centered-slides`
   - `data-slides-per-group`
@@ -207,7 +193,7 @@ Attach these to each `.slider-main_component`:
   - `data-resistance-ratio`
   - `data-center-insufficient-slides`
   - `data-free-mode`
-- **`data-autoplay-inview`**: `"true"` or `"false"` for Intersection Observer-based autoplay (only run while in view).
+- **`data-autoplay-inview`**: `"true"` or `"false"` (Intersection Observer-based autoplay)
 
 ---
 
@@ -245,66 +231,60 @@ Attach these to each `.slider-main_component`:
 </div>
 ```
 
-The script creates a single-run animation each time a slide changes, resetting or pausing if autoplay is stopped.
-
 ### Bullet-Based Progress Bar
 
-By default, Swiper’s pagination yields `.swiper-bullet` elements. The script injects `.bullet-progress` inside each bullet. When a new slide starts, the active bullet's bar goes `0% → 100%`.
-
-**CSS** (example):
-```css
-.swiper-bullet {
-  position: relative;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ccc;
-  margin: 0 4px;
-  overflow: hidden;
-}
-
-.bullet-progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 100%;
-  background: #007aff;
-}
-```
-
-### Custom Draggable Slider
-
 ```html
-<div class="slider-main_component" data-custom-slider="true" data-slides-per-view="3">
+<div
+  class="slider-main_component"
+  data-autoplay="4000"
+  data-bullet-progress="true"
+  data-slides-per-view="3"
+>
   <div class="swiper">
     <div class="swiper-wrapper">
       <div class="swiper-slide">Slide 1</div>
       <div class="swiper-slide">Slide 2</div>
       <div class="swiper-slide">Slide 3</div>
     </div>
-  </div>
-  <div class="custom-slider-wrapper">
-    <input type="range" class="custom-slider" min="0" max="100" value="0" />
+    <div class="swiper-bullet-wrapper"></div>
   </div>
 </div>
 ```
 
-The script updates this range input when Swiper slides change; dragging the slider calls `swiper.slideTo()`.
+When `data-bullet-progress="true"`, the script injects `.bullet-progress` elements into each bullet, animating only the active bullet each slide cycle.
+
+### Custom Draggable Slider
+
+```html
+<div class="slider-main_component" data-custom-slider="true">
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">X</div>
+      <div class="swiper-slide">Y</div>
+      <div class="swiper-slide">Z</div>
+    </div>
+  </div>
+  <div class="custom-slider-wrapper">
+    <input type="range" class="custom-slider" />
+  </div>
+</div>
+```
+
+Dragging this slider calls `swiper.slideTo()`, and Swiper updates the slider’s value when slides change.
 
 ### Autoplay Only in View
 
 ```html
 <div
   class="slider-main_component"
-  data-autoplay="2500"
+  data-autoplay="3000"
   data-progress-bar="true"
   data-autoplay-inview="true"
 >
   <div class="swiper">
     <div class="swiper-wrapper">
-      <div class="swiper-slide">Vis Slide A</div>
-      <div class="swiper-slide">Vis Slide B</div>
+      <div class="swiper-slide">Vis Slide 1</div>
+      <div class="swiper-slide">Vis Slide 2</div>
     </div>
   </div>
   <div class="swiper-progress-bar-wrapper">
@@ -313,7 +293,7 @@ The script updates this range input when Swiper slides change; dragging the slid
 </div>
 ```
 
-When scrolled out of view, autoplay stops; it restarts when `IntersectionObserver` sees it again.
+Autoplay stops when scrolled out of view, resuming when the slider is back in the viewport.
 
 ### Fade + CrossFade
 
@@ -322,7 +302,7 @@ When scrolled out of view, autoplay stops; it restarts when `IntersectionObserve
   class="slider-main_component"
   data-effect="fade"
   data-crossfade="true"
-  data-autoplay="3000"
+  data-autoplay="2500"
 >
   <div class="swiper">
     <div class="swiper-wrapper">
@@ -333,15 +313,12 @@ When scrolled out of view, autoplay stops; it restarts when `IntersectionObserve
 </div>
 ```
 
-Slides fade, cross-fading their content if `crossfade="true"`.
-
 ---
 
 ## Customization
 
-### Styling the Top-Level Progress Bar
+### CSS for the Top-Level Progress Bar
 
-**CSS Keyframes** (example):
 ```css
 @keyframes swiper-progress-bar-animation {
   from {
@@ -360,6 +337,7 @@ Slides fade, cross-fading their content if `crossfade="true"`.
   height: 4px;
   background: rgba(0, 0, 0, 0.1);
 }
+
 .swiper-progress-bar {
   width: 100%;
   height: 100%;
@@ -369,11 +347,11 @@ Slides fade, cross-fading their content if `crossfade="true"`.
 }
 ```
 
-The script triggers a single-run animation for each slide period (`autoplay.delay + speed`).
+The script triggers a **single-run** animation each slide cycle (`autoplay.delay + speed`).
 
-### Styling Bullet-Based Progress Bars
+### CSS for Bullet-Based Progress Bars
 
-If you rely on bullet-based progress:
+When `data-bullet-progress="true"`, each bullet gets a `.bullet-progress` child:
 
 ```css
 .swiper-bullet {
@@ -386,24 +364,23 @@ If you rely on bullet-based progress:
   overflow: hidden;
 }
 
-.swiper-bullet.is-active {
-  background: #ccc; /* or #fff, or none, depending on your design */
-}
-
+/* The bullet-progress is inserted by JS */
 .bullet-progress {
   position: absolute;
   top: 0;
   left: 0;
-  width: 0%; /* We'll animate this to 100% in JS */
+  width: 0%;
   height: 100%;
-  background: #007aff;
-  transition: width 0s linear; /* We'll set actual transition in JS */
+  background: #007aff; /* fill color */
+  transition: width 0s linear; /* real duration set in JS */
 }
 ```
 
-### Styling the Range Slider
+On each new slide, the script resets all `.bullet-progress` to `width: 0%`, then animates only the active bullet’s fill from `0%` → `100%`.
 
-When `data-custom-slider="true"`, the script sets `--slider-color` and `--value-percent`. An example CSS:
+### CSS for the Custom Range Slider
+
+When `data-custom-slider="true"`, the script updates `--slider-color` and `--value-percent`. Example:
 
 ```css
 .custom-slider {
@@ -445,23 +422,23 @@ When `data-custom-slider="true"`, the script sets `--slider-color` and `--value-
 
 ## Notes & Edge Cases
 
-1. **Manual Slide Changes**:
-   - If the user clicks a bullet or navigates with arrows, the script resets top-level and bullet-based progress bars to 0% and starts a fresh fill for the new slide’s bullet or bar.
+1. **Loop Mode & `realIndex`**  
+   In loop mode, we use `swiper.realIndex` to ensure correct bullet or custom slider alignment.
 
-2. **Drag Cancels Autoplay**:
-   - If `disableOnInteraction: false`, autoplay will resume but the script effectively starts a new fill on the next slide change. If you want immediate partial progress, you’d need more complex logic (not recommended for clarity).
+2. **First Slide Fill**  
+   The script starts progress for the first slide in `on.afterInit`, ensuring the **initial** slide’s progress is visible.
 
-3. **Small Slide Count**:
-   - If `slidesCount <= slidesPerView`, the script turns `loop` off, hides navigation & pagination, and stops autoplay.
+3. **Manual Interactions**  
+   If the user clicks bullets or drags the custom slider, autoplay can reset or pause. The script cancels animations and restarts them fresh when the next slide change occurs.
 
-4. **Performance**:
-   - **Intersection Observer** usage is typically lightweight. If you have many sliders or large DOM changes, watch for overhead.
+4. **One-Slide Scenario**  
+   If only one slide is present, navigation, pagination, and autoplay are automatically disabled.
 
-5. **Testing**:
-   - Always test on multiple devices, screen sizes, browsers, and check console logs for data attribute mistakes.
+5. **Intersection Observer**  
+   If `data-autoplay-inview="true"`, autoplay only runs while that slider is scrolled into view (≥ 20% by default). This can be configured in the script if you want a different threshold.
 
 ---
 
 ## License
 
-This project is provided under the [MIT License](LICENSE). You’re free to copy, modify, and distribute it as needed. Contributions and modifications are welcome.
+This project is provided under the [MIT License](LICENSE). You can freely copy, modify, and distribute it.
