@@ -10,7 +10,6 @@
     spaceBetween: 10,
     fullHeight: false,
     progressBar: false,
-    // Bullet-based progress is always available if you have pagination
     breakpoints: {
       480: { slidesPerView: 1, spaceBetween: 10 },
       768: { slidesPerView: 2, spaceBetween: 16 },
@@ -77,7 +76,7 @@
     }
   }
 
-  // Merge user-defined SwiperDefaults if provided globally
+  // Merge user-defined SwiperDefaults if provided
   if (window.SwiperDefaults) {
     defaultSwiperOptions = mergeOptions(
       defaultSwiperOptions,
@@ -85,12 +84,13 @@
     );
   }
 
+  // Initialize all .slider-main_component
   function initSwipers() {
     document.querySelectorAll(".slider-main_component").forEach(function (container) {
       const instanceOptions = getInstanceOptions(container);
       const swiperConfig = mergeOptions(defaultSwiperOptions, instanceOptions);
 
-      // Handle fade + crossFade
+      // If using fade + crossFade
       if (swiperConfig.effect === "fade") {
         swiperConfig.fadeEffect = {
           crossFade: !!swiperConfig.crossFade,
@@ -133,20 +133,64 @@
         }
       }
 
-      // Adjust pagination/navigation selectors, etc.
+      // Adjust pagination/navigation selectors
       adjustSelectors(swiperConfig, container);
 
-      // Keep track of custom options
+      // Store custom options
       swiperConfig.customSlider = instanceOptions.customSlider;
       swiperConfig.sliderColor = instanceOptions.sliderColor;
       swiperConfig.autoplayInView = instanceOptions.autoplayInView;
 
-      // Set up event handlers
+      // We'll define helper functions to handle bullet progress and top-level bar
+
+      // A function that resets/starts bullet progress for the current slide
+      function startBulletProgress(swiper) {
+        // Only if there's pagination
+        const bulletEls = container.querySelectorAll(".swiper-bullet");
+        if (!bulletEls || bulletEls.length === 0) return;
+
+        // Reset all bullet progress
+        bulletEls.forEach((bullet) => {
+          const prog = bullet.querySelector(".bullet-progress");
+          if (prog) {
+            prog.style.transition = "none";
+            prog.style.width = "0%";
+            void prog.offsetWidth; // reflow
+          }
+        });
+
+        // Animate the active bullet
+        if (swiper.params.autoplay) {
+          const activeIndex = swiper.activeIndex;
+          const bullet = bulletEls[activeIndex];
+          if (bullet) {
+            const progBar = bullet.querySelector(".bullet-progress");
+            if (progBar) {
+              const totalTime = swiper.params.autoplay.delay + swiper.params.speed;
+              progBar.style.transition = `width ${totalTime}ms linear`;
+              progBar.style.width = "100%";
+            }
+          }
+        }
+      }
+
+      // A function that starts the top-level progress bar animation
+      function startTopLevelProgress(swiper) {
+        if (!swiper.topLevelProgressBar) return;
+        // Reset
+        const pb = swiper.topLevelProgressBar;
+        pb.style.animation = "none";
+        void pb.offsetWidth; // reflow
+        const totalTime = swiper.params.autoplay.delay + swiper.params.speed;
+        pb.style.animation = `swiper-progress-bar-animation ${totalTime}ms linear 1`;
+      }
+
+      // The on.init logic
       swiperConfig.on = {
         init: function () {
           const swiper = this;
 
-          // 1) Adjust slides height
+          // Slide height
           if (swiper.params.effect === "fade") {
             adjustSlidesZIndex(swiper);
           }
@@ -156,42 +200,33 @@
             adjustSlidesHeight(swiper);
           }
 
-          // 2) Initialize a top-level progress bar if desired
-          //    We'll do single-run animations on slide change (no infinite loop).
-          let topLevelProgress = null;
+          // Top-level progress bar
           if (swiper.params.progressBar && swiper.params.autoplay) {
-            topLevelProgress = container.querySelector(".swiper-progress-bar");
-            if (topLevelProgress) {
-              swiper.topLevelProgressBar = topLevelProgress;
-              // We won't start an indefinite animation here; we wait for slideChangeTransitionStart
+            const progressBar = container.querySelector(".swiper-progress-bar");
+            if (progressBar) {
+              swiper.topLevelProgressBar = progressBar;
+              // We'll start the fill when we do "afterInit" or "slideChangeTransitionStart"
             }
           }
 
-          // 3) Bullet-based progress bar approach
-          //    We'll inject a .bullet-progress div into each bullet, fill active bullet on transitions.
-          if (swiper.params.pagination && swiper.params.pagination.el) {
-            const bulletEls = container.querySelectorAll(".swiper-bullet");
-            bulletEls.forEach((bullet) => {
-              if (!bullet.querySelector(".bullet-progress")) {
-                const prog = document.createElement("div");
-                prog.classList.add("bullet-progress");
-                // style bullet-progress with 0% width initially
-                prog.style.width = "0%";
-                bullet.appendChild(prog);
-              }
-            });
-          }
+          // Add bullet progress divs if needed
+          const bulletEls = container.querySelectorAll(".swiper-bullet");
+          bulletEls.forEach((bullet) => {
+            if (!bullet.querySelector(".bullet-progress")) {
+              const prog = document.createElement("div");
+              prog.classList.add("bullet-progress");
+              prog.style.width = "0%";
+              bullet.appendChild(prog);
+            }
+          });
 
-          // 4) Custom draggable slider
+          // Custom slider logic
           const customSlider = container.querySelector(".custom-slider");
           const customSliderBar = container.querySelector(".custom-slider-bar");
-
           if (swiper.params.customSlider && customSlider) {
-            // Set color if provided
             const sliderColor = swiper.params.sliderColor || "#007aff";
             customSlider.style.setProperty("--slider-color", sliderColor);
 
-            // Range min/max
             customSlider.min = 0;
             customSlider.max = swiper.slides.length - 1;
             customSlider.value = swiper.activeIndex;
@@ -203,22 +238,18 @@
               const percentage = ((value - min) / (max - min)) * 100;
               customSlider.style.setProperty("--value-percent", `${percentage}%`);
             }
-
             updateSliderTrack();
 
-            // On user drag
             customSlider.addEventListener("input", function () {
               swiper.slideTo(parseInt(this.value, 10));
               updateSliderTrack();
             });
-
-            // On slide change
             swiper.on("slideChange", function () {
               customSlider.value = swiper.activeIndex;
               updateSliderTrack();
             });
           } else if (customSliderBar) {
-            // Visual slider bar, no user input
+            // Visual slider bar
             const updateSliderBar = function () {
               const progressPercentage = swiper.progress * 100;
               customSliderBar.style.width = `${progressPercentage}%`;
@@ -228,7 +259,7 @@
             swiper.on("progress", updateSliderBar);
           }
 
-          // 5) Intersection Observer for autoplayInView
+          // Intersection Observer (autoplayInView)
           if (swiper.params.autoplay && swiper.params.autoplayInView) {
             swiper.autoplay.stop();
             const observer = new IntersectionObserver((entries) => {
@@ -244,56 +275,28 @@
           }
         },
 
+        // afterInit is triggered after everything is set up
+        afterInit: function (swiper) {
+          // Start bullet or top-level progress for the initial slide
+          startBulletProgress(swiper);
+          startTopLevelProgress(swiper);
+        },
+
+        // Each time we transition to a new slide
         slideChangeTransitionStart: function () {
-          // Called at the start of each slide change
           const swiper = this;
 
-          // If fade effect, set z-index
           if (swiper.params.effect === "fade") {
             adjustSlidesZIndex(swiper);
           }
 
-          // 1) Top-level progress bar logic
-          if (
-            swiper.params.progressBar &&
-            swiper.params.autoplay &&
-            swiper.topLevelProgressBar
-          ) {
-            const pb = swiper.topLevelProgressBar;
-            // Reset any existing animation
-            pb.style.animation = "none";
-            void pb.offsetWidth; // reflow
-
-            const totalTime = swiper.params.autoplay.delay + swiper.params.speed;
-            pb.style.animation = `swiper-progress-bar-animation ${totalTime}ms linear 1`;
+          // 1) Top-level progress bar single-run animation
+          if (swiper.params.progressBar && swiper.params.autoplay) {
+            startTopLevelProgress(swiper);
           }
 
-          // 2) Bullet-based progress bar logic
-          const bulletEls = container.querySelectorAll(".swiper-bullet");
-          if (bulletEls && bulletEls.length > 0) {
-            // Reset existing bullets
-            bulletEls.forEach((bullet) => {
-              const prog = bullet.querySelector(".bullet-progress");
-              if (prog) {
-                prog.style.transition = "none";
-                prog.style.width = "0%";
-                // Force reflow
-                void prog.offsetWidth;
-              }
-            });
-
-            // Animate the active bullet
-            const activeIndex = swiper.activeIndex;
-            const activeBullet = bulletEls[activeIndex];
-            if (activeBullet && swiper.params.autoplay) {
-              const progBar = activeBullet.querySelector(".bullet-progress");
-              if (progBar) {
-                const totalTime = (swiper.params.autoplay.delay + swiper.params.speed);
-                progBar.style.transition = `width ${totalTime}ms linear`;
-                progBar.style.width = "100%";
-              }
-            }
-          }
+          // 2) Bullet-based progress fill
+          startBulletProgress(swiper);
 
           // 3) If using a custom slider, update track
           if (swiper.params.customSlider) {
@@ -315,11 +318,11 @@
           }
         },
 
+        // If the user drags or Intersection Observer stops autoplay
         autoplayStop: function () {
-          // Called if the user drags or if IntersectionObserver stops autoplay
           const swiper = this;
-          // Pause top-level progress bar
-          if (swiper.params.progressBar && swiper.topLevelProgressBar) {
+          // Pause top-level bar
+          if (swiper.topLevelProgressBar) {
             swiper.topLevelProgressBar.style.animationPlayState = "paused";
           }
           // Pause bullet progress
@@ -329,13 +332,11 @@
           });
         },
 
+        // If autoplay resumes
         autoplayStart: function () {
-          // Resuming autoplay
+          // The next slide change triggers a new fill
           const swiper = this;
-          // We rely on the next slideChangeTransitionStart to re-init animation
-          if (swiper.params.progressBar && swiper.topLevelProgressBar) {
-            // Just set it to 'running' if it's mid-slide, but
-            // typically we do a new fill on next slide.
+          if (swiper.topLevelProgressBar) {
             swiper.topLevelProgressBar.style.animationPlayState = "running";
           }
         },
@@ -413,7 +414,7 @@
     if (container.hasAttribute("data-single-slide") &&
         container.getAttribute("data-single-slide") === "true") {
       options.slidesPerView = 1;
-      options.breakpoints = null; // remove breakpoints if single
+      options.breakpoints = null;
     }
 
     if (container.hasAttribute("data-custom-slider")) {
@@ -454,7 +455,7 @@
       options.freeMode = container.getAttribute("data-free-mode") === "true";
     }
 
-    // Slider color for the custom slider
+    // Slider color
     if (container.hasAttribute("data-slider-color")) {
       options.sliderColor = container.getAttribute("data-slider-color");
     }
@@ -485,6 +486,7 @@
     }
   }
 
+  // Adjust each slide’s height to match the tallest
   function adjustSlidesHeight(swiper) {
     const maxHeight = Math.max(
       ...Array.from(swiper.slides).map((slide) => slide.offsetHeight)
@@ -494,12 +496,14 @@
     });
   }
 
+  // Set all slides to full height
   function setSlidesFullHeight(swiper) {
     swiper.slides.forEach((slide) => {
       slide.style.height = "100%";
     });
   }
 
+  // If fade effect, set z-index & pointer-events
   function adjustSlidesZIndex(swiper) {
     swiper.slides.forEach((slide, index) => {
       slide.style.zIndex = index === swiper.activeIndex ? 2 : 1;
