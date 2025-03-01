@@ -1,4 +1,4 @@
-# Swiper Starter Kit (Revamped)
+# Swiper Starter Kit
 
 A feature-rich [Swiper](https://swiperjs.com/) slider initializer script, extended for:
 
