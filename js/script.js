@@ -361,6 +361,10 @@
       } else {
         options.slidesPerView = parseInt(spv, 10);
       }
+
+      if (!container.hasAttribute("data-breakpoints")) {
+        options.breakpoints = null;
+      }
     }
     if (container.hasAttribute("data-space-between")) {
       options.spaceBetween = parseInt(
