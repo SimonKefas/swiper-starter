@@ -373,14 +373,22 @@
       );
     }
     if (container.hasAttribute("data-breakpoints")) {
+      let bpAttr = container.getAttribute("data-breakpoints");
+      // Convert single quotes to double quotes if needed
+      if (bpAttr.indexOf("'") !== -1) {
+        bpAttr = bpAttr.replace(/'/g, '"');
+      }
       try {
-        options.breakpoints = JSON.parse(
-          container.getAttribute("data-breakpoints")
-        );
+        options.breakpoints = JSON.parse(bpAttr);
       } catch (e) {
         console.error("Invalid JSON in data-breakpoints attribute:", e);
       }
-    }
+    } else {
+      // If no data-breakpoints is provided and slidesPerView is set, null out breakpoints.
+      if (options.slidesPerView !== undefined && options.slidesPerView !== "auto") {
+        options.breakpoints = null;
+      }
+    }    
     if (
       container.hasAttribute("data-single-slide") &&
       container.getAttribute("data-single-slide") === "true"
