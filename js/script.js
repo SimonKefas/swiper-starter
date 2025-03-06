@@ -118,6 +118,11 @@
         const instanceOptions = getInstanceOptions(container);
         const swiperConfig = mergeOptions(defaultSwiperOptions, instanceOptions);
 
+        // If the user provided data-breakpoints, override the entire breakpoints object
+        if (instanceOptions.breakpoints) {
+          swiperConfig.breakpoints = instanceOptions.breakpoints;
+        }
+
         // If fade + crossFade
         if (swiperConfig.effect === "fade") {
           swiperConfig.fadeEffect = {
