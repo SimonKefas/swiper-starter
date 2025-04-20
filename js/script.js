@@ -638,4 +638,6 @@
   // 10) DOMContentLoaded
   // ===========================
   document.addEventListener("DOMContentLoaded", initSwipers);
+
+  window.initSwipers = initSwipers;
 })();
