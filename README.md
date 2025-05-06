@@ -150,7 +150,7 @@ Override once per page:
 | `data-autoplay-inview`        | `"true"`                  | Starts autoplay only when visible.     |
 | `data-intersection-threshold` | float (0‑1)               | Optional threshold override.           |
 
-### Advanced attributes
+### All/advanced attributes
 
 | Attribute                             | Type / Example                      | Description                                   |
 | ------------------------------------- | ----------------------------------- | --------------------------------------------- |
