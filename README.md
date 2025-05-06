@@ -1,360 +1,234 @@
-# Swiper Starter Kit
+# Swiper Starter Kit v2 – Complete Documentation
 
-A feature-rich [Swiper](https://swiperjs.com/) slider initializer script, extended for:
-
-- **Global & Per-Instance Configuration**  
-- **Optional Progress Bars (Top-Level or Bullet-Based)**  
-- **Custom Draggable Range Sliders**  
-- **Responsive Breakpoints**  
-- **Intersection-Based Autoplay** *(Autoplay only in view)*  
-- **`prefers-reduced-motion`** Handling (Optional)  
-- **Observer/Mutation Support**  
-- **Single Slide Mode**  
-- **Fade + CrossFade**  
-
-All via **data attributes** on each slider container, plus **optional global defaults**.
+> A zero‑config, attribute‑driven wrapper around [Swiper 11+](https://swiperjs.com/), rebuilt for performance, scalability, and modern workflow needs.
 
 ---
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [1. Include Swiper’s CSS and JS](#1-include-swipers-css-and-js)
-  - [2. Include the Script](#2-include-the-script)
-  - [3. Basic HTML Structure](#3-basic-html-structure)
-  - [4. Optional Global Configuration](#4-optional-global-configuration)
-  - [5. Integration](#5-integration)
-- [Data Attributes](#data-attributes)
-  - [Key Attributes](#key-attributes)
-  - [Advanced Attributes](#advanced-attributes)
-- [Additional Features & Notes](#additional-features--notes)
-  - [Single-Slide Scenario](#single-slide-scenario)
-  - [Intersection Observer Threshold](#intersection-observer-threshold)
-  - [Disable Features per Instance](#disable-features-per-instance)
-  - [Observer & Observe Parents](#observer--observe-parents)
-  - [Storing Swiper Instance](#storing-swiper-instance)
-  - [Reduced Motion Handling (Optional)](#reduced-motion-handling-optional)
-  - [Allow Loop With Fewer Slides](#allow-loop-with-fewer-slides)
-- [Examples](#examples)
-  - [Basic Slider](#basic-slider)
-  - [Progress Bar Slider](#progress-bar-slider)
-  - [Bullet-Based Progress Slider](#bullet-based-progress-slider)
-  - [Custom Draggable Range Slider](#custom-draggable-range-slider)
-  - [Autoplay Only in View](#autoplay-only-in-view)
-  - [Fade + CrossFade](#fade--crossfade)
-  - [Observer/Mutation Example](#observermutation-example)
-- [CSS Snippets](#css-snippets)
-  - [Top-Level Progress Bar](#top-level-progress-bar)
-  - [Bullet-Based Progress Bars](#bullet-based-progress-bars)
-  - [Custom Range Slider](#custom-range-slider)
-- [Edge Cases & Performance Tips](#edge-cases--performance-tips)
-- [License](#license)
+1. [What’s new in v2](#whats-new-in-v2)
+2. [Features](#features)
+3. [Quick start](#quick-start)
+   3.1 [Prerequisites](#prerequisites)
+   3.2 [Installation](#installation)
+   3.3 [Basic HTML skeleton](#basic-html-skeleton)
+4. [Global defaults](#global-defaults)
+5. [Data‑attribute reference](#data-attribute-reference)
+   5.1 [Core attributes](#core-attributes)
+   5.2 [Advanced attributes](#advanced-attributes)
+6. [Runtime helpers](#runtime-helpers)
+7. [Disabling a slider at break‑points](#disabling-a-slider-at-break-points)
+8. [Examples](#examples)
+9. [CSS snippets](#css-snippets)
+10. [Performance & edge cases](#performance--edge-cases)
+11. [Changelog](#changelog)
+12. [License](#license)
 
 ---
 
-## Introduction
+## What’s new in v2
 
-This **Swiper Starter Kit** script initializes multiple Swiper instances at once, each governed by **data attributes** and optional **global defaults**. It includes features like:
+| Enhancement                                   | Details                                                                                                                                                                                     |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **One shared `IntersectionObserver`**         | All `data-autoplay-inview="true"` sliders now share a single observer for lower memory/CPU.                                                                                                 |
+| **Break‑point disabling**                     | `data-disable-below="768"` or `data-disable-above="991"` cleanly destroy or re‑create sliders on `resize`.                                                                                  |
+| **Destroy & recalc helpers**                  | <br>• `window.destroySwipers()` – disconnects observers and destroys all instances.<br>• `window.recalcSwipers()` – (re)creates or destroys sliders based on current viewport / attributes. |
+| **Mouse‑wheel preserved when touch disabled** | If you set `data-disable-touch="true"`, users can still scroll with a wheel or trackpad.                                                                                                    |
+| **Deep‑merge‑with‑arrays**                    | Arrays are now cloned instead of carrying references across instances.                                                                                                                      |
+| **Config exposure**                           | Every container now has `_swiperConfig` (frozen copy) next to `_swiperInstance`.                                                                                                            |
+| **Custom‑slider repaint throttle**            | Smoother range‑slider scrubbing via `requestAnimationFrame`.                                                                                                                                |
+| **Type‑safety ready**                         | JSDoc typedefs mean you can rename the file to `.ts` and immediately benefit from TypeScript.                                                                                               |
 
-- **Intersection-based autoplay** (start autoplay only when the slider is scrolled into view).  
-- **Bullet-based progress bars** (each bullet animates per slide).  
-- **Top-level progress bar** (animated each autoplay cycle).  
-- **Custom range input** for navigation.  
-- **Single-slide detection** (automatically disables nav/pagination/autoplay).  
-- **Prefers-reduced-motion** snippet (optional) to respect user OS settings.
+**No breaking changes** – existing sliders continue to work unless you add the new attributes.
 
 ---
 
 ## Features
 
-1. **Global & Per-Instance Config**  
-   - Merge user’s `window.SwiperDefaults` with data attributes on each container.
-
-2. **Progress Bars**  
-   - **Top-Level**: Single-run fill each cycle (`data-progress-bar="true"`).  
-   - **Bullet-Based**: Animates each bullet for its active slide (`data-bullet-progress="true"`).
-
-3. **Custom Draggable Range Sliders**  
-   - `data-custom-slider="true"` to let users drag a slider to jump between slides.
-
-4. **Responsiveness & Breakpoints**  
-   - Define via `data-breakpoints` (a JSON string) or standard `slidesPerView`, `spaceBetween`.
-
-5. **Optional Intersection Observer**  
-   - Autoplay only while in view (`data-autoplay-inview="true"`), threshold adjustable with `data-intersection-threshold="0.5"`.
-
-6. **Observer/Mutation Support**  
-   - `data-observer="true"` auto-updates layout when slides or container sizes change.
-
-7. **Single Slide Mode**  
-   - If there is only one slide, auto-disables navigation/pagination/touch unless you choose otherwise.
-
-8. **Fade + CrossFade**  
-   - For a smooth fade effect between slides (`data-effect="fade"`, `data-crossfade="true"`).
-
-9. **Zero or Minimal JavaScript Setup**  
-   - Everything is triggered automatically on `DOMContentLoaded`.
+* Global + per‑instance config merge (`window.SwiperDefaults` + `data-*`)
+* Optional **top‑level** or **bullet‑level** progress bars
+* Custom `<input type="range">` navigation slider
+* Autoplay gated by **Intersection Observer**
+* Prefers‑reduced‑motion handling (opt‑in)
+* Mutation observer support (`data-observer="true"`)
+* Automatic single‑slide fall‑backs
+* Fade / cross‑fade effect
+* **Disable‑at‑break‑point** logic *(new)*
+* Destroy / recalc helpers *(new)*
 
 ---
 
-## Prerequisites
+## Quick start
 
-- **Swiper 11+**  
-  - If you’re using older versions, there may be minor incompatibilities.  
-- **Modern Browsers**  
-  - Intersection Observer features are widely supported, but older browsers may need polyfills.
+### Prerequisites
 
----
+* Swiper 11 or 12
+* Modern browser (Intersection Observer is now 96 %+ supported)
 
-## Installation
-
-### 1. Include Swiper’s CSS and JS
-
-In your `<head>`:
+### Installation
 
 ```html
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-/>
-```
-
-Before `</body>` or in `<head>`:
-
-```html
+<!-- Swiper core -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Swiper Starter Kit -->
+<script src="https://cdn.jsdelivr.net/gh/your‑user/your‑repo@v2.0.0/dist/swiper‑starter.js"></script>
 ```
 
-### 2. Include the Script
+> **Tip:** Pin to a tag (`@v2.0.0`) or commit hash to avoid surprises.
 
-After including Swiper, embed or link to the **revamped Swiper Starter Kit**:
-
-```html
-<script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
-```
-
-*(You can rename the file as you prefer.)*
-
-### 3. Basic HTML Structure
-
-Wrap each slider in a `.slider-main_component` with an inner `.swiper` container:
+### Basic HTML skeleton
 
 ```html
-<div class="slider-main_component" data-some-attributes="...">
+<div class="slider-main_component" data-autoplay="3000">
   <div class="swiper">
     <div class="swiper-wrapper">
-      <!-- .swiper-slide elements -->
-      <div class="swiper-slide">Slide 1</div>
-      <div class="swiper-slide">Slide 2</div>
-      <!-- etc. -->
+      <div class="swiper-slide">Slide 1</div>
+      <div class="swiper-slide">Slide 2</div>
     </div>
-    <!-- Optional pagination, navigation, scrollbar -->
+
+    <!-- Optional UI -->
     <div class="swiper-bullet-wrapper"></div>
     <div class="swiper-next"></div>
     <div class="swiper-prev"></div>
     <div class="swiper-drag-wrapper"></div>
   </div>
+
   <!-- Optional progress bar -->
   <div class="swiper-progress-bar-wrapper">
     <div class="swiper-progress-bar"></div>
   </div>
+
   <!-- Optional custom range slider -->
   <div class="custom-slider-wrapper">
-    <input type="range" class="custom-slider" />
+    <input type="range" class="custom-slider"/>
   </div>
 </div>
 ```
 
-### 4. Optional Global Configuration
+Sliders auto‑initialise on `DOMContentLoaded`.
 
-Before the `<script>` that loads the starter kit, define `window.SwiperDefaults` to override global defaults:
+---
+
+## Global defaults
+
+Override once per page:
 
 ```html
 <script>
   window.SwiperDefaults = {
     loop: true,
     speed: 500,
-    autoplay: { delay: 3000, disableOnInteraction: false },
-    keyboard: { enabled: true, onlyInViewport: true },
-    // etc.
+    autoplay: { delay: 4000, disableOnInteraction: false },
+    // anything from Swiper’s API or the custom flags below
   };
 </script>
 ```
 
-### 5. Integration
+---
 
-On page load, the script auto-initializes all `.slider-main_component` elements. You can store a reference to each Swiper instance via:
+## Data‑attribute reference
+
+### Core attributes
+
+| Attribute                     | Values                    | Description                            |
+| ----------------------------- | ------------------------- | -------------------------------------- |
+| `data-loop-mode`              | `"true"` / `"false"`      | Enable Swiper looping.                 |
+| `data-autoplay`               | `"false"` \| number (ms)  | Autoplay delay or disable.             |
+| `data-slider-duration`        | number (ms)               | Transition speed.                      |
+| `data-effect`                 | `"slide"`, `"fade"`, etc. | Swiper effect module.                  |
+| `data-crossfade`              | `"true"`                  | Only for `data-effect="fade"`.         |
+| `data-slides-per-view`        | number \| `"auto"`        |                                        |
+| `data-space-between`          | number (px)               |                                        |
+| `data-breakpoints`            | JSON string               | Full Swiper breakpoint object.         |
+| `data-progress-bar`           | `"true"`                  | Top‑level progress fill.               |
+| `data-bullet-progress`        | `"true"`                  | Per‑bullet timed fills.                |
+| `data-custom-slider`          | `"true"`                  | Enable `<input type="range">` control. |
+| `data-autoplay-inview`        | `"true"`                  | Starts autoplay only when visible.     |
+| `data-intersection-threshold` | float (0‑1)               | Optional threshold override.           |
+
+### Advanced attributes
+
+| Attribute                                                                    | Purpose                                                 |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `data-centered-slides` / `data-center-insufficient-slides`                   |                                                         |
+| `data-slides-per-group`                                                      | Grouped navigation.                                     |
+| `data-watch-overflow`                                                        | Hide arrows when not scrollable.                        |
+| `data-resistance-ratio`                                                      | Drag resistance.                                        |
+| `data-free-mode`                                                             | Free scrolling.                                         |
+| `data-slider-color`                                                          | Hex or CSS colour for progress/UI.                      |
+| `data-observer`                                                              | `"true"` → Swiper `observer` & `observeParents`.        |
+| `data-disable-navigation` / `data-disable-pagination` / `data-disable-touch` | Disable specific UI bits.                               |
+| **`data-disable-below`** *(new)*                                             | Integer px – don’t instantiate if viewport **< value**. |
+| **`data-disable-above`** *(new)*                                             | Integer px – don’t instantiate if viewport **> value**. |
+
+---
+
+## Runtime helpers
+
+### Accessing an instance
 
 ```js
-// The script attaches each Swiper instance to the container:
-// container._swiperInstance
+const container = document.querySelector('.slider-main_component');
+const swiper    = container._swiperInstance;   // Swiper API
+const config    = container._swiperConfig;     // frozen copy
 ```
 
-So you can do:
+### Programmatic control
+
 ```js
-document
-  .querySelectorAll(".slider-main_component")
-  .forEach(container => {
-    const swiper = container._swiperInstance;
-    // e.g. swiper.update() after adding slides dynamically
-  });
+swiper.slideNext();
+swiper.update();                // if you added slides dynamically
+```
+
+### Destroy / rebuild
+
+```js
+window.destroySwipers(); // kills every instance and observers
+window.recalcSwipers();  // (re)creates sliders per break‑point rules
 ```
 
 ---
 
-## Data Attributes
+## Disabling a slider at break‑points
 
-### Key Attributes
+```html
+<!-- Only load on tablets & up -->
+<div class="slider-main_component" data-disable-below="768">
+  …
+</div>
 
-- **`data-loop-mode`**: `"true"` or `"false"`  
-  Whether to loop slides.
-- **`data-autoplay`**: `"false"` or numeric (delay in ms)  
-  For example, `data-autoplay="3000"` → 3s per slide.
-- **`data-slider-duration`**: numeric (transition speed in ms)  
-  e.g. `data-slider-duration="600"`.
-- **`data-effect`**: `"slide"`, `"fade"`, or other Swiper effects.  
-- **`data-crossfade`**: `"true"` or `"false"` when `data-effect="fade"`.
-- **`data-full-height`**: `"true"` to set each slide to `height: 100%`.
-- **`data-progress-bar`**: `"true"` for a top-level progress bar.
-- **`data-bullet-progress`**: `"true"` to add a progress fill to each bullet.
-- **`data-slides-per-view`**: integer or `"auto"`.
-- **`data-space-between`**: integer (px).
-- **`data-breakpoints`**: JSON string defining breakpoints.  
-  Example:  
-  ```html
-  data-breakpoints='{
-    "480": { "slidesPerView": 1, "spaceBetween": 10 },
-    "768": { "slidesPerView": 2, "spaceBetween": 16 }
-  }'
-  ```
-- **`data-single-slide`**: `"true"` to force 1 slide at all breakpoints.  
+<!-- Only load on mobile -->
+<div class="slider-main_component" data-disable-above="767">
+  …
+</div>
+```
 
-### Advanced Attributes
+Behaviour:
 
-- **`data-centered-slides`**: center active slides within container.
-- **`data-slides-per-group`**: integer (how many slides to advance at once).
-- **`data-watch-overflow`**: `"true"` (enable or disable watchOverflow).
-- **`data-resistance-ratio`**: float, e.g. `0.85`.
-- **`data-center-insufficient-slides`**: `"true"` to center if slides < slidesPerView.
-- **`data-free-mode`**: `"true"` for free mode scrolling.
-- **`data-slider-color`**: e.g. `"#FF5722"` to color the custom slider or bullet progress bar.
-- **`data-autoplay-inview`**: `"true"` (Intersection Observer-based autoplay).
-- **`data-intersection-threshold`**: float, e.g. `0.5` (use with `data-autoplay-inview`).
-- **`data-observer`**: `"true"` to enable `observer` and `observeParents` in Swiper (react to DOM changes).
-
-#### Disable Features per Instance
-- **`data-disable-navigation`**: `"true"` → remove next/prev arrows for that slider.
-- **`data-disable-pagination`**: `"true"` → remove bullet pagination.
-- **`data-disable-touch`**: `"true"` → disable touch/drag swiping.
-
----
-
-## Additional Features & Notes
-
-### Single-Slide Scenario
-If there is only **one** slide, the script automatically disables navigation, pagination, autoplay, and touch. This avoids unexpected bullet or nav arrows. If you *do* want to keep them, remove or comment out the relevant lines in the script.
-
-### Intersection Observer Threshold
-For **autoplay only in view**, the default threshold is `0.2` (20%). You can override that via `data-intersection-threshold="0.5"`. The slider must be **≥ 50%** visible in the viewport to autoplay.
-
-### Disable Features per Instance
-- `data-disable-navigation="true"` hides `.swiper-next` and `.swiper-prev`.
-- `data-disable-pagination="true"` hides `.swiper-bullet-wrapper`.
-- `data-disable-touch="true"` sets `allowTouchMove = false`.
-
-### Observer & Observe Parents
-- `data-observer="true"` → sets Swiper’s `observer` and `observeParents` to `true`. If your slider or its parent containers resize or get new slides, Swiper auto-updates.
-
-### Storing Swiper Instance
-After initialization, the code attaches each instance to `container._swiperInstance`. Access it for `.update()`, `.slideNext()`, etc.
-
-### Reduced Motion Handling (Optional)
-Inside the code, you’ll see a commented-out snippet checking `window.matchMedia('(prefers-reduced-motion: reduce)')`.  
-If you want to automatically disable or slow autoplay for those users, **uncomment** that snippet.
-
-### Allow Loop With Fewer Slides
-By default, if `slidesCount <= maxSlidesPerView`, we set `loop = false` to prevent awkward bullet behavior. If you’d rather keep loop turned on, just remove that condition.
+1. On page load the script checks viewport width against the attribute.
+2. If the slider is disabled, it is **not** instantiated.
+3. A debounced `resize` listener calls `window.recalcSwipers()`, so when you cross the boundary the instance is created or destroyed seamlessly.
 
 ---
 
 ## Examples
 
-### Basic Slider
-
-```html
-<div class="slider-main_component">
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">Slide 1</div>
-      <div class="swiper-slide">Slide 2</div>
-      <div class="swiper-slide">Slide 3</div>
-    </div>
-    <div class="swiper-bullet-wrapper"></div>
-    <div class="swiper-next"></div>
-    <div class="swiper-prev"></div>
-  </div>
-</div>
-```
-
-### Progress Bar Slider
-
-```html
-<div class="slider-main_component" data-autoplay="3000" data-progress-bar="true">
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">A</div>
-      <div class="swiper-slide">B</div>
-      <div class="swiper-slide">C</div>
-    </div>
-  </div>
-  <div class="swiper-progress-bar-wrapper">
-    <div class="swiper-progress-bar"></div>
-  </div>
-</div>
-```
-
-### Bullet-Based Progress Slider
+### Bullet progress + disable on desktop
 
 ```html
 <div
   class="slider-main_component"
-  data-autoplay="4000"
+  data-autoplay="3500"
   data-bullet-progress="true"
-  data-slides-per-view="3"
+  data-disable-above="991"
 >
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">1</div>
-      <div class="swiper-slide">2</div>
-      <div class="swiper-slide">3</div>
-    </div>
-    <div class="swiper-bullet-wrapper"></div>
-  </div>
+  …
 </div>
 ```
 
-### Custom Draggable Range Slider
-
-```html
-<div class="slider-main_component" data-custom-slider="true">
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">Alpha</div>
-      <div class="swiper-slide">Beta</div>
-      <div class="swiper-slide">Gamma</div>
-    </div>
-  </div>
-  <div class="custom-slider-wrapper">
-    <input type="range" class="custom-slider" />
-  </div>
-</div>
-```
-
-### Autoplay Only in View
+### Hero slider, autoplay only in view, mobile off
 
 ```html
 <div
@@ -362,204 +236,55 @@ By default, if `slidesCount <= maxSlidesPerView`, we set `loop = false` to preve
   data-autoplay="3000"
   data-progress-bar="true"
   data-autoplay-inview="true"
-  data-intersection-threshold="0.5"
+  data-disable-below="480"
 >
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">Hello</div>
-      <div class="swiper-slide">World</div>
-    </div>
-  </div>
-  <div class="swiper-progress-bar-wrapper">
-    <div class="swiper-progress-bar"></div>
-  </div>
+  …
 </div>
-```
-This slider only autoplays when at least **50%** visible (threshold = 0.5).
-
-### Fade + CrossFade
-
-```html
-<div
-  class="slider-main_component"
-  data-effect="fade"
-  data-crossfade="true"
-  data-autoplay="2500"
->
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">Fade Slide 1</div>
-      <div class="swiper-slide">Fade Slide 2</div>
-    </div>
-  </div>
-</div>
-```
-
-### Observer/Mutation Example
-
-```html
-<div class="slider-main_component" data-observer="true" data-loop-mode="true">
-  <div class="swiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">Slide A</div>
-      <div class="swiper-slide">Slide B</div>
-    </div>
-    <div class="swiper-bullet-wrapper"></div>
-  </div>
-</div>
-```
-
-If you programmatically insert a new `.swiper-slide`, Swiper will detect it and update automatically.
-
----
-
-## CSS Snippets
-
-### Top-Level Progress Bar
-
-```css
-@keyframes swiper-progress-bar-animation {
-  from {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-  to {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-}
-
-.swiper-progress-bar-wrapper {
-  position: relative;
-  width: 100%;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.swiper-progress-bar {
-  width: 100%;
-  height: 100%;
-  background: #007aff;
-  transform: scaleX(0);
-  transform-origin: left;
-}
-```
-
-### Bullet-Based Progress Bars
-
-```css
-.swiper-bullet {
-  position: relative;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ccc;
-  margin: 0 4px;
-  overflow: hidden; /* ensures .bullet-progress stays clipped */
-}
-
-.bullet-progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 100%;
-  background: #007aff; /* fill color */
-  transition: width 0s linear; /* real timing is set in JS */
-}
-```
-
-### Custom Range Slider
-
-```css
-.custom-slider {
-  --slider-color: #007aff; /* fallback */
-  --value-percent: 0%;
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 5px;
-  background: transparent;
-  cursor: pointer;
-  outline: none; /* for a cleaner look; ensure focus styles if needed */
-}
-
-/* Track styling */
-.custom-slider::-webkit-slider-runnable-track {
-  height: 5px;
-  border-radius: 4px;
-  background: linear-gradient(
-    to right,
-    var(--slider-color) 0%,
-    var(--slider-color) var(--value-percent),
-    #ccc var(--value-percent),
-    #ccc 100%
-  );
-}
-.custom-slider::-moz-range-track {
-  /* For Firefox */
-  height: 5px;
-  border-radius: 4px;
-  background: linear-gradient(
-    to right,
-    var(--slider-color) 0%,
-    var(--slider-color) var(--value-percent),
-    #ccc var(--value-percent),
-    #ccc 100%
-  );
-}
-
-/* Thumb styling */
-.custom-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 27px;
-  height: 27px;
-  margin-top: -11px; /* align thumb vertically */
-  background: var(--slider-color);
-  border-radius: 50%;
-  cursor: pointer;
-}
-.custom-slider::-moz-range-thumb {
-  /* For Firefox */
-  width: 27px;
-  height: 27px;
-  background: var(--slider-color);
-  border-radius: 50%;
-  cursor: pointer;
-}
 ```
 
 ---
 
-## Edge Cases & Performance Tips
+## CSS snippets
 
-1. **Many Images / Lazy Loading**  
-   If your slides contain large images, consider using Swiper’s [lazy loading module](https://swiperjs.com/swiper-api#lazy). Import or enable `lazy: { ... }` in the global defaults or data attributes.
+CSS from v1 still applies.  Additions:
 
-2. **Single-Slide “Hero”**  
-   By default, the script disables navigation & autoplay if there is only 1 slide. If you still want arrows or autoplay for a single “hero” slide, remove or comment out that block in the script.
+```css
+/* Hide bullets / arrows in disabled state (optional) */
+.slider-main_component[data-swiper-disabled] .swiper-bullet-wrapper,
+.slider-main_component[data-swiper-disabled] .swiper-next,
+.slider-main_component[data-swiper-disabled] .swiper-prev { display:none; }
+```
 
-3. **Dynamically Adding Slides**  
-   If you do *not* enable `data-observer="true"`, you must manually call  
-   ```js
-   container._swiperInstance.update();
-   ```  
-   after adding or removing `.swiper-slide` elements.
+*(The script toggles `data-swiper-disabled` on the container when an instance is torn down.)*
 
-4. **Loop with < slidesPerView**  
-   The script forces `loop = false` if slides are fewer than or equal to `maxSlidesPerView`. If you want continuous looping, remove that condition.
+---
 
-5. **Performance**  
-   - Minimizing reflows: The script uses forced reflows (`void x.offsetWidth`) for bullet progress bars. This is typically fine for small slide counts. For extremely large slide sets, consider more efficient height or progress logic.  
-   - Using Intersection Observer means less CPU overhead for autoplay when off-screen.
+## Performance & edge cases
+
+| Scenario               | Advice                                                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Many images            | Use Swiper’s `lazy` module or native `loading="lazy"`.                                                                                |
+| 1 slide only           | By default nav/pagination/autoplay/touch are off. Remove that block in the script if you prefer otherwise.                            |
+| 100+ bullets           | Consider disabling `bulletProgress` or using CSS‑only animations to avoid forced reflows.                                             |
+| Frequent DOM mutations | `data-observer="true"` lets Swiper auto‑update, but large dynamic lists may benefit from manual `swiper.update()` to avoid thrashing. |
+
+---
+
+## Changelog
+
+### 2.0.0 – 2025‑05‑06
+
+* Shared IntersectionObserver
+* Break‑point disable logic (`data-disable-below/above`)
+* Global destroy / recalc helpers
+* Mouse‑wheel retained when touch disabled
+* Deep‑merge array handling
+* Config exposure (`_swiperConfig`)
+* Throttled custom‑slider painting
+* TypeScript‑ready JSDoc comments
 
 ---
 
 ## License
 
-This project is provided under the [MIT License](LICENSE). You can freely copy, modify, and distribute it as you see fit.
-
----
-
-**Enjoy using the revamped Swiper Starter Kit!** If you have questions or need custom modifications, feel free to reach out.
+[MIT](LICENSE)

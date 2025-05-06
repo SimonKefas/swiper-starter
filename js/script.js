@@ -1,8 +1,75 @@
+/*
+ * Swiper Starter Kit – v2.0.0
+ * =============================================
+ * Improvements in this release
+ * ---------------------------------------------
+ * 1. **Shared IntersectionObserver** – one observer instance for all
+ *    autoplay‑in‑view sliders (reduces overhead).
+ * 2. **Destroy helpers** – `destroySwipers()` tears down observers & Swiper
+ *    instances; sliders can be re‑created on demand.
+ * 3. **Breakpoint Disable** – new `data-disable-below` / `data-disable-above`
+ *    attributes let you deactivate a slider at specific viewport widths.
+ * 4. **Array aware deepMerge** – arrays are now cloned instead of referenced.
+ * 5. **Mouse‑wheel fallback** when `allowTouchMove === false`.
+ * 6. **Debounced custom range slider** rendering via `requestAnimationFrame`.
+ * 7. **Config reference** – each container gets `_swiperConfig` (frozen copy).
+ *
+ * There are **no breaking changes** for existing markup – all previous data
+ * attributes keep working. The new ones are opt‑in. Compile‑to‑ES5 not
+ * required; file ships as ES2015 for CDN usage.
+ *
+ * Author: JS Solutions Expert – May 2025
+ */
+
 (function () {
-  // ===========================
-  // 1) Default configurations
-  // ===========================
-  var defaultSwiperOptions = {
+  "use strict";
+
+  /* =============================================================
+   * 0) Utilities
+   * ============================================================= */
+
+  /**
+   * Very small deep‑merge helper.  Now clones arrays so they don't share
+   * reference with defaults.  If a property in `source` is null, the key is
+   * deleted from the target ("null‑to‑delete" convention).
+   */
+  function deepMerge(target = {}, ...sources) {
+    sources.forEach((source) => {
+      if (!source) return;
+      Object.keys(source).forEach((key) => {
+        const srcVal = source[key];
+        if (srcVal === null) {
+          delete target[key];
+          return;
+        }
+        if (Array.isArray(srcVal)) {
+          target[key] = srcVal.slice(); // shallow clone array
+          return;
+        }
+        if (typeof srcVal === "object" && srcVal !== null) {
+          if (!target[key] || typeof target[key] !== "object") target[key] = {};
+          deepMerge(target[key], srcVal);
+        } else {
+          target[key] = srcVal;
+        }
+      });
+    });
+    return target;
+  }
+
+  /** Simple debounce helper. */
+  function debounce(fn, wait = 200) {
+    let t;
+    return function () {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, arguments), wait);
+    };
+  }
+
+  /* =============================================================
+   * 1) Default Swiper configuration
+   * ============================================================= */
+  let defaultSwiperOptions = {
     loop: false,
     autoplay: { delay: 2500, disableOnInteraction: false },
     speed: 300,
@@ -24,12 +91,8 @@
       el: ".swiper-bullet-wrapper",
       bulletActiveClass: "is-active",
       bulletClass: "swiper-bullet",
-      bulletElement: "button", // good for accessibility
+      bulletElement: "button", // accessibility
       clickable: true,
-      // You could optionally add:
-      // renderBullet: function (index, className) {
-      //   return '<button class="' + className + '" aria-label="Go to slide ' + (index + 1) + '"></button>';
-      // }
     },
     navigation: {
       nextEl: ".swiper-next",
@@ -49,7 +112,6 @@
     slideActiveClass: "is-active",
     slideDuplicateActiveClass: "is-active",
 
-    // Additional defaults for advanced features
     centeredSlides: false,
     slidesPerGroup: 1,
     watchOverflow: true,
@@ -57,443 +119,133 @@
     centerInsufficientSlides: false,
     freeMode: false,
 
-    // Optional: If user sets a threshold for intersection-based autoplay
+    // custom extensions
     intersectionThreshold: 0.2,
   };
 
-  // ===========================
-  // 2) Merge function for options
-  // ===========================
-  function mergeOptions(defaults, instance) {
-    return deepMerge({}, defaults, instance);
-
-    function deepMerge(target, ...sources) {
-      sources.forEach((source) => {
-        Object.keys(source).forEach((key) => {
-          if (source[key] === null) {
-            // remove property if null
-            delete target[key];
-          } else if (
-            source[key] &&
-            typeof source[key] === "object" &&
-            !Array.isArray(source[key])
-          ) {
-            if (!target[key]) target[key] = {};
-            deepMerge(target[key], source[key]);
-          } else {
-            target[key] = source[key];
-          }
-        });
-      });
-      return target;
-    }
-  }
-
-  // ===========================
-  // 3) Merge user-defined SwiperDefaults if provided (global override)
-  // ===========================
+  /* -------------------------------------------------------------
+   * Optional global overrides via window.SwiperDefaults
+   * ----------------------------------------------------------- */
   if (window.SwiperDefaults) {
-    defaultSwiperOptions = mergeOptions(
-      defaultSwiperOptions,
-      window.SwiperDefaults
-    );
+    defaultSwiperOptions = deepMerge({}, defaultSwiperOptions, window.SwiperDefaults);
   }
 
-  // ===========================
-  // 4) Main Init
-  // ===========================
-  function initSwipers() {
-    // ----------------------------------------------
-    // (Optional) Respect prefers-reduced-motion
-    // ----------------------------------------------
+  /* =============================================================
+   * 2) Slider registry & shared resources
+   * ============================================================= */
+  // Map<HTMLElement, { swiper: Swiper|null, destroyFns: Function[] }>
+  const sliderRegistry = new Map();
 
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      defaultSwiperOptions.autoplay = false;
-      // or set a longer delay: defaultSwiperOptions.autoplay.delay = 9999999;
-    }
-
-    document
-      .querySelectorAll(".slider-main_component")
-      .forEach(function (container) {
-        const instanceOptions = getInstanceOptions(container);
-        const swiperConfig = mergeOptions(defaultSwiperOptions, instanceOptions);
-
-        // If the user provided data-breakpoints, override the entire breakpoints object
-        if (instanceOptions.breakpoints) {
-          swiperConfig.breakpoints = instanceOptions.breakpoints;
+  // Single shared IntersectionObserver for all autoplay‑in‑view sliders
+  let sharedIO = null;
+  function getSharedObserver(threshold) {
+    if (sharedIO) return sharedIO;
+    sharedIO = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const container = entry.target;
+        const record = sliderRegistry.get(container);
+        if (!record || !record.swiper) return;
+        if (entry.isIntersecting) {
+          record.swiper.autoplay?.start();
+        } else {
+          record.swiper.autoplay?.stop();
         }
-
-        // If fade + crossFade
-        if (swiperConfig.effect === "fade") {
-          swiperConfig.fadeEffect = {
-            crossFade: !!swiperConfig.crossFade,
-          };
-        }
-
-        const swiperElement = container.querySelector(".swiper");
-        if (!swiperElement) {
-          console.warn("Swiper element not found:", container);
-          return;
-        }
-
-        const slidesCount =
-          swiperElement.querySelectorAll(".swiper-slide").length;
-
-        // Determine maximum slidesPerView
-        let maxSlidesPerView = 1;
-        if (typeof swiperConfig.slidesPerView === "number") {
-          maxSlidesPerView = swiperConfig.slidesPerView;
-        } else if (swiperConfig.slidesPerView === "auto") {
-          maxSlidesPerView = slidesCount;
-        } else if (swiperConfig.breakpoints) {
-          const bpValues = Object.values(swiperConfig.breakpoints);
-          const spvValues = bpValues.map((bp) => bp.slidesPerView || 1);
-          maxSlidesPerView = Math.max(...spvValues);
-        }
-
-        // Disable loop if not enough slides
-        if (slidesCount <= maxSlidesPerView) {
-          swiperConfig.loop = false;
-        }
-
-        // Single-slide scenario -> disable nav, pagination, autoplay, etc.
-        // (If you do NOT want to disable them, remove or comment out below block)
-        if (slidesCount <= 1) {
-          swiperConfig.navigation = false;
-          swiperConfig.pagination = false;
-          swiperConfig.autoplay = false;
-          swiperConfig.allowTouchMove = false;
-          if (swiperConfig.keyboard) {
-            swiperConfig.keyboard.enabled = false;
-          }
-        }
-
-        // Adjust final DOM selectors
-        adjustSelectors(swiperConfig, container);
-
-        // Add custom parameters from data attributes
-        swiperConfig.customSlider = instanceOptions.customSlider;
-        swiperConfig.sliderColor = instanceOptions.sliderColor;
-        swiperConfig.autoplayInView = instanceOptions.autoplayInView;
-        swiperConfig.bulletProgress = instanceOptions.bulletProgress;
-
-        // Setup event handlers
-        swiperConfig.on = {
-          init: function () {
-            const swiper = this;
-
-            // Slide height
-            if (swiper.params.effect === "fade") {
-              adjustSlidesZIndex(swiper);
-            }
-            if (swiper.params.fullHeight) {
-              setSlidesFullHeight(swiper);
-            } else {
-              adjustSlidesHeight(swiper);
-            }
-
-            // Top-level progress bar
-            if (swiper.params.progressBar && swiper.params.autoplay) {
-              const progressBar = container.querySelector(".swiper-progress-bar");
-              if (progressBar) {
-                swiper.topLevelProgressBar = progressBar;
-              }
-            }
-
-            // If bullet progress is enabled, inject .bullet-progress div
-            if (swiper.params.bulletProgress && swiper.params.pagination) {
-              const bulletEls = container.querySelectorAll(".swiper-bullet");
-              bulletEls.forEach((bullet) => {
-                if (!bullet.querySelector(".bullet-progress")) {
-                  const prog = document.createElement("div");
-                  prog.classList.add("bullet-progress");
-                  prog.style.width = "0%";
-                  bullet.appendChild(prog);
-                }
-              });
-            }
-
-            // Optional custom slider (range input)
-            setupCustomSlider(swiper, container, slidesCount);
-
-            // Intersection-based autoplay
-            if (swiper.params.autoplay && swiper.params.autoplayInView) {
-              swiper.autoplay.stop();
-              const thresholdValue =
-                swiper.params.intersectionThreshold || 0.2;
-              const observer = new IntersectionObserver(
-                (entries) => {
-                  entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                      swiper.autoplay.start();
-                    } else {
-                      swiper.autoplay.stop();
-                    }
-                  });
-                },
-                { threshold: thresholdValue }
-              );
-              observer.observe(container);
-            }
-          },
-
-          afterInit: function (swiper) {
-            // Start bullet or top-level progress from the initial realIndex
-            if (
-              swiper.params.progressBar &&
-              swiper.params.autoplay &&
-              swiper.topLevelProgressBar
-            ) {
-              startTopLevelProgress(swiper, container);
-            }
-            startBulletProgress(swiper, container);
-          },
-
-          slideChangeTransitionStart: function () {
-            const swiper = this;
-
-            if (swiper.params.effect === "fade") {
-              adjustSlidesZIndex(swiper);
-            }
-
-            // Top-level bar
-            if (
-              swiper.params.progressBar &&
-              swiper.params.autoplay &&
-              swiper.topLevelProgressBar
-            ) {
-              startTopLevelProgress(swiper, container);
-            }
-
-            // Bullet-based progress
-            startBulletProgress(swiper, container);
-
-            // If custom slider, set range to realIndex
-            syncCustomSlider(swiper, container);
-          },
-
-          autoplayStop: function () {
-            // If user drags or intersection observer stops autoplay
-            const swiper = this;
-            if (swiper.topLevelProgressBar) {
-              swiper.topLevelProgressBar.style.animationPlayState = "paused";
-            }
-            if (swiper.params.bulletProgress) {
-              const bulletProgs = container.querySelectorAll(
-                ".swiper-bullet .bullet-progress"
-              );
-              bulletProgs.forEach((bp) => {
-                bp.style.transition = "none";
-              });
-            }
-          },
-
-          autoplayStart: function () {
-            // Next slideChange triggers fresh fill
-            const swiper = this;
-            if (swiper.topLevelProgressBar) {
-              swiper.topLevelProgressBar.style.animationPlayState = "running";
-            }
-          },
-        };
-
-        // ----------------------------------------------
-        // (Optional) observer=“true” (Watch DOM changes)
-        // ----------------------------------------------
-        // If the user wants to watch for changes in the slider or its parents:
-        // (disabling it by default to avoid overhead)
-        if (instanceOptions.observer) {
-          swiperConfig.observer = true;
-          swiperConfig.observeParents = true;
-        }
-
-        // ----------------------------------------------
-        //  Create Swiper instance
-        // ----------------------------------------------
-        const swiperInstance = new Swiper(swiperElement, swiperConfig);
-
-        // Store reference to instance on the container, if you want external control
-        // e.g. container._swiperInstance.update() for dynamic slides
-        container._swiperInstance = swiperInstance;
       });
+    }, { threshold });
+    return sharedIO;
   }
 
-  // ===========================
-  // 5) Data Attributes
-  // ===========================
+  /* =============================================================
+   * 3) Initialiser & destroyer
+   * ============================================================= */
+
+  /**
+   * Determine if the slider should be active for the current viewport width,
+   * based on optional data‑disable-below / data-disable-above attributes.
+   */
+  function isSliderEnabledNow(container) {
+    const belowAttr = container.getAttribute("data-disable-below");
+    const aboveAttr = container.getAttribute("data-disable-above");
+
+    const vp = window.innerWidth;
+    if (belowAttr && vp < parseInt(belowAttr, 10)) return false;
+    if (aboveAttr && vp > parseInt(aboveAttr, 10)) return false;
+    return true;
+  }
+
+  /** Collect all instance‑level options from data attributes. */
   function getInstanceOptions(container) {
-    const options = {};
+    const o = {};
+    const d = container.dataset; // shortcut
 
-    // Basic toggles / numeric
-    if (container.hasAttribute("data-loop-mode")) {
-      options.loop = container.getAttribute("data-loop-mode") === "true";
-    }
-    if (container.hasAttribute("data-slider-duration")) {
-      options.speed = parseInt(container.getAttribute("data-slider-duration"), 10);
-    }
-    if (container.hasAttribute("data-effect")) {
-      options.effect = container.getAttribute("data-effect");
-    }
-    if (container.hasAttribute("data-crossfade")) {
-      options.crossFade = container.getAttribute("data-crossfade") === "true";
-    }
-    if (container.hasAttribute("data-autoplay")) {
-      const autoplayValue = container.getAttribute("data-autoplay");
-      if (autoplayValue === "false") {
-        options.autoplay = false;
+    if (d.loopMode) o.loop = d.loopMode === "true";
+    if (d.sliderDuration) o.speed = parseInt(d.sliderDuration, 10);
+    if (d.effect) o.effect = d.effect;
+    if (d.crossfade) o.crossFade = d.crossfade === "true";
+    if (d.autoplay) {
+      if (d.autoplay === "false") {
+        o.autoplay = false;
       } else {
-        const delay = parseInt(autoplayValue, 10);
-        if (!isNaN(delay)) {
-          options.autoplay = { delay, disableOnInteraction: false };
-        }
+        const delay = parseInt(d.autoplay, 10);
+        if (!isNaN(delay)) o.autoplay = { delay, disableOnInteraction: false };
       }
     }
-    if (container.hasAttribute("data-full-height")) {
-      options.fullHeight = container.getAttribute("data-full-height") === "true";
+    if (d.fullHeight) o.fullHeight = d.fullHeight === "true";
+    if (d.progressBar) o.progressBar = d.progressBar === "true";
+    if (d.bulletProgress) o.bulletProgress = d.bulletProgress === "true";
+    if (d.slidesPerView) {
+      if (d.slidesPerView === "auto") o.slidesPerView = "auto";
+      else o.slidesPerView = parseInt(d.slidesPerView, 10);
+      if (!d.breakpoints) o.breakpoints = null; // user overrides completely
     }
-    if (container.hasAttribute("data-progress-bar")) {
-      options.progressBar =
-        container.getAttribute("data-progress-bar") === "true";
-    }
-    if (container.hasAttribute("data-bullet-progress")) {
-      options.bulletProgress =
-        container.getAttribute("data-bullet-progress") === "true";
-    }
-    if (container.hasAttribute("data-slides-per-view")) {
-      const spv = container.getAttribute("data-slides-per-view");
-      if (spv === "auto") {
-        options.slidesPerView = "auto";
-      } else {
-        options.slidesPerView = parseInt(spv, 10);
-      }
-
-      if (!container.hasAttribute("data-breakpoints")) {
-        options.breakpoints = null;
-      }
-    }
-    if (container.hasAttribute("data-space-between")) {
-      options.spaceBetween = parseInt(
-        container.getAttribute("data-space-between"),
-        10
-      );
-    }
-    if (container.hasAttribute("data-breakpoints")) {
-      let bpAttr = container.getAttribute("data-breakpoints");
-      // Convert single quotes to double quotes if needed
-      if (bpAttr.indexOf("'") !== -1) {
-        bpAttr = bpAttr.replace(/'/g, '"');
-      }
+    if (d.spaceBetween) o.spaceBetween = parseInt(d.spaceBetween, 10);
+    if (d.breakpoints) {
       try {
-        options.breakpoints = JSON.parse(bpAttr);
-      } catch (e) {
-        console.error("Invalid JSON in data-breakpoints attribute:", e);
+        o.breakpoints = JSON.parse(d.breakpoints.replace(/'/g, '"'));
+      } catch (err) {
+        console.error("Invalid JSON in data-breakpoints", err);
       }
-    } else {
-      // If no data-breakpoints is provided and slidesPerView is set, null out breakpoints.
-      if (options.slidesPerView !== undefined && options.slidesPerView !== "auto") {
-        options.breakpoints = null;
-      }
-    }    
-    if (
-      container.hasAttribute("data-single-slide") &&
-      container.getAttribute("data-single-slide") === "true"
-    ) {
-      options.slidesPerView = 1;
-      options.breakpoints = null;
     }
-    if (container.hasAttribute("data-custom-slider")) {
-      options.customSlider =
-        container.getAttribute("data-custom-slider") === "true";
-    } else {
-      options.customSlider = false;
+    if (d.singleSlide === "true") {
+      o.slidesPerView = 1;
+      o.breakpoints = null;
+    }
+    o.customSlider = d.customSlider === "true";
+
+    if (d.centeredSlides) o.centeredSlides = d.centeredSlides === "true";
+    if (d.slidesPerGroup) o.slidesPerGroup = parseInt(d.slidesPerGroup, 10);
+    if (d.watchOverflow) o.watchOverflow = d.watchOverflow === "true";
+    if (d.resistanceRatio) o.resistanceRatio = parseFloat(d.resistanceRatio);
+    if (d.centerInsufficientSlides) o.centerInsufficientSlides = d.centerInsufficientSlides === "true";
+    if (d.freeMode) o.freeMode = d.freeMode === "true";
+    if (d.sliderColor) o.sliderColor = d.sliderColor;
+    if (d.autoplayInview) o.autoplayInView = d.autoplayInview === "true";
+    if (d.intersectionThreshold) o.intersectionThreshold = parseFloat(d.intersectionThreshold);
+    if (d.disableNavigation === "true") o.navigation = false;
+    if (d.disablePagination === "true") o.pagination = false;
+    if (d.disableTouch === "true") o.allowTouchMove = false;
+    if (d.observer === "true") {
+      o.observer = true;
+      o.observeParents = true;
     }
 
-    // Advanced
-    if (container.hasAttribute("data-centered-slides")) {
-      options.centeredSlides =
-        container.getAttribute("data-centered-slides") === "true";
-    }
-    if (container.hasAttribute("data-slides-per-group")) {
-      options.slidesPerGroup = parseInt(
-        container.getAttribute("data-slides-per-group"),
-        10
-      );
-    }
-    if (container.hasAttribute("data-watch-overflow")) {
-      options.watchOverflow =
-        container.getAttribute("data-watch-overflow") === "true";
-    }
-    if (container.hasAttribute("data-resistance-ratio")) {
-      options.resistanceRatio = parseFloat(
-        container.getAttribute("data-resistance-ratio")
-      );
-    }
-    if (container.hasAttribute("data-center-insufficient-slides")) {
-      options.centerInsufficientSlides =
-        container.getAttribute("data-center-insufficient-slides") === "true";
-    }
-    if (container.hasAttribute("data-free-mode")) {
-      options.freeMode = container.getAttribute("data-free-mode") === "true";
-    }
-    if (container.hasAttribute("data-slider-color")) {
-      options.sliderColor = container.getAttribute("data-slider-color");
-    }
-    if (container.hasAttribute("data-autoplay-inview")) {
-      options.autoplayInView =
-        container.getAttribute("data-autoplay-inview") === "true";
-    }
-    // Intersection threshold override
-    if (container.hasAttribute("data-intersection-threshold")) {
-      options.intersectionThreshold = parseFloat(
-        container.getAttribute("data-intersection-threshold")
-      );
-    }
-
-    // (Optional) Disable navigation, pagination, or touch if requested
-    if (container.hasAttribute("data-disable-navigation")) {
-      if (container.getAttribute("data-disable-navigation") === "true") {
-        options.navigation = false;
-      }
-    }
-    if (container.hasAttribute("data-disable-pagination")) {
-      if (container.getAttribute("data-disable-pagination") === "true") {
-        options.pagination = false;
-      }
-    }
-    if (container.hasAttribute("data-disable-touch")) {
-      if (container.getAttribute("data-disable-touch") === "true") {
-        options.allowTouchMove = false;
-      }
-    }
-
-    // If user wants to watch for DOM changes
-    if (container.hasAttribute("data-observer")) {
-      if (container.getAttribute("data-observer") === "true") {
-        options.observer = true;
-        options.observeParents = true;
-      }
-    }
-
-    return options;
+    return o;
   }
 
-  // ===========================
-  // 6) Adjust DOM selectors
-  // ===========================
+  /**
+   * Adjust config selectors so that each slider only looks inside its own
+   * container.
+   */
   function adjustSelectors(config, container) {
     if (config.pagination && config.pagination.el) {
       config.pagination.el = container.querySelector(config.pagination.el);
     }
     if (config.navigation) {
       if (config.navigation.nextEl) {
-        config.navigation.nextEl = container.querySelector(
-          config.navigation.nextEl
-        );
+        config.navigation.nextEl = container.querySelector(config.navigation.nextEl);
       }
       if (config.navigation.prevEl) {
-        config.navigation.prevEl = container.querySelector(
-          config.navigation.prevEl
-        );
+        config.navigation.prevEl = container.querySelector(config.navigation.prevEl);
       }
     }
     if (config.scrollbar && config.scrollbar.el) {
@@ -501,143 +253,317 @@
     }
   }
 
-  // ===========================
-  // 7) Helpers
-  // ===========================
+  /** Initialise a *single* Swiper instance inside its container. */
+  function createSwiper(container) {
+    const instanceOptions = getInstanceOptions(container);
+    const swiperConfig = deepMerge({}, defaultSwiperOptions, instanceOptions);
+
+    // user may fully override breakpoints
+    if (instanceOptions.breakpoints) {
+      swiperConfig.breakpoints = instanceOptions.breakpoints;
+    }
+
+    // fade crossFade support
+    if (swiperConfig.effect === "fade") {
+      swiperConfig.fadeEffect = { crossFade: !!swiperConfig.crossFade };
+    }
+
+    const swiperEl = container.querySelector(".swiper");
+    if (!swiperEl) {
+      console.warn("[Swiper Starter] .swiper element not found", container);
+      return null;
+    }
+
+    const slidesCount = swiperEl.querySelectorAll(".swiper-slide").length;
+
+    // determine max slidesPerView to decide auto loop off
+    let maxSpv = 1;
+    if (typeof swiperConfig.slidesPerView === "number") maxSpv = swiperConfig.slidesPerView;
+    else if (swiperConfig.slidesPerView === "auto") maxSpv = slidesCount;
+    else if (swiperConfig.breakpoints) {
+      maxSpv = Math.max(...Object.values(swiperConfig.breakpoints).map((bp) => bp.slidesPerView || 1));
+    }
+    if (slidesCount <= maxSpv) swiperConfig.loop = false;
+
+    if (slidesCount <= 1) {
+      swiperConfig.navigation = false;
+      swiperConfig.pagination = false;
+      swiperConfig.autoplay = false;
+      swiperConfig.allowTouchMove = false;
+      if (swiperConfig.keyboard) swiperConfig.keyboard.enabled = false;
+    }
+
+    // keep mouse‑wheel even when touch disabled
+    if (swiperConfig.allowTouchMove === false) {
+      swiperConfig.mousewheel = swiperConfig.mousewheel || { forceToAxis: true };
+    }
+
+    adjustSelectors(swiperConfig, container);
+
+    // expose some custom parameters for later helpers
+    swiperConfig.customSlider = instanceOptions.customSlider;
+    swiperConfig.sliderColor = instanceOptions.sliderColor;
+    swiperConfig.autoplayInView = instanceOptions.autoplayInView;
+    swiperConfig.bulletProgress = instanceOptions.bulletProgress;
+
+    // --------------------- Event handlers ---------------------
+    swiperConfig.on = {
+      init() {
+        const swiper = this;
+        // z‑index for fade
+        if (swiper.params.effect === "fade") adjustSlidesZIndex(swiper);
+        // height helpers
+        if (swiper.params.fullHeight) setSlidesFullHeight(swiper);
+        else adjustSlidesHeight(swiper);
+
+        // store reference for top‑level progress bar if present
+        if (swiper.params.progressBar && swiper.params.autoplay) {
+          const bar = container.querySelector(".swiper-progress-bar");
+          if (bar) swiper.topLevelProgressBar = bar;
+        }
+
+        // bullet progress DOM injection
+        if (swiper.params.bulletProgress && swiper.params.pagination) {
+          container.querySelectorAll(".swiper-bullet").forEach((b) => {
+            if (!b.querySelector(".bullet-progress")) {
+              const prog = document.createElement("div");
+              prog.className = "bullet-progress";
+              prog.style.width = "0%";
+              b.appendChild(prog);
+            }
+          });
+        }
+
+        setupCustomSlider(swiper, container, slidesCount);
+
+        // autoplay‑in‑view using shared observer
+        if (swiper.params.autoplay && swiper.params.autoplayInView) {
+          swiper.autoplay.stop();
+          const t = swiper.params.intersectionThreshold || 0.2;
+          getSharedObserver(t).observe(container);
+          // add cleanup to registry record later
+        }
+      },
+
+      afterInit(swiper) {
+        if (swiper.params.progressBar && swiper.params.autoplay && swiper.topLevelProgressBar) {
+          startTopLevelProgress(swiper);
+        }
+        startBulletProgress(swiper, container);
+      },
+
+      slideChangeTransitionStart() {
+        const swiper = this;
+        if (swiper.params.effect === "fade") adjustSlidesZIndex(swiper);
+        if (swiper.params.progressBar && swiper.params.autoplay && swiper.topLevelProgressBar) startTopLevelProgress(swiper);
+        startBulletProgress(swiper, container);
+        syncCustomSlider(swiper, container);
+      },
+
+      autoplayStop() {
+        const swiper = this;
+        if (swiper.topLevelProgressBar) swiper.topLevelProgressBar.style.animationPlayState = "paused";
+        if (swiper.params.bulletProgress) {
+          container.querySelectorAll(".swiper-bullet .bullet-progress").forEach((bp) => {
+            bp.style.transition = "none";
+          });
+        }
+      },
+
+      autoplayStart() {
+        const swiper = this;
+        if (swiper.topLevelProgressBar) swiper.topLevelProgressBar.style.animationPlayState = "running";
+      },
+    };
+
+    // observer is opt‑in via data‑observer="true"
+    if (instanceOptions.observer) {
+      swiperConfig.observer = true;
+      swiperConfig.observeParents = true;
+    }
+
+    const swiperInstance = new Swiper(swiperEl, swiperConfig);
+
+    // attach references
+    container._swiperInstance = swiperInstance;
+    container._swiperConfig = Object.freeze(deepMerge({}, swiperConfig));
+
+    return swiperInstance;
+  }
+
+  /** Destroy the Swiper instance *and* disconnect any observers for that container. */
+  function destroySwiper(container) {
+    const record = sliderRegistry.get(container);
+    if (!record || !record.swiper) return;
+
+    // stop observing autoplay‑in‑view
+    if (sharedIO) sharedIO.unobserve(container);
+
+    // clean up custom slider events (they were anonymous lambdas, easiest is to clone node ↓)
+    const range = container.querySelector(".custom-slider");
+    if (range) {
+      const clone = range.cloneNode(true);
+      range.parentNode?.replaceChild(clone, range);
+    }
+
+    record.swiper.destroy(true, true);
+    record.swiper = null;
+    container._swiperInstance = null;
+  }
+
+  /** Walk all registered sliders and destroy them.  Optionally filter by selector. */
+  function destroySwipers(selector) {
+    sliderRegistry.forEach((_rec, container) => {
+      if (!selector || container.matches(selector)) {
+        destroySwiper(container);
+        sliderRegistry.delete(container);
+      }
+    });
+  }
+  window.destroySwipers = destroySwipers;
+
+  /** Main initialiser – (re)creates sliders that are enabled for current BP. */
+  function initSwipers() {
+    // prefers‑reduced‑motion: disable autoplay globally by mutating defaults once
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      defaultSwiperOptions.autoplay = false;
+    }
+
+    document.querySelectorAll(".slider-main_component").forEach((container) => {
+      const enabledNow = isSliderEnabledNow(container);
+      if (!sliderRegistry.has(container)) {
+        sliderRegistry.set(container, { swiper: null });
+      }
+      const record = sliderRegistry.get(container);
+
+      if (enabledNow && !record.swiper) {
+        record.swiper = createSwiper(container);
+      } else if (!enabledNow && record.swiper) {
+        destroySwiper(container);
+      }
+    });
+  }
+  window.initSwipers = initSwipers;
+
+  // run once at doc ready
+  document.addEventListener("DOMContentLoaded", initSwipers);
+
+  // handle responsive (re)activation
+  window.addEventListener("resize", debounce(initSwipers, 250));
+  window.addEventListener("orientationchange", debounce(initSwipers, 250));
+
+  /* =============================================================
+   * 4) Helper fns (height / z‑index / progress logic)
+   * ============================================================= */
   function adjustSlidesHeight(swiper) {
-    const maxHeight = Math.max(
-      ...Array.from(swiper.slides).map((slide) => slide.offsetHeight)
-    );
-    swiper.slides.forEach((slide) => {
-      slide.style.height = `${maxHeight}px`;
-    });
+    const maxH = Math.max(...Array.from(swiper.slides).map((s) => s.offsetHeight));
+    swiper.slides.forEach((s) => (s.style.height = `${maxH}px`));
   }
-
   function setSlidesFullHeight(swiper) {
-    swiper.slides.forEach((slide) => {
-      slide.style.height = "100%";
-    });
+    swiper.slides.forEach((s) => (s.style.height = "100%"));
   }
-
   function adjustSlidesZIndex(swiper) {
-    swiper.slides.forEach((slide, index) => {
-      slide.style.zIndex = index === swiper.activeIndex ? 2 : 1;
-      slide.style.pointerEvents = index === swiper.activeIndex ? "auto" : "none";
+    swiper.slides.forEach((slide, i) => {
+      slide.style.zIndex = i === swiper.activeIndex ? 2 : 1;
+      slide.style.pointerEvents = i === swiper.activeIndex ? "auto" : "none";
     });
   }
 
-  // ===========================
-  // 8) Progress Bar Logic
-  // ===========================
+  // ---------- progress bars ----------
   function startBulletProgress(swiper, container) {
-    if (!swiper.params.bulletProgress) return; // only if bullet progress is enabled
-    const bulletEls = container.querySelectorAll(".swiper-bullet");
-    if (!bulletEls || bulletEls.length === 0) return;
-
-    // 1) Reset all bullet progress
-    bulletEls.forEach((bullet) => {
-      const prog = bullet.querySelector(".bullet-progress");
+    if (!swiper.params.bulletProgress) return;
+    const bullets = container.querySelectorAll(".swiper-bullet");
+    if (!bullets.length) return;
+    bullets.forEach((b) => {
+      const prog = b.querySelector(".bullet-progress");
       if (prog) {
         prog.style.transition = "none";
         prog.style.width = "0%";
-        void prog.offsetWidth; // reflow to reset
+        void prog.offsetWidth; // reset
       }
     });
-
-    // 2) Animate the bullet for the realIndex
     if (swiper.params.autoplay) {
-      const realIndex = swiper.realIndex;
-      const bullet = bulletEls[realIndex];
-      if (bullet) {
-        const progBar = bullet.querySelector(".bullet-progress");
-        if (progBar) {
-          const totalTime = swiper.params.autoplay.delay + swiper.params.speed;
-          progBar.style.transition = `width ${totalTime}ms linear`;
-          progBar.style.width = "100%";
-        }
+      const active = bullets[swiper.realIndex];
+      const prog = active?.querySelector(".bullet-progress");
+      if (prog) {
+        const total = swiper.params.autoplay.delay + swiper.params.speed;
+        prog.style.transition = `width ${total}ms linear`;
+        prog.style.width = "100%";
       }
     }
   }
-
-  function startTopLevelProgress(swiper, container) {
+  function startTopLevelProgress(swiper) {
     if (!swiper.topLevelProgressBar) return;
-    const pb = swiper.topLevelProgressBar;
-    pb.style.animation = "none";
-    void pb.offsetWidth; // reflow
-    const totalTime = swiper.params.autoplay.delay + swiper.params.speed;
-    pb.style.animation = `swiper-progress-bar-animation ${totalTime}ms linear 1`;
+    const bar = swiper.topLevelProgressBar;
+    bar.style.animation = "none";
+    void bar.offsetWidth;
+    const total = swiper.params.autoplay.delay + swiper.params.speed;
+    bar.style.animation = `swiper-progress-bar-animation ${total}ms linear 1`;
   }
 
-  // ===========================
-  // 9) Custom Slider Logic
-  // ===========================
+  // ---------- custom range slider ----------
   function setupCustomSlider(swiper, container, slidesCount) {
-    const customSlider = container.querySelector(".custom-slider");
-    const customSliderBar = container.querySelector(".custom-slider-bar");
+    const input = container.querySelector(".custom-slider");
+    const bar = container.querySelector(".custom-slider-bar");
 
-    if (swiper.params.customSlider && customSlider) {
-      const sliderColor = swiper.params.sliderColor || "#007aff";
-      customSlider.style.setProperty("--slider-color", sliderColor);
+    if (swiper.params.customSlider && input) {
+      const color = swiper.params.sliderColor || "#007aff";
+      input.style.setProperty("--slider-color", color);
+      input.min = 0;
+      input.max = slidesCount - 1;
+      input.value = `${swiper.realIndex}`;
 
-      customSlider.min = 0;
-      customSlider.max = slidesCount - 1;
-      // Use realIndex for loop sync
-      customSlider.value = swiper.realIndex;
-
-      function updateSliderTrack() {
-        const min = parseInt(customSlider.min, 10) || 0;
-        const max = parseInt(customSlider.max, 10) || slidesCount - 1;
-        const value = parseInt(customSlider.value, 10);
-        const percentage = ((value - min) / (max - min)) * 100;
-        customSlider.style.setProperty("--value-percent", `${percentage}%`);
-      }
-      updateSliderTrack();
-
-      customSlider.addEventListener("input", function () {
-        // Move to the real index
-        swiper.slideTo(parseInt(this.value, 10));
-        updateSliderTrack();
-      });
-      swiper.on("slideChange", function () {
-        customSlider.value = swiper.realIndex;
-        updateSliderTrack();
-      });
-    } else if (customSliderBar) {
-      // A bar that indicates progress from 0% -> 100% across the entire set of slides
-      const updateSliderBar = function () {
-        const progressPercentage = swiper.progress * 100;
-        customSliderBar.style.width = `${progressPercentage}%`;
+      let rafId = 0;
+      const updateTrack = () => {
+        const min = parseInt(input.min, 10) || 0;
+        const max = parseInt(input.max, 10) || slidesCount - 1;
+        const val = parseInt(input.value, 10);
+        const pct = ((val - min) / (max - min)) * 100;
+        input.style.setProperty("--value-percent", `${pct}%`);
       };
-      updateSliderBar();
-      swiper.on("slideChange", updateSliderBar);
-      swiper.on("progress", updateSliderBar);
+      updateTrack();
+
+      const onInput = () => {
+        swiper.slideTo(parseInt(input.value, 10));
+        if (!rafId) {
+          rafId = requestAnimationFrame(() => {
+            updateTrack();
+            rafId = 0;
+          });
+        }
+      };
+      input.addEventListener("input", onInput);
+      swiper.on("slideChange", () => {
+        input.value = `${swiper.realIndex}`;
+        updateTrack();
+      });
+
+      // add cleanup reference
+      const record = sliderRegistry.get(container);
+      if (record) {
+        record.destroyFns = record.destroyFns || [];
+        record.destroyFns.push(() => input.removeEventListener("input", onInput));
+      }
+    } else if (bar) {
+      const updateBar = () => {
+        bar.style.width = `${swiper.progress * 100}%`;
+      };
+      updateBar();
+      swiper.on("slideChange", updateBar);
+      swiper.on("progress", updateBar);
     }
   }
-
   function syncCustomSlider(swiper, container) {
-    if (swiper.params.customSlider) {
-      const customSlider = container.querySelector(".custom-slider");
-      if (customSlider) {
-        customSlider.value = swiper.realIndex;
-        const min = parseInt(customSlider.min, 10) || 0;
-        const max = parseInt(customSlider.max, 10) || swiper.slides.length - 1;
-        const value = parseInt(customSlider.value, 10);
-        const percentage = ((value - min) / (max - min)) * 100;
-        customSlider.style.setProperty("--value-percent", `${percentage}%`);
-      }
+    const input = container.querySelector(".custom-slider");
+    if (swiper.params.customSlider && input) {
+      input.value = `${swiper.realIndex}`;
+      const min = parseInt(input.min, 10) || 0;
+      const max = parseInt(input.max, 10) || swiper.slides.length - 1;
+      const pct = ((swiper.realIndex - min) / (max - min)) * 100;
+      input.style.setProperty("--value-percent", `${pct}%`);
     } else {
-      const customSliderBar = container.querySelector(".custom-slider-bar");
-      if (customSliderBar) {
-        const progressPercentage = swiper.progress * 100;
-        customSliderBar.style.width = `${progressPercentage}%`;
-      }
+      const bar = container.querySelector(".custom-slider-bar");
+      if (bar) bar.style.width = `${swiper.progress * 100}%`;
     }
   }
-
-  // ===========================
-  // 10) DOMContentLoaded
-  // ===========================
-  document.addEventListener("DOMContentLoaded", initSwipers);
-
-  window.initSwipers = initSwipers;
 })();
