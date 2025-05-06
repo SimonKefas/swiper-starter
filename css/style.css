@@ -1,47 +1,107 @@
-    /* Progress Bar */
-  .swiper-progress-bar {
-    width: 100%;
-    height: 100%;
+/* Top-Level Progress Bar */
+@keyframes swiper-progress-bar-animation {
+  from {
     transform: scaleX(0);
     transform-origin: left;
-    /* Vendor prefixes for transform */
-    -webkit-transform: scaleX(0);
-    -ms-transform: scaleX(0);
-    -webkit-transform-origin: left;
-    -ms-transform-origin: left;
   }
-  
-  /* Progress Bar Animation */
-  @keyframes swiper-progress-bar-animation {
-    from {
-      transform: scaleX(0);
-      /* Vendor prefixes */
-      -webkit-transform: scaleX(0);
-      -ms-transform: scaleX(0);
-    }
-    to {
-      transform: scaleX(1);
-      /* Vendor prefixes */
-      -webkit-transform: scaleX(1);
-      -ms-transform: scaleX(1);
-    }
+  to {
+    transform: scaleX(1);
+    transform-origin: left;
   }
-  
-  /* Vendor-prefixed @keyframes for broader support */
-  @-webkit-keyframes swiper-progress-bar-animation {
-    from {
-      -webkit-transform: scaleX(0);
-    }
-    to {
-      -webkit-transform: scaleX(1);
-    }
-  }
-  
-  @-ms-keyframes swiper-progress-bar-animation {
-    from {
-      -ms-transform: scaleX(0);
-    }
-    to {
-      -ms-transform: scaleX(1);
-    }
-  }
+}
+
+.swiper-progress-bar-wrapper {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.swiper-progress-bar {
+  width: 100%;
+  height: 100%;
+  background: #007aff;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+
+/* Bullet-Based Progress Bars */
+.swiper-bullet {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ccc;
+  margin: 0 4px;
+  overflow: hidden; /* ensures .bullet-progress stays clipped */
+}
+
+
+/* Custom Range Slider */
+.bullet-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: #007aff; /* fill color */
+  transition: width 0s linear; /* real timing is set in JS */
+}
+
+.custom-slider {
+  --slider-color: #007aff; /* fallback */
+  --value-percent: 0%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  background: transparent;
+  cursor: pointer;
+  outline: none; /* for a cleaner look; ensure focus styles if needed */
+}
+
+/* Track styling */
+.custom-slider::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    var(--slider-color) 0%,
+    var(--slider-color) var(--value-percent),
+    #ccc var(--value-percent),
+    #ccc 100%
+  );
+}
+.custom-slider::-moz-range-track {
+  /* For Firefox */
+  height: 5px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    var(--slider-color) 0%,
+    var(--slider-color) var(--value-percent),
+    #ccc var(--value-percent),
+    #ccc 100%
+  );
+}
+
+/* Thumb styling */
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 27px;
+  height: 27px;
+  margin-top: -11px; /* align thumb vertically */
+  background: var(--slider-color);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.custom-slider::-moz-range-thumb {
+  /* For Firefox */
+  width: 27px;
+  height: 27px;
+  background: var(--slider-color);
+  border-radius: 50%;
+  cursor: pointer;
+}

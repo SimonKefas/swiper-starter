@@ -273,7 +273,7 @@ Behaviour:
 
 ## CSS snippets
 
-CSS from v1 still applies.  Additions:
+CSS from v1 still applies. (see CSS file)  Additions:
 
 ```css
 /* Hide bullets / arrows in disabled state (optional) */
