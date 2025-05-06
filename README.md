@@ -152,18 +152,43 @@ Override once per page:
 
 ### Advanced attributes
 
-| Attribute                                                                    | Purpose                                                 |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `data-centered-slides` / `data-center-insufficient-slides`                   |                                                         |
-| `data-slides-per-group`                                                      | Grouped navigation.                                     |
-| `data-watch-overflow`                                                        | Hide arrows when not scrollable.                        |
-| `data-resistance-ratio`                                                      | Drag resistance.                                        |
-| `data-free-mode`                                                             | Free scrolling.                                         |
-| `data-slider-color`                                                          | Hex or CSS colour for progress/UI.                      |
-| `data-observer`                                                              | `"true"` → Swiper `observer` & `observeParents`.        |
-| `data-disable-navigation` / `data-disable-pagination` / `data-disable-touch` | Disable specific UI bits.                               |
-| **`data-disable-below`** *(new)*                                             | Integer px – don’t instantiate if viewport **< value**. |
-| **`data-disable-above`** *(new)*                                             | Integer px – don’t instantiate if viewport **> value**. |
+| Attribute                             | Type / Example                      | Description                                   |
+| ------------------------------------- | ----------------------------------- | --------------------------------------------- |
+| **Layout / sizing**                   |                                     |                                               |
+| `data-full-height`                    | `"true"`                            | Force each slide to `height:100%`.            |
+| `data-slides-per-view`                | `3` \| `"auto"`                     | Swiper’s `slidesPerView`.                     |
+| `data-space-between`                  | `16`                                | Gap between slides (px).                      |
+| `data-breakpoints`                    | `{ "768": { "slidesPerView": 2 } }` | Full breakpoint JSON.                         |
+| `data-centered-slides`                | `"true"`                            | Enable Swiper’s centred mode.                 |
+| `data-center-insufficient-slides`     | `"true"`                            | Centre when slide count < visible count.      |
+| **Navigation & interaction**          |                                     |                                               |
+| `data-loop-mode`                      | `"true"`                            | Enable looping.                               |
+| `data-autoplay`                       | `4000` (ms) \| `"false"`            | Autoplay delay or disable.                    |
+| `data-slider-duration`                | `600` (ms)                          | Transition speed.                             |
+| `data-effect` / `data-crossfade`      | `"fade"` / `"true"`                 | Swiper effect + crossfade.                    |
+| `data-slides-per-group`               | `2`                                 | Advance this many slides per nav step.        |
+| `data-free-mode`                      | `"true"`                            | Enable free‑scroll.                           |
+| `data-watch-overflow`                 | `"true"`                            | Hide nav when not scrollable.                 |
+| `data-resistance-ratio`               | `0.85`                              | Drag resistance.                              |
+| **Progress UI**                       |                                     |                                               |
+| `data-progress-bar`                   | `"true"`                            | Top‑level progress bar.                       |
+| `data-bullet-progress`                | `"true"`                            | Timed fills in bullets.                       |
+| `data-slider-color`                   | `"#FF6B00"`                         | Colour for progress UI / custom slider.       |
+| `data-custom-slider`                  | `"true"`                            | Adds a draggable `<input type="range">`.      |
+| **Autoplay visibility control**       |                                     |                                               |
+| `data-autoplay-inview`                | `"true"`                            | Start/stop autoplay via IntersectionObserver. |
+| `data-intersection-threshold`         | `0.5`                               | Override default `0.2` threshold.             |
+| **Mutation / observers**              |                                     |                                               |
+| `data-observer`                       | `"true"`                            | Enable Swiper `observer` + `observeParents`.  |
+| **Per‑instance feature toggles**      |                                     |                                               |
+| `data-disable-navigation`             | `"true"`                            | Hide next/prev arrows in this slider.         |
+| `data-disable-pagination`             | `"true"`                            | Hide bullet pagination.                       |
+| `data-disable-touch`                  | `"true"`                            | Disable drag / swipe (wheel remains).         |
+| \*\*Break‑point disabling *(v2)* \*\* |                                     |                                               |
+| `data-disable-below`                  | `768`                               | Don’t instantiate when `viewport < 768 px`.   |
+| `data-disable-above`                  | `991`                               | Don’t instantiate when `viewport > 991 px`.   |
+
+*(Put multiple attributes together as needed; the script merges them with global defaults.)*
 
 ---
 
