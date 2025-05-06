@@ -143,7 +143,7 @@ Override once per page:
 | `data-crossfade`              | `"true"`                  | Only for `data-effect="fade"`.         |
 | `data-slides-per-view`        | number \| `"auto"`        |                                        |
 | `data-space-between`          | number (px)               |                                        |
-| `data-breakpoints`            | JSON string               | Full Swiper breakpoint object. Example of Webflow valid object: {'768': { 'slidesPerView': 1 }, '992': { 'slidesPerView': 2 }}         |
+| `data-breakpoints`            | JSON string               | Full Swiper breakpoint object. Example of Webflow attribute valid object: {'768': { 'slidesPerView': 1 }, '992': { 'slidesPerView': 2 }}         |
 | `data-progress-bar`           | `"true"`                  | Top‑level progress fill.               |
 | `data-bullet-progress`        | `"true"`                  | Per‑bullet timed fills.                |
 | `data-custom-slider`          | `"true"`                  | Enable `<input type="range">` control. |
@@ -158,7 +158,7 @@ Override once per page:
 | `data-full-height`                    | `"true"`                            | Force each slide to `height:100%`.            |
 | `data-slides-per-view`                | `3` \| `"auto"`                     | Swiper’s `slidesPerView`.                     |
 | `data-space-between`                  | `16`                                | Gap between slides (px).                      |
-| `data-breakpoints`                    | `{ "768": { "slidesPerView": 2 } }` | Full breakpoint JSON. Example of Webflow valid object: {'768': { 'slidesPerView': 1 }, '992': { 'slidesPerView': 2 }}                         |
+| `data-breakpoints`                    | `{ "768": { "slidesPerView": 2 } }` | Full breakpoint JSON. Example of Webflow attribute valid object: {'768': { 'slidesPerView': 1 }, '992': { 'slidesPerView': 2 }}                         |
 | `data-centered-slides`                | `"true"`                            | Enable Swiper’s centred mode.                 |
 | `data-center-insufficient-slides`     | `"true"`                            | Centre when slide count < visible count.      |
 | **Navigation & interaction**          |                                     |                                               |
