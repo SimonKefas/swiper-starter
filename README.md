@@ -71,9 +71,11 @@
 <!-- Swiper core -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+```
 
+```html
 <!-- Swiper Starter Kit -->
-<script src="https://cdn.jsdelivr.net/gh/your‑user/your‑repo@v2.0.0/dist/swiper‑starter.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
 ```
 
 > **Tip:** Pin to a tag (`@v2.0.0`) or commit hash to avoid surprises.
