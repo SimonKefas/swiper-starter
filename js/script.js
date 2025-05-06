@@ -444,7 +444,9 @@
     });
   }
   window.initSwipers = initSwipers;
-
+  function recalcSwipers() { initSwipers(); }
+  window.recalcSwipers = recalcSwipers;
+  
   // run once at doc ready
   document.addEventListener("DOMContentLoaded", initSwipers);
 

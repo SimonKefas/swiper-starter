@@ -212,8 +212,9 @@ swiper.update();                // if you added slides dynamically
 ### Destroy / rebuild
 
 ```js
-window.destroySwipers(); // kills every instance and observers
-window.recalcSwipers();  // (re)creates sliders per break‑point rules
+window.initSwipers();    // (re)calculate which sliders should run now
+window.recalcSwipers();  // alias of the line above
+window.destroySwipers(); // clean‑up everything
 ```
 
 ---
