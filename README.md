@@ -156,6 +156,7 @@ Override once per page:
 | ------------------------------------- | ----------------------------------- | --------------------------------------------- |
 | **Layout / sizing**                   |                                     |                                               |
 | `data-full-height`                    | `"true"`                            | Force each slide to `height:100%`.            |
+| `data-single-slide`          | `"true"`                 | Forces 1 slide; disables break-points. |
 | `data-slides-per-view`                | `3` \| `"auto"`                     | Swiper’s `slidesPerView`.                     |
 | `data-space-between`                  | `16`                                | Gap between slides (px).                      |
 | `data-breakpoints`                    | `{ "768": { "slidesPerView": 2 } }` | Full breakpoint JSON. Example of valid Webflow attribute object: {'768': { 'slidesPerView': 1 }, '992': { 'slidesPerView': 2 }}                         |
