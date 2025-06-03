@@ -387,6 +387,7 @@
     // attach references
     container._swiperInstance = swiperInstance;
     container._swiperConfig = Object.freeze(deepMerge({}, swiperConfig));
+    container.removeAttribute("data-swiper-disabled");
 
     return swiperInstance;
   }
@@ -409,6 +410,7 @@
     record.swiper.destroy(true, true);
     record.swiper = null;
     container._swiperInstance = null;
+    container.setAttribute("data-swiper-disabled", "");
   }
 
   /** Walk all registered sliders and destroy them.  Optionally filter by selector. */
@@ -438,8 +440,9 @@
 
       if (enabledNow && !record.swiper) {
         record.swiper = createSwiper(container);
-      } else if (!enabledNow && record.swiper) {
-        destroySwiper(container);
+      } else if (!enabledNow) {
+        if (record.swiper) destroySwiper(container);
+        else container.setAttribute("data-swiper-disabled", "");
       }
     });
   }
