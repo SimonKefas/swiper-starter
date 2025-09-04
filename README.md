@@ -17,12 +17,13 @@
    5.1 [Core attributes](#core-attributes)
    5.2 [Advanced attributes](#advanced-attributes)
 6. [Runtime helpers](#runtime-helpers)
-7. [Disabling a slider at break‑points](#disabling-a-slider-at-break-points)
-8. [Examples](#examples)
-9. [CSS snippets](#css-snippets)
-10. [Performance & edge cases](#performance--edge-cases)
-11. [Changelog](#changelog)
-12. [License](#license)
+7. [Debug mode](#debug-mode)
+8. [Disabling a slider at break‑points](#disabling-a-slider-at-break-points)
+9. [Examples](#examples)
+10. [CSS snippets](#css-snippets)
+11. [Performance & edge cases](#performance--edge-cases)
+12. [Changelog](#changelog)
+13. [License](#license)
 
 ---
 
@@ -38,6 +39,7 @@
 | **Config exposure**                           | Every container now has `_swiperConfig` (frozen copy) next to `_swiperInstance`.                                                                                                            |
 | **Custom‑slider repaint throttle**            | Smoother range‑slider scrubbing via `requestAnimationFrame`.                                                                                                                                |
 | **Type‑safety ready**                         | JSDoc typedefs mean you can rename the file to `.ts` and immediately benefit from TypeScript.                                                                                               |
+| **Debug mode & resilient init**               | Optional `SWIPER_STARTER_DEBUG` flag logs broken sliders; invalid ones are skipped so others still run.                                              |
 
 **No breaking changes** – existing sliders continue to work unless you add the new attributes.
 
@@ -55,6 +57,7 @@
 * Fade / cross‑fade effect
 * **Disable‑at‑break‑point** logic *(new)*
 * Destroy / recalc helpers *(new)*
+* Optional console debugging via `SWIPER_STARTER_DEBUG`
 
 ---
 
@@ -216,6 +219,19 @@ swiper.update();                // if you added slides dynamically
 window.initSwipers();    // (re)calculate which sliders should run now
 window.recalcSwipers();  // alias of the line above
 window.destroySwipers(); // clean‑up everything
+```
+
+---
+
+## Debug mode
+
+Enable verbose console warnings by setting a global flag **before** loading the script. Sliders missing required markup are skipped so other sliders can still initialise.
+
+```html
+<script>
+  window.SWIPER_STARTER_DEBUG = true;
+</script>
+<script src="js/script.js"></script>
 ```
 
 ---
