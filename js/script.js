@@ -24,6 +24,11 @@
 (function () {
   "use strict";
 
+  const DEBUG = !!window.SWIPER_STARTER_DEBUG;
+  function debugLog(...args) {
+    if (DEBUG) console.warn("[Swiper Starter]", ...args);
+  }
+
   /* =============================================================
    * 0) Utilities
    * ============================================================= */
@@ -270,11 +275,18 @@
 
     const swiperEl = container.querySelector(".swiper");
     if (!swiperEl) {
-      console.warn("[Swiper Starter] .swiper element not found", container);
+      debugLog(".swiper element not found", container);
+      container.setAttribute("data-swiper-disabled", "");
       return null;
     }
 
-    const slidesCount = swiperEl.querySelectorAll(".swiper-slide").length;
+    const wrapperEl = swiperEl.querySelector(".swiper-wrapper");
+    const slidesCount = wrapperEl ? wrapperEl.querySelectorAll(".swiper-slide").length : 0;
+    if (!wrapperEl || slidesCount === 0) {
+      debugLog("no slides found", container);
+      container.setAttribute("data-swiper-disabled", "");
+      return null;
+    }
 
     // determine max slidesPerView to decide auto loop off
     let maxSpv = 1;
@@ -382,7 +394,14 @@
       swiperConfig.observeParents = true;
     }
 
-    const swiperInstance = new Swiper(swiperEl, swiperConfig);
+    let swiperInstance;
+    try {
+      swiperInstance = new Swiper(swiperEl, swiperConfig);
+    } catch (err) {
+      debugLog("Swiper instantiation failed", err);
+      container.setAttribute("data-swiper-disabled", "");
+      return null;
+    }
 
     // attach references
     container._swiperInstance = swiperInstance;
@@ -439,7 +458,13 @@
       const record = sliderRegistry.get(container);
 
       if (enabledNow && !record.swiper) {
-        record.swiper = createSwiper(container);
+        try {
+          record.swiper = createSwiper(container);
+        } catch (err) {
+          debugLog("initialisation failed", container, err);
+          record.swiper = null;
+          container.setAttribute("data-swiper-disabled", "");
+        }
       } else if (!enabledNow) {
         if (record.swiper) destroySwiper(container);
         else container.setAttribute("data-swiper-disabled", "");
