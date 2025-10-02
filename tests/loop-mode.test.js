@@ -60,6 +60,7 @@ describe("loop mode auto-disables when slides do not overflow", () => {
   });
 
   test("disables watchOverflow when auto breakpoint forces loop off", () => {
+
     window.SwiperDefaults = {
       loop: true,
       breakpoints: {
