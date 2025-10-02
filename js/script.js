@@ -4,21 +4,21 @@
  * Improvements in this release
  * ---------------------------------------------
  * 1. **Shared IntersectionObserver** – one observer instance for all
- *    autoplay‑in‑view sliders (reduces overhead).
+ *    autoplay-in-view sliders (reduces overhead).
  * 2. **Destroy helpers** – `destroySwipers()` tears down observers & Swiper
- *    instances; sliders can be re‑created on demand.
+ *    instances; sliders can be re-created on demand.
  * 3. **Breakpoint Disable** – new `data-disable-below` / `data-disable-above`
  *    attributes let you deactivate a slider at specific viewport widths.
  * 4. **Array aware deepMerge** – arrays are now cloned instead of referenced.
- * 5. **Mouse‑wheel fallback** when `allowTouchMove === false`.
+ * 5. **Mouse-wheel fallback** when `allowTouchMove === false`.
  * 6. **Debounced custom range slider** rendering via `requestAnimationFrame`.
  * 7. **Config reference** – each container gets `_swiperConfig` (frozen copy).
  *
  * There are **no breaking changes** for existing markup – all previous data
- * attributes keep working. The new ones are opt‑in. Compile‑to‑ES5 not
+ * attributes keep working. The new ones are opt-in. Compile-to-ES5 not
  * required; file ships as ES2015 for CDN usage.
  *
- * Author: JS Solutions Expert – May 2025
+ * Author: JS Solutions Expert – May 2025
  */
 
 (function () {
@@ -34,9 +34,9 @@
    * ============================================================= */
 
   /**
-   * Very small deep‑merge helper.  Now clones arrays so they don't share
-   * reference with defaults.  If a property in `source` is null, the key is
-   * deleted from the target ("null‑to‑delete" convention).
+   * Very small deep-merge helper. Now clones arrays so they don't share
+   * reference with defaults. If a property in `source` is null, the key is
+   * deleted from the target ("null-to-delete" convention).
    */
   function deepMerge(target = {}, ...sources) {
     sources.forEach((source) => {
@@ -132,7 +132,11 @@
    * Optional global overrides via window.SwiperDefaults
    * ----------------------------------------------------------- */
   if (window.SwiperDefaults) {
-    defaultSwiperOptions = deepMerge({}, defaultSwiperOptions, window.SwiperDefaults);
+    defaultSwiperOptions = deepMerge(
+      {},
+      defaultSwiperOptions,
+      window.SwiperDefaults
+    );
   }
 
   /* =============================================================
@@ -141,22 +145,25 @@
   // Map<HTMLElement, { swiper: Swiper|null, destroyFns: Function[] }>
   const sliderRegistry = new Map();
 
-  // Single shared IntersectionObserver for all autoplay‑in‑view sliders
+  // Single shared IntersectionObserver for all autoplay-in-view sliders
   let sharedIO = null;
   function getSharedObserver(threshold) {
     if (sharedIO) return sharedIO;
-    sharedIO = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const container = entry.target;
-        const record = sliderRegistry.get(container);
-        if (!record || !record.swiper) return;
-        if (entry.isIntersecting) {
-          record.swiper.autoplay?.start();
-        } else {
-          record.swiper.autoplay?.stop();
-        }
-      });
-    }, { threshold });
+    sharedIO = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const container = entry.target;
+          const record = sliderRegistry.get(container);
+          if (!record || !record.swiper) return;
+          if (entry.isIntersecting) {
+            record.swiper.autoplay?.start();
+          } else {
+            record.swiper.autoplay?.stop();
+          }
+        });
+      },
+      { threshold }
+    );
     return sharedIO;
   }
 
@@ -166,7 +173,7 @@
 
   /**
    * Determine if the slider should be active for the current viewport width,
-   * based on optional data‑disable-below / data-disable-above attributes.
+   * based on optional data-disable-below / data-disable-above attributes.
    */
   function isSliderEnabledNow(container) {
     const belowAttr = container.getAttribute("data-disable-below");
@@ -178,7 +185,7 @@
     return true;
   }
 
-  /** Collect all instance‑level options from data attributes. */
+  /** Collect all instance-level options from data attributes. */
   function getInstanceOptions(container) {
     const o = {};
     const d = container.dataset; // shortcut
@@ -294,31 +301,39 @@
       return null;
     }
 
-    // determine max slidesPerView to decide auto loop off
+    // determine max slidesPerView to decide auto loop off (resolved merge)
     const spvCandidates = [];
-    if (typeof swiperConfig.slidesPerView === "number") {
-      spvCandidates.push(swiperConfig.slidesPerView);
-    } else if (swiperConfig.slidesPerView === "auto") {
-      spvCandidates.push(slidesCount);
-    }
+    let usedAutoSlidesPerView = false;
+
+    const registerSlidesPerView = (value) => {
+      if (typeof value === "number") {
+        spvCandidates.push(value);
+      } else if (value === "auto") {
+        spvCandidates.push(slidesCount);
+        usedAutoSlidesPerView = true;
+      }
+    };
+
+    registerSlidesPerView(swiperConfig.slidesPerView);
 
     if (swiperConfig.breakpoints) {
       Object.values(swiperConfig.breakpoints).forEach((bp) => {
-        const spv = bp?.slidesPerView;
-        if (typeof spv === "number") {
-          spvCandidates.push(spv);
-        } else if (spv === "auto") {
-          spvCandidates.push(slidesCount);
-        }
+        registerSlidesPerView(bp?.slidesPerView);
       });
     }
 
-    let maxSpv = spvCandidates.length ? Math.max(...spvCandidates) : 1;
-    if (!userDefinedLoop && slidesCount <= maxSpv) {
+    const maxSpv = spvCandidates.length ? Math.max(...spvCandidates) : 1;
+    const autoDisabledLoop = !userDefinedLoop && slidesCount <= maxSpv;
+    if (autoDisabledLoop) {
       swiperConfig.loop = false;
+      // If SPV used "auto" somewhere, we don't want watchOverflow to kill navigation/UI,
+      // unless the user explicitly asked for it.
+      if (usedAutoSlidesPerView && !userDefinedWatchOverflow) {
+        swiperConfig.watchOverflow = false;
+      }
     }
 
-    // If loop is enabled, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
+    // If loop survives, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
     if (swiperConfig.loop && !userDefinedWatchOverflow) {
       swiperConfig.watchOverflow = false;
     }
@@ -331,7 +346,7 @@
       if (swiperConfig.keyboard) swiperConfig.keyboard.enabled = false;
     }
 
-    // keep mouse‑wheel even when touch disabled
+    // keep mouse-wheel even when touch disabled
     if (swiperConfig.allowTouchMove === false) {
       swiperConfig.mousewheel = swiperConfig.mousewheel || { forceToAxis: true };
     }
@@ -348,13 +363,13 @@
     swiperConfig.on = {
       init() {
         const swiper = this;
-        // z‑index for fade
+        // z-index for fade
         if (swiper.params.effect === "fade") adjustSlidesZIndex(swiper);
         // height helpers
         if (swiper.params.fullHeight) setSlidesFullHeight(swiper);
         else adjustSlidesHeight(swiper);
 
-        // store reference for top‑level progress bar if present
+        // store reference for top-level progress bar if present
         if (swiper.params.progressBar && swiper.params.autoplay) {
           const bar = container.querySelector(".swiper-progress-bar");
           if (bar) swiper.topLevelProgressBar = bar;
@@ -374,7 +389,7 @@
 
         setupCustomSlider(swiper, container, slidesCount);
 
-        // autoplay‑in‑view using shared observer
+        // autoplay-in-view using shared observer
         if (swiper.params.autoplay && swiper.params.autoplayInView) {
           swiper.autoplay.stop();
           const t = swiper.params.intersectionThreshold || 0.2;
@@ -414,7 +429,7 @@
       },
     };
 
-    // observer is opt‑in via data‑observer="true"
+    // observer is opt-in via data-observer="true"
     if (instanceOptions.observer) {
       swiperConfig.observer = true;
       swiperConfig.observeParents = true;
@@ -442,7 +457,7 @@
     const record = sliderRegistry.get(container);
     if (!record || !record.swiper) return;
 
-    // stop observing autoplay‑in‑view
+    // stop observing autoplay-in-view
     if (sharedIO) sharedIO.unobserve(container);
 
     // clean up custom slider events (they were anonymous lambdas, easiest is to clone node ↓)
@@ -458,7 +473,7 @@
     container.setAttribute("data-swiper-disabled", "");
   }
 
-  /** Walk all registered sliders and destroy them.  Optionally filter by selector. */
+  /** Walk all registered sliders and destroy them. Optionally filter by selector. */
   function destroySwipers(selector) {
     sliderRegistry.forEach((_rec, container) => {
       if (!selector || container.matches(selector)) {
@@ -471,7 +486,7 @@
 
   /** Main initialiser – (re)creates sliders that are enabled for current BP. */
   function initSwipers() {
-    // prefers‑reduced‑motion: disable autoplay globally by mutating defaults once
+    // prefers-reduced-motion: disable autoplay globally by mutating defaults once
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       defaultSwiperOptions.autoplay = false;
     }
@@ -500,7 +515,7 @@
   window.initSwipers = initSwipers;
   function recalcSwipers() { initSwipers(); }
   window.recalcSwipers = recalcSwipers;
-  
+
   // run once at doc ready
   document.addEventListener("DOMContentLoaded", initSwipers);
 
@@ -509,7 +524,7 @@
   window.addEventListener("orientationchange", debounce(initSwipers, 250));
 
   /* =============================================================
-   * 4) Helper fns (height / z‑index / progress logic)
+   * 4) Helper fns (height / z-index / progress logic)
    * ============================================================= */
   function adjustSlidesHeight(swiper) {
     const maxH = Math.max(...Array.from(swiper.slides).map((s) => s.offsetHeight));

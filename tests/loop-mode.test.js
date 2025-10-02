@@ -59,7 +59,8 @@ describe("loop mode auto-disables when slides do not overflow", () => {
     expect(container._swiperConfig.loop).toBe(false);
   });
 
-  test("keeps watchOverflow true when breakpoints use 'auto' with global loop", () => {
+  test("disables watchOverflow when auto breakpoint forces loop off", () => {
+
     window.SwiperDefaults = {
       loop: true,
       breakpoints: {
@@ -77,6 +78,6 @@ describe("loop mode auto-disables when slides do not overflow", () => {
 
     expect(swiperMock).toHaveBeenCalledTimes(1);
     expect(container._swiperConfig.loop).toBe(false);
-    expect(container._swiperConfig.watchOverflow).toBe(true);
+    expect(container._swiperConfig.watchOverflow).toBe(false);
   });
 });
