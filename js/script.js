@@ -295,12 +295,25 @@
     }
 
     // determine max slidesPerView to decide auto loop off
-    let maxSpv = 1;
-    if (typeof swiperConfig.slidesPerView === "number") maxSpv = swiperConfig.slidesPerView;
-    else if (swiperConfig.slidesPerView === "auto") maxSpv = slidesCount;
-    else if (swiperConfig.breakpoints) {
-      maxSpv = Math.max(...Object.values(swiperConfig.breakpoints).map((bp) => bp.slidesPerView || 1));
+    const spvCandidates = [];
+    if (typeof swiperConfig.slidesPerView === "number") {
+      spvCandidates.push(swiperConfig.slidesPerView);
+    } else if (swiperConfig.slidesPerView === "auto") {
+      spvCandidates.push(slidesCount);
     }
+
+    if (swiperConfig.breakpoints) {
+      Object.values(swiperConfig.breakpoints).forEach((bp) => {
+        const spv = bp?.slidesPerView;
+        if (typeof spv === "number") {
+          spvCandidates.push(spv);
+        } else if (spv === "auto") {
+          spvCandidates.push(slidesCount);
+        }
+      });
+    }
+
+    let maxSpv = spvCandidates.length ? Math.max(...spvCandidates) : 1;
     if (!userDefinedLoop && slidesCount <= maxSpv) {
       swiperConfig.loop = false;
     }
