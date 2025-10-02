@@ -266,6 +266,7 @@
       instanceOptions,
       "watchOverflow"
     );
+
     const swiperConfig = deepMerge({}, defaultSwiperOptions, instanceOptions);
 
     // user may fully override breakpoints
@@ -300,8 +301,11 @@
     else if (swiperConfig.breakpoints) {
       maxSpv = Math.max(...Object.values(swiperConfig.breakpoints).map((bp) => bp.slidesPerView || 1));
     }
-    if (!userDefinedLoop && slidesCount <= maxSpv) swiperConfig.loop = false;
+    if (!userDefinedLoop && slidesCount <= maxSpv) {
+      swiperConfig.loop = false;
+    }
 
+    // If loop is enabled, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
     if (swiperConfig.loop && !userDefinedWatchOverflow) {
       swiperConfig.watchOverflow = false;
     }
