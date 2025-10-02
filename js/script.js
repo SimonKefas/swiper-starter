@@ -261,6 +261,11 @@
   /** Initialise a *single* Swiper instance inside its container. */
   function createSwiper(container) {
     const instanceOptions = getInstanceOptions(container);
+    const userDefinedLoop = Object.prototype.hasOwnProperty.call(instanceOptions, "loop");
+    const userDefinedWatchOverflow = Object.prototype.hasOwnProperty.call(
+      instanceOptions,
+      "watchOverflow"
+    );
     const swiperConfig = deepMerge({}, defaultSwiperOptions, instanceOptions);
 
     // user may fully override breakpoints
@@ -295,7 +300,11 @@
     else if (swiperConfig.breakpoints) {
       maxSpv = Math.max(...Object.values(swiperConfig.breakpoints).map((bp) => bp.slidesPerView || 1));
     }
-    if (slidesCount <= maxSpv) swiperConfig.loop = false;
+    if (!userDefinedLoop && slidesCount <= maxSpv) swiperConfig.loop = false;
+
+    if (swiperConfig.loop && !userDefinedWatchOverflow) {
+      swiperConfig.watchOverflow = false;
+    }
 
     if (slidesCount <= 1) {
       swiperConfig.navigation = false;
