@@ -262,6 +262,11 @@
   function createSwiper(container) {
     const instanceOptions = getInstanceOptions(container);
     const userDefinedLoop = Object.prototype.hasOwnProperty.call(instanceOptions, "loop");
+    const userDefinedWatchOverflow = Object.prototype.hasOwnProperty.call(
+      instanceOptions,
+      "watchOverflow"
+    );
+
     const swiperConfig = deepMerge({}, defaultSwiperOptions, instanceOptions);
 
     // user may fully override breakpoints
@@ -296,7 +301,14 @@
     else if (swiperConfig.breakpoints) {
       maxSpv = Math.max(...Object.values(swiperConfig.breakpoints).map((bp) => bp.slidesPerView || 1));
     }
-    if (!userDefinedLoop && slidesCount <= maxSpv) swiperConfig.loop = false;
+    if (!userDefinedLoop && slidesCount <= maxSpv) {
+      swiperConfig.loop = false;
+    }
+
+    // If loop is enabled, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
+    if (swiperConfig.loop && !userDefinedWatchOverflow) {
+      swiperConfig.watchOverflow = false;
+    }
 
     if (slidesCount <= 1) {
       swiperConfig.navigation = false;
