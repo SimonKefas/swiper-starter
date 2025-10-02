@@ -295,17 +295,35 @@
     }
 
     // determine max slidesPerView to decide auto loop off
-    let maxSpv = 1;
-    if (typeof swiperConfig.slidesPerView === "number") maxSpv = swiperConfig.slidesPerView;
-    else if (swiperConfig.slidesPerView === "auto") maxSpv = slidesCount;
-    else if (swiperConfig.breakpoints) {
-      maxSpv = Math.max(...Object.values(swiperConfig.breakpoints).map((bp) => bp.slidesPerView || 1));
-    }
-    if (!userDefinedLoop && slidesCount <= maxSpv) {
-      swiperConfig.loop = false;
+    const spvCandidates = [];
+    let usedAutoSlidesPerView = false;
+    const registerSlidesPerView = (value) => {
+      if (typeof value === "number") {
+        spvCandidates.push(value);
+      } else if (value === "auto") {
+        spvCandidates.push(slidesCount);
+        usedAutoSlidesPerView = true;
+      }
+    };
+
+    registerSlidesPerView(swiperConfig.slidesPerView);
+
+    if (swiperConfig.breakpoints) {
+      Object.values(swiperConfig.breakpoints).forEach((bp) => {
+        registerSlidesPerView(bp?.slidesPerView);
+      });
     }
 
-    // If loop is enabled, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
+    const maxSpv = spvCandidates.length ? Math.max(...spvCandidates) : 1;
+    const autoDisabledLoop = !userDefinedLoop && slidesCount <= maxSpv;
+    if (autoDisabledLoop) {
+      swiperConfig.loop = false;
+      if (usedAutoSlidesPerView && !userDefinedWatchOverflow) {
+        swiperConfig.watchOverflow = false;
+      }
+    }
+
+    // If loop survives, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
     if (swiperConfig.loop && !userDefinedWatchOverflow) {
       swiperConfig.watchOverflow = false;
     }
