@@ -323,7 +323,9 @@
     }
 
     const maxSpv = spvCandidates.length ? Math.max(...spvCandidates) : 1;
-    const autoDisabledLoop = !userDefinedLoop && slidesCount <= maxSpv;
+    const slidesInsufficient = slidesCount <= maxSpv;
+    const autoDisabledLoop = !userDefinedLoop && slidesInsufficient;
+
     if (autoDisabledLoop) {
       swiperConfig.loop = false;
       // If SPV used "auto" somewhere, we don't want watchOverflow to kill navigation/UI,
@@ -331,11 +333,52 @@
       if (usedAutoSlidesPerView && !userDefinedWatchOverflow) {
         swiperConfig.watchOverflow = false;
       }
+      // Disable touch to prevent clunky snap-back behavior when slides don't overflow
+      swiperConfig.allowTouchMove = false;
+      debugLog("Auto-disabled touch: insufficient slides for viewport", { slidesCount, maxSpv });
     }
 
-    // If loop survives, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
-    if (swiperConfig.loop && !userDefinedWatchOverflow) {
-      swiperConfig.watchOverflow = false;
+    // Handle user-defined loop mode with insufficient slides
+    // Swiper 11 requires slidesCount > slidesPerView for loop to work properly.
+    // When that condition isn't met, we need to clone slides in the DOM before Swiper initializes.
+    if (userDefinedLoop && swiperConfig.loop && slidesInsufficient) {
+      if (slidesCount > 1) {
+        // Clone slides in the DOM to ensure Swiper has enough to work with
+        // We need at least (maxSpv * 2) + 1 total slides for smooth infinite loop
+        const requiredSlides = (maxSpv * 2) + 1;
+        const clonesNeeded = Math.ceil(requiredSlides / slidesCount);
+        
+        if (clonesNeeded > 1) {
+          const originalSlides = Array.from(wrapperEl.querySelectorAll(".swiper-slide"));
+          for (let i = 1; i < clonesNeeded; i++) {
+            originalSlides.forEach((slide) => {
+              const clone = slide.cloneNode(true);
+              clone.setAttribute("data-swiper-clone", "true");
+              wrapperEl.appendChild(clone);
+            });
+          }
+          debugLog("Cloned slides for loop mode", { 
+            originalCount: slidesCount, 
+            clonesNeeded,
+            totalSlides: wrapperEl.querySelectorAll(".swiper-slide").length 
+          });
+        }
+        
+        // Disable resistance at boundaries for smooth infinite scrolling
+        swiperConfig.resistanceRatio = 0;
+      } else {
+        // Single slide: disable loop entirely
+        swiperConfig.loop = false;
+      }
+    }
+
+    // If loop is enabled, ensure watchOverflow doesn't disable it—unless the user explicitly set it.
+    // Also eliminate resistance at boundaries for smooth infinite scrolling.
+    if (swiperConfig.loop) {
+      if (!userDefinedWatchOverflow) {
+        swiperConfig.watchOverflow = false;
+      }
+      swiperConfig.resistanceRatio = 0;
     }
 
     if (slidesCount <= 1) {
@@ -343,6 +386,7 @@
       swiperConfig.pagination = false;
       swiperConfig.autoplay = false;
       swiperConfig.allowTouchMove = false;
+      swiperConfig.loop = false;
       if (swiperConfig.keyboard) swiperConfig.keyboard.enabled = false;
     }
 

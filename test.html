@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swiper Starter Kit – Test Scenarios</title>
+  
+  <!-- Swiper core CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  
+  <!-- Custom styles for testing -->
+  <link rel="stylesheet" href="css/style.css"/>
+  
+  <style>
+    :root {
+      --bg-primary: #0f0f13;
+      --bg-card: #1a1a24;
+      --bg-slide: #252532;
+      --text-primary: #f4f4f6;
+      --text-muted: #8b8b9e;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #2d2d3d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 3rem;
+    }
+
+    .test-section {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .test-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .test-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .test-description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-success { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .badge-info { background: rgba(99, 102, 241, 0.15); color: var(--accent-light); }
+
+    .config-display {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+    }
+
+    .config-display code {
+      color: var(--accent-light);
+    }
+
+    /* Slider container styles */
+    .slider-main_component {
+      position: relative;
+      width: 100%;
+    }
+
+    .swiper {
+      width: 100%;
+      padding: 1rem 0;
+    }
+
+    .swiper-slide {
+      background: var(--bg-slide);
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 500;
+      min-height: 150px;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .swiper-slide:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Navigation styles */
+    .swiper-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .swiper-prev,
+    .swiper-next {
+      width: 44px;
+      height: 44px;
+      background: var(--bg-slide);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .swiper-prev:hover:not(.is-disabled),
+    .swiper-next:hover:not(.is-disabled) {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .swiper-prev.is-disabled,
+    .swiper-next.is-disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .swiper-prev::before,
+    .swiper-next::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-top: 2px solid var(--text-primary);
+      border-right: 2px solid var(--text-primary);
+    }
+
+    .swiper-prev::before {
+      transform: rotate(-135deg);
+      margin-left: 3px;
+    }
+
+    .swiper-next::before {
+      transform: rotate(45deg);
+      margin-right: 3px;
+    }
+
+    /* Bullet pagination */
+    .swiper-bullet-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 1rem;
+    }
+
+    .swiper-bullet {
+      width: 10px;
+      height: 10px;
+      background: var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      transition: all 0.2s;
+    }
+
+    .swiper-bullet:hover {
+      background: var(--text-muted);
+    }
+
+    .swiper-bullet.is-active {
+      background: var(--accent);
+      transform: scale(1.2);
+    }
+
+    /* Scrollbar */
+    .swiper-drag-wrapper {
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-top: 1rem;
+    }
+
+    .swiper-drag {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      cursor: grab;
+    }
+
+    /* Progress bar */
+    .swiper-progress-bar-wrapper {
+      margin-top: 1rem;
+    }
+
+    /* Status indicator */
+    .status-indicator {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-label {
+      color: var(--text-muted);
+    }
+
+    .status-value {
+      font-weight: 600;
+      font-family: 'SF Mono', monospace;
+    }
+
+    .status-value.true { color: var(--success); }
+    .status-value.false { color: var(--danger); }
+
+    /* Disabled state styling */
+    .slider-main_component[data-swiper-disabled] .swiper-bullet-wrapper,
+    .slider-main_component[data-swiper-disabled] .swiper-controls,
+    .slider-main_component[data-swiper-disabled] .swiper-drag-wrapper {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* Debug panel */
+    .debug-panel {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.8rem;
+      max-width: 300px;
+      z-index: 1000;
+    }
+
+    .debug-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--accent-light);
+    }
+
+    .debug-content {
+      font-family: 'SF Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .test-section {
+        padding: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Swiper Starter Kit v2</h1>
+  <p class="subtitle">Test scenarios for loop mode, rewind fallback, and touch disable logic</p>
+
+  <!-- Test 1: Insufficient slides, NO loop mode -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">1. Insufficient Slides (No Loop)</h2>
+        <p class="test-description">2 slides with default breakpoints (max 4 slidesPerView). Touch should be disabled.</p>
+      </div>
+      <span class="badge badge-warning">Touch Disabled</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-autoplay="false"</code> — No loop attribute set
+    </div>
+
+    <div class="slider-main_component" id="test1" data-autoplay="false">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">Slide 2</div>
+        </div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="status-indicator" data-status="test1"></div>
+    </div>
+  </section>
+
+  <!-- Test 2: Insufficient slides WITH explicit loop mode (true loop with extra clones) -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">2. Insufficient Slides + Loop Mode (True Loop)</h2>
+        <p class="test-description">3 slides with loop explicitly enabled. Uses loopAdditionalSlides to create proper infinite loop.</p>
+      </div>
+      <span class="badge badge-success">True Loop</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-loop-mode="true"</code> <code>data-autoplay="false"</code>
+    </div>
+
+    <div class="slider-main_component" id="test2" data-loop-mode="true" data-autoplay="false">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">Slide 2</div>
+          <div class="swiper-slide">Slide 3</div>
+        </div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="status-indicator" data-status="test2"></div>
+    </div>
+  </section>
+
+  <!-- Test 3: Sufficient slides WITH loop mode (true loop) -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">3. Sufficient Slides + Loop Mode (True Loop)</h2>
+        <p class="test-description">6 slides with loop enabled. True infinite loop should work smoothly.</p>
+      </div>
+      <span class="badge badge-success">True Loop</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-loop-mode="true"</code> <code>data-autoplay="3000"</code>
+    </div>
+
+    <div class="slider-main_component" id="test3" data-loop-mode="true" data-autoplay="3000">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">Slide 2</div>
+          <div class="swiper-slide">Slide 3</div>
+          <div class="swiper-slide">Slide 4</div>
+          <div class="swiper-slide">Slide 5</div>
+          <div class="swiper-slide">Slide 6</div>
+        </div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="swiper-drag-wrapper"></div>
+      <div class="status-indicator" data-status="test3"></div>
+    </div>
+  </section>
+
+  <!-- Test 4: Single slide -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">4. Single Slide</h2>
+        <p class="test-description">Only 1 slide. All interaction should be disabled.</p>
+      </div>
+      <span class="badge badge-danger">Fully Disabled</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-autoplay="false"</code> — Single slide scenario
+    </div>
+
+    <div class="slider-main_component" id="test4" data-autoplay="false">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Only Slide</div>
+        </div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="status-indicator" data-status="test4"></div>
+    </div>
+  </section>
+
+  <!-- Test 5: Custom slidesPerView with loop -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">5. Custom slidesPerView (1) with Loop</h2>
+        <p class="test-description">3 slides with slidesPerView=1 and loop. Should be true loop (3 > 1).</p>
+      </div>
+      <span class="badge badge-success">True Loop</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-loop-mode="true"</code> <code>data-slides-per-view="1"</code> <code>data-autoplay="false"</code>
+    </div>
+
+    <div class="slider-main_component" id="test5" data-loop-mode="true" data-slides-per-view="1" data-autoplay="false">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">Slide 2</div>
+          <div class="swiper-slide">Slide 3</div>
+        </div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="status-indicator" data-status="test5"></div>
+    </div>
+  </section>
+
+  <!-- Test 6: Free mode with insufficient slides -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">6. Free Mode + Insufficient Slides</h2>
+        <p class="test-description">3 slides with free mode. Touch disabled due to insufficient slides.</p>
+      </div>
+      <span class="badge badge-warning">Touch Disabled</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-free-mode="true"</code> <code>data-autoplay="false"</code>
+    </div>
+
+    <div class="slider-main_component" id="test6" data-free-mode="true" data-autoplay="false">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">Slide 2</div>
+          <div class="swiper-slide">Slide 3</div>
+        </div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="status-indicator" data-status="test6"></div>
+    </div>
+  </section>
+
+  <!-- Test 7: Autoplay with progress bar -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">7. Autoplay with Progress Bar</h2>
+        <p class="test-description">6 slides with autoplay and top-level progress bar.</p>
+      </div>
+      <span class="badge badge-success">Autoplay Active</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-autoplay="4000"</code> <code>data-progress-bar="true"</code> <code>data-loop-mode="true"</code>
+    </div>
+
+    <div class="slider-main_component" id="test7" data-autoplay="4000" data-progress-bar="true" data-loop-mode="true">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">Slide 2</div>
+          <div class="swiper-slide">Slide 3</div>
+          <div class="swiper-slide">Slide 4</div>
+          <div class="swiper-slide">Slide 5</div>
+          <div class="swiper-slide">Slide 6</div>
+        </div>
+      </div>
+      <div class="swiper-progress-bar-wrapper">
+        <div class="swiper-progress-bar"></div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="status-indicator" data-status="test7"></div>
+    </div>
+  </section>
+
+  <!-- Test 8: Touch disabled but mousewheel enabled -->
+  <section class="test-section">
+    <div class="test-header">
+      <div>
+        <h2 class="test-title">8. Touch Disabled, Mousewheel Enabled</h2>
+        <p class="test-description">6 slides with touch disabled but mousewheel/trackpad should still work.</p>
+      </div>
+      <span class="badge badge-info">Mousewheel Only</span>
+    </div>
+    
+    <div class="config-display">
+      <code>data-disable-touch="true"</code> <code>data-autoplay="false"</code>
+    </div>
+
+    <div class="slider-main_component" id="test8" data-disable-touch="true" data-autoplay="false">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">Slide 2</div>
+          <div class="swiper-slide">Slide 3</div>
+          <div class="swiper-slide">Slide 4</div>
+          <div class="swiper-slide">Slide 5</div>
+          <div class="swiper-slide">Slide 6</div>
+        </div>
+      </div>
+      <div class="swiper-controls">
+        <button class="swiper-prev"></button>
+        <div class="swiper-bullet-wrapper"></div>
+        <button class="swiper-next"></button>
+      </div>
+      <div class="status-indicator" data-status="test8"></div>
+    </div>
+  </section>
+
+  <!-- Debug Panel -->
+  <div class="debug-panel" id="debugPanel">
+    <div class="debug-title">🔧 Debug Mode</div>
+    <div class="debug-content">
+      <label>
+        <input type="checkbox" id="debugToggle"> Enable console logs
+      </label>
+    </div>
+  </div>
+
+  <!-- Swiper core JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  
+  <!-- Debug mode toggle -->
+  <script>
+    document.getElementById('debugToggle').addEventListener('change', function(e) {
+      window.SWIPER_STARTER_DEBUG = e.target.checked;
+      if (e.target.checked) {
+        console.log('[Swiper Starter] Debug mode enabled. Reload to see init logs.');
+      }
+    });
+  </script>
+  
+  <!-- Swiper Starter Kit -->
+  <script src="js/script.js"></script>
+  
+  <!-- Status display script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait a bit for Swiper to initialize
+      setTimeout(function() {
+        document.querySelectorAll('.slider-main_component').forEach(function(container) {
+          const statusEl = document.querySelector('[data-status="' + container.id + '"]');
+          if (!statusEl) return;
+          
+          const config = container._swiperConfig || {};
+          const swiper = container._swiperInstance;
+          
+          const slideCount = container.querySelectorAll('.swiper-slide').length;
+          const items = [
+            { label: 'loop', value: config.loop },
+            { label: 'totalSlides', value: slideCount },
+            { label: 'allowTouchMove', value: config.allowTouchMove },
+            { label: 'resistanceRatio', value: config.resistanceRatio },
+          ];
+          
+          statusEl.innerHTML = items.map(function(item) {
+            const valueClass = item.value === true ? 'true' : (item.value === false ? 'false' : '');
+            const displayValue = item.value === undefined ? 'undefined' : String(item.value);
+            return '<div class="status-item">' +
+              '<span class="status-label">' + item.label + ':</span>' +
+              '<span class="status-value ' + valueClass + '">' + displayValue + '</span>' +
+            '</div>';
+          }).join('');
+        });
+      }, 100);
+    });
+  </script>
+</body>
+</html>
+

@@ -1,12 +1,19 @@
 {
   "name": "swiper-starter",
   "version": "2.0.0",
-  "private": true,
-  "scripts": {
-    "test": "jest"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0"
+  "description": "A zero-config, attribute-driven wrapper around Swiper 11+ for easy slider setup",
+  "main": "js/script.js",
+  "keywords": [
+    "swiper",
+    "slider",
+    "carousel",
+    "webflow",
+    "vanilla-js"
+  ],
+  "author": "Simon Nilsen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SimonKefas/swiper-starter"
   }
 }
