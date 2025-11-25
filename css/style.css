@@ -1,4 +1,14 @@
-/* Top-Level Progress Bar */
+/**
+ * Swiper Starter Kit v2 – Styles
+ * ==============================
+ * Core styles for progress bars, bullets, and custom range slider.
+ * These styles work with the Swiper Starter Kit wrapper.
+ */
+
+/* =============================================================
+ * 1) Top-Level Progress Bar
+ * ============================================================= */
+
 @keyframes swiper-progress-bar-animation {
   from {
     transform: scaleX(0);
@@ -14,94 +24,254 @@
   position: relative;
   width: 100%;
   height: 4px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .swiper-progress-bar {
   width: 100%;
   height: 100%;
-  background: #007aff;
+  background: #8b5cf6;
   transform: scaleX(0);
   transform-origin: left;
+  border-radius: 4px;
 }
 
+/* =============================================================
+ * 2) Bullet Pagination with Progress
+ * ============================================================= */
 
-/* Bullet-Based Progress Bars */
 .swiper-bullet {
   position: relative;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: #ccc;
+  background: rgba(255, 255, 255, 0.2);
   margin: 0 4px;
-  overflow: hidden; /* ensures .bullet-progress stays clipped */
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  transition: transform 0.2s, background 0.2s;
 }
 
+.swiper-bullet:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
 
-/* Custom Range Slider */
+.swiper-bullet.is-active {
+  background: #8b5cf6;
+  transform: scale(1.2);
+}
+
+/* Progress fill inside bullet */
 .bullet-progress {
   position: absolute;
   top: 0;
   left: 0;
   width: 0%;
   height: 100%;
-  background: #007aff; /* fill color */
-  transition: width 0s linear; /* real timing is set in JS */
+  background: #8b5cf6;
+  transition: width 0s linear;
+  border-radius: 50%;
 }
 
+.swiper-bullet.is-active .bullet-progress {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* =============================================================
+ * 3) Custom Range Slider
+ * ============================================================= */
+
 .custom-slider {
-  --slider-color: #007aff; /* fallback */
+  --slider-color: #8b5cf6;
+  --slider-track-bg: rgba(255, 255, 255, 0.1);
   --value-percent: 0%;
+  
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 5px;
+  height: 6px;
   background: transparent;
   cursor: pointer;
-  outline: none; /* for a cleaner look; ensure focus styles if needed */
+  outline: none;
+  border-radius: 6px;
 }
 
-/* Track styling */
+/* Track - WebKit (Chrome, Safari, Edge) */
 .custom-slider::-webkit-slider-runnable-track {
-  height: 5px;
-  border-radius: 4px;
+  height: 6px;
+  border-radius: 6px;
   background: linear-gradient(
     to right,
     var(--slider-color) 0%,
     var(--slider-color) var(--value-percent),
-    #ccc var(--value-percent),
-    #ccc 100%
-  );
-}
-.custom-slider::-moz-range-track {
-  /* For Firefox */
-  height: 5px;
-  border-radius: 4px;
-  background: linear-gradient(
-    to right,
-    var(--slider-color) 0%,
-    var(--slider-color) var(--value-percent),
-    #ccc var(--value-percent),
-    #ccc 100%
+    var(--slider-track-bg) var(--value-percent),
+    var(--slider-track-bg) 100%
   );
 }
 
-/* Thumb styling */
+/* Track - Firefox */
+.custom-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 6px;
+  background: linear-gradient(
+    to right,
+    var(--slider-color) 0%,
+    var(--slider-color) var(--value-percent),
+    var(--slider-track-bg) var(--value-percent),
+    var(--slider-track-bg) 100%
+  );
+}
+
+/* Thumb - WebKit */
 .custom-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 27px;
-  height: 27px;
-  margin-top: -11px; /* align thumb vertically */
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
   background: var(--slider-color);
   border-radius: 50%;
-  cursor: pointer;
+  cursor: grab;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
+
+.custom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.custom-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.05);
+}
+
+/* Thumb - Firefox */
 .custom-slider::-moz-range-thumb {
-  /* For Firefox */
-  width: 27px;
-  height: 27px;
+  width: 20px;
+  height: 20px;
   background: var(--slider-color);
   border-radius: 50%;
+  cursor: grab;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.custom-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.custom-slider::-moz-range-thumb:active {
+  cursor: grabbing;
+}
+
+/* Focus state */
+.custom-slider:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.custom-slider:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* =============================================================
+ * 4) Draggable Scrollbar
+ * ============================================================= */
+
+.swiper-drag-wrapper {
+  position: relative;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.swiper-drag {
+  height: 100%;
+  background: #8b5cf6;
+  border-radius: 4px;
+  cursor: grab;
+  transition: background 0.2s;
+}
+
+.swiper-drag:hover {
+  background: #a78bfa;
+}
+
+.swiper-drag:active {
+  cursor: grabbing;
+}
+
+/* =============================================================
+ * 5) Navigation Buttons (Base styles)
+ * ============================================================= */
+
+.swiper-prev,
+.swiper-next {
   cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.swiper-prev.is-disabled,
+.swiper-next.is-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* =============================================================
+ * 6) Disabled Slider State
+ * ============================================================= */
+
+.slider-main_component[data-swiper-disabled] {
+  pointer-events: none;
+}
+
+.slider-main_component[data-swiper-disabled] .swiper-bullet-wrapper,
+.slider-main_component[data-swiper-disabled] .swiper-prev,
+.slider-main_component[data-swiper-disabled] .swiper-next,
+.slider-main_component[data-swiper-disabled] .swiper-drag-wrapper,
+.slider-main_component[data-swiper-disabled] .swiper-progress-bar-wrapper,
+.slider-main_component[data-swiper-disabled] .custom-slider-wrapper {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* =============================================================
+ * 7) Slide Active States
+ * ============================================================= */
+
+.swiper-slide.is-active {
+  /* Add custom active styles here if needed */
+}
+
+.swiper-slide-duplicate.is-active {
+  /* Duplicate slides in loop mode */
+}
+
+/* =============================================================
+ * 8) Reduced Motion Support
+ * ============================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .swiper-progress-bar {
+    animation: none !important;
+  }
+  
+  .bullet-progress {
+    transition: none !important;
+  }
+  
+  .custom-slider::-webkit-slider-thumb,
+  .custom-slider::-moz-range-thumb {
+    transition: none;
+  }
 }

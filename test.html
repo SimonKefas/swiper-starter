@@ -3,27 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Swiper Starter Kit – Test Scenarios</title>
+  <title>Swiper Starter Kit v2 – Examples</title>
   
   <!-- Swiper core CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
   
-  <!-- Custom styles for testing -->
+  <!-- Custom styles -->
   <link rel="stylesheet" href="css/style.css"/>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-primary: #0f0f13;
-      --bg-card: #1a1a24;
-      --bg-slide: #252532;
-      --text-primary: #f4f4f6;
-      --text-muted: #8b8b9e;
-      --accent: #6366f1;
-      --accent-light: #818cf8;
-      --success: #22c55e;
+      --bg-primary: #09090b;
+      --bg-card: #18181b;
+      --bg-slide: #27272a;
+      --bg-slide-alt: linear-gradient(135deg, #3f3f46 0%, #27272a 100%);
+      --text-primary: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #8b5cf6;
+      --accent-light: #a78bfa;
+      --accent-glow: rgba(139, 92, 246, 0.3);
+      --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --border: #2d2d3d;
+      --info: #3b82f6;
+      --border: #3f3f46;
+      --border-light: #52525b;
     }
 
     * {
@@ -33,88 +42,295 @@
     }
 
     body {
-      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
       line-height: 1.6;
-      padding: 2rem;
       min-height: 100vh;
     }
 
-    h1 {
-      font-size: 2.5rem;
+    /* Header */
+    .hero {
+      padding: 4rem 2rem;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
       font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 50%, #ec4899 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .subtitle {
+    .hero p {
       color: var(--text-muted);
-      font-size: 1.1rem;
-      margin-bottom: 3rem;
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
     }
 
-    .test-section {
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .hero-badge strong {
+      color: var(--text-primary);
+    }
+
+    /* Main content */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    /* Section headers */
+    .section-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 1.5rem;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .section-description {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Example cards */
+    .examples-grid {
+      display: grid;
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .example-card {
       background: var(--bg-card);
       border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 2rem;
       border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.2s;
     }
 
-    .test-header {
+    .example-card:hover {
+      border-color: var(--border-light);
+    }
+
+    .example-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
+      align-items: flex-start;
       gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .test-title {
-      font-size: 1.25rem;
+    .example-title {
+      font-size: 1.125rem;
       font-weight: 600;
       margin-bottom: 0.25rem;
     }
 
-    .test-description {
+    .example-description {
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.875rem;
+    }
+
+    .example-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .example-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .badge {
       display: inline-block;
       padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
+      border-radius: 100px;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
-    .badge-success { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .badge-accent { background: rgba(139, 92, 246, 0.15); color: var(--accent-light); }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
     .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
     .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-    .badge-info { background: rgba(99, 102, 241, 0.15); color: var(--accent-light); }
+    .badge-info { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+    .badge-pink { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
 
-    .config-display {
-      background: var(--bg-primary);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.85rem;
-      overflow-x: auto;
+    /* Code Toggle Button */
+    .code-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.2s;
     }
 
-    .config-display code {
+    .code-toggle:hover {
+      border-color: var(--accent);
       color: var(--accent-light);
     }
 
-    /* Slider container styles */
+    .code-toggle.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .code-toggle svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .example-code {
+      padding: 1rem 1.5rem;
+      background: var(--bg-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .example-code code {
+      color: var(--accent-light);
+      background: rgba(139, 92, 246, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .example-body {
+      padding: 1.5rem;
+    }
+
+    /* X-Ray Code Block */
+    .xray-code {
+      display: none;
+      margin-top: 1rem;
+      background: #0d0d0f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .xray-code.show {
+      display: block;
+    }
+
+    .xray-code-header {
+      padding: 0.75rem 1rem;
+      background: var(--bg-slide);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .xray-code-header span {
+      cursor: pointer;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .xray-code-header span:hover {
+      background: var(--bg-primary);
+    }
+
+    .xray-code-header span.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .xray-code pre {
+      padding: 1rem;
+      margin: 0;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.6;
+      color: #e4e4e7;
+      white-space: pre;
+    }
+
+    .xray-code pre .tag { color: #f472b6; }
+    .xray-code pre .attr { color: #a78bfa; }
+    .xray-code pre .value { color: #34d399; }
+    .xray-code pre .comment { color: #52525b; font-style: italic; }
+    .xray-code pre .keyword { color: #f472b6; }
+    .xray-code pre .function { color: #60a5fa; }
+    .xray-code pre .string { color: #34d399; }
+    .xray-code pre .property { color: #a78bfa; }
+    .xray-code pre .number { color: #fbbf24; }
+
+    .xray-code-tab {
+      display: none;
+    }
+
+    .xray-code-tab.active {
+      display: block;
+    }
+
+    /* Slider styles */
     .slider-main_component {
       position: relative;
       width: 100%;
@@ -122,41 +338,159 @@
 
     .swiper {
       width: 100%;
-      padding: 1rem 0;
+      padding: 0.5rem 0;
     }
 
     .swiper-slide {
       background: var(--bg-slide);
       border-radius: 12px;
-      padding: 2rem;
+      padding: 2rem 1.5rem;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      font-weight: 500;
-      min-height: 150px;
+      text-align: center;
+      min-height: 180px;
       border: 1px solid var(--border);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.2s;
     }
 
     .swiper-slide:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      border-color: var(--border-light);
     }
 
-    /* Navigation styles */
+    .slide-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Gradient slides */
+    .swiper-slide.slide-gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
+    .swiper-slide.slide-gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; }
+    .swiper-slide.slide-gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; }
+    .swiper-slide.slide-gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border: none; }
+    .swiper-slide.slide-gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border: none; }
+    .swiper-slide.slide-gradient-6 { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); border: none; }
+
+    .swiper-slide.slide-gradient-1 .slide-number,
+    .swiper-slide.slide-gradient-2 .slide-number,
+    .swiper-slide.slide-gradient-3 .slide-number,
+    .swiper-slide.slide-gradient-4 .slide-number,
+    .swiper-slide.slide-gradient-5 .slide-number,
+    .swiper-slide.slide-gradient-6 .slide-number {
+      color: white;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .swiper-slide.slide-gradient-1 .slide-label,
+    .swiper-slide.slide-gradient-2 .slide-label,
+    .swiper-slide.slide-gradient-3 .slide-label,
+    .swiper-slide.slide-gradient-4 .slide-label,
+    .swiper-slide.slide-gradient-5 .slide-label,
+    .swiper-slide.slide-gradient-6 .slide-label {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* =============================================
+     * CREATIVE SLIDER: 3D Scale Effect
+     * Uses JS API to add position-based classes
+     * ============================================= */
+    .slider-scale .swiper {
+      padding: 3rem 0;
+      overflow: visible;
+    }
+
+    .slider-scale .swiper-wrapper {
+      align-items: center;
+    }
+
+    .slider-scale .swiper-slide {
+      width: 280px;
+      height: 200px;
+      opacity: 0.4;
+      transform: scale(0.75);
+      filter: blur(2px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Position-based classes added via JS */
+    .slider-scale .swiper-slide.pos-prev-2,
+    .slider-scale .swiper-slide.pos-next-2 {
+      opacity: 0.3;
+      transform: scale(0.65);
+    }
+
+    .slider-scale .swiper-slide.pos-prev-1,
+    .slider-scale .swiper-slide.pos-next-1 {
+      opacity: 0.7;
+      transform: scale(0.85);
+      filter: blur(0px);
+    }
+
+    .slider-scale .swiper-slide.pos-active {
+      opacity: 1;
+      transform: scale(1.1);
+      filter: blur(0px);
+      z-index: 10;
+      box-shadow: 0 25px 50px rgba(139, 92, 246, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .slider-scale .swiper-slide {
+        width: 200px;
+        height: 160px;
+      }
+    }
+
+    /* =============================================
+     * CREATIVE SLIDER: Variable Width Grid
+     * ============================================= */
+    .slider-grid .swiper {
+      padding: 1rem 0;
+    }
+
+    .slider-grid .swiper-slide {
+      height: 220px;
+    }
+
+    .slider-grid .swiper-slide.slide-wide {
+      width: 400px !important;
+    }
+
+    .slider-grid .swiper-slide.slide-medium {
+      width: 250px !important;
+    }
+
+    .slider-grid .swiper-slide.slide-narrow {
+      width: 180px !important;
+    }
+
+    @media (max-width: 768px) {
+      .slider-grid .swiper-slide.slide-wide { width: 280px !important; }
+      .slider-grid .swiper-slide.slide-medium { width: 200px !important; }
+      .slider-grid .swiper-slide.slide-narrow { width: 150px !important; }
+    }
+
+    /* Controls */
     .swiper-controls {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 1rem;
-      margin-top: 1rem;
+      margin-top: 1.25rem;
     }
 
     .swiper-prev,
     .swiper-next {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       background: var(--bg-slide);
       border: 1px solid var(--border);
       border-radius: 50%;
@@ -165,6 +499,7 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
 
     .swiper-prev:hover:not(.is-disabled),
@@ -182,33 +517,32 @@
     .swiper-prev::before,
     .swiper-next::before {
       content: '';
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-top: 2px solid var(--text-primary);
       border-right: 2px solid var(--text-primary);
     }
 
     .swiper-prev::before {
       transform: rotate(-135deg);
-      margin-left: 3px;
+      margin-left: 2px;
     }
 
     .swiper-next::before {
       transform: rotate(45deg);
-      margin-right: 3px;
+      margin-right: 2px;
     }
 
-    /* Bullet pagination */
+    /* Bullets */
     .swiper-bullet-wrapper {
       display: flex;
       justify-content: center;
       gap: 8px;
-      margin-top: 1rem;
     }
 
     .swiper-bullet {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       background: var(--border);
       border-radius: 50%;
       cursor: pointer;
@@ -223,7 +557,7 @@
 
     .swiper-bullet.is-active {
       background: var(--accent);
-      transform: scale(1.2);
+      transform: scale(1.25);
     }
 
     /* Scrollbar */
@@ -231,7 +565,7 @@
       height: 4px;
       background: var(--border);
       border-radius: 4px;
-      margin-top: 1rem;
+      margin-top: 1.25rem;
     }
 
     .swiper-drag {
@@ -243,40 +577,25 @@
 
     /* Progress bar */
     .swiper-progress-bar-wrapper {
-      margin-top: 1rem;
+      margin-top: 1.25rem;
+      height: 3px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
     }
 
-    /* Status indicator */
-    .status-indicator {
-      margin-top: 1rem;
-      padding: 0.75rem 1rem;
-      background: var(--bg-primary);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
+    .swiper-progress-bar {
+      height: 100%;
+      background: var(--accent);
     }
 
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    /* Custom slider */
+    .custom-slider-wrapper {
+      margin-top: 1.25rem;
+      padding: 0 0.5rem;
     }
 
-    .status-label {
-      color: var(--text-muted);
-    }
-
-    .status-value {
-      font-weight: 600;
-      font-family: 'SF Mono', monospace;
-    }
-
-    .status-value.true { color: var(--success); }
-    .status-value.false { color: var(--danger); }
-
-    /* Disabled state styling */
+    /* Disabled state */
     .slider-main_component[data-swiper-disabled] .swiper-bullet-wrapper,
     .slider-main_component[data-swiper-disabled] .swiper-controls,
     .slider-main_component[data-swiper-disabled] .swiper-drag-wrapper {
@@ -284,366 +603,889 @@
       pointer-events: none;
     }
 
-    /* Debug panel */
-    .debug-panel {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
+    /* Feature cards for attribute reference */
+    .attribute-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .attribute-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1rem;
-      font-size: 0.8rem;
-      max-width: 300px;
-      z-index: 1000;
+      padding: 1.25rem;
     }
 
-    .debug-title {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
+    .attribute-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
       color: var(--accent-light);
+      margin-bottom: 0.5rem;
     }
 
-    .debug-content {
-      font-family: 'SF Mono', monospace;
+    .attribute-desc {
+      font-size: 0.85rem;
       color: var(--text-muted);
     }
 
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .footer a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-      body {
-        padding: 1rem;
+      .hero {
+        padding: 3rem 1.5rem;
       }
 
-      h1 {
-        font-size: 1.75rem;
+      .container {
+        padding: 2rem 1rem;
       }
 
-      .test-section {
+      .example-header {
         padding: 1.25rem;
+      }
+
+      .example-body {
+        padding: 1.25rem;
+      }
+
+      .swiper-slide {
+        min-height: 150px;
+        padding: 1.5rem 1rem;
+      }
+
+      .slide-number {
+        font-size: 1.5rem;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Swiper Starter Kit v2</h1>
-  <p class="subtitle">Test scenarios for loop mode, rewind fallback, and touch disable logic</p>
 
-  <!-- Test 1: Insufficient slides, NO loop mode -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">1. Insufficient Slides (No Loop)</h2>
-        <p class="test-description">2 slides with default breakpoints (max 4 slidesPerView). Touch should be disabled.</p>
-      </div>
-      <span class="badge badge-warning">Touch Disabled</span>
+  <!-- Hero Section -->
+  <header class="hero">
+    <h1>Swiper Starter Kit v2</h1>
+    <p>A zero-config, attribute-driven wrapper around Swiper 11+. Just add data attributes and go.</p>
+    <div class="hero-badges">
+      <span class="hero-badge">📦 <strong>Zero Dependencies</strong></span>
+      <span class="hero-badge">⚡ <strong>Vanilla JS</strong></span>
+      <span class="hero-badge">🎯 <strong>Data Attributes</strong></span>
+      <span class="hero-badge">♿ <strong>Accessible</strong></span>
     </div>
-    
-    <div class="config-display">
-      <code>data-autoplay="false"</code> — No loop attribute set
-    </div>
+  </header>
 
-    <div class="slider-main_component" id="test1" data-autoplay="false">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Slide 1</div>
-          <div class="swiper-slide">Slide 2</div>
+  <main class="container">
+
+    <!-- SECTION: Creative Examples -->
+    <section class="section-header">
+      <h2 class="section-title">Creative Layouts</h2>
+      <p class="section-description">Advanced designs using the JS API to add custom behaviors.</p>
+    </section>
+
+    <div class="examples-grid">
+
+      <!-- Creative: 3D Scale Effect with JS API -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">3D Scale Perspective</h3>
+            <p class="example-description">Uses the JS API to add position-based classes (pos-active, pos-prev-1, etc.) for CSS-driven scale effects.</p>
+          </div>
+          <div class="example-header-right">
+            <div class="example-badges">
+              <span class="badge badge-pink">JS API</span>
+              <span class="badge badge-accent">CSS Effects</span>
+            </div>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="status-indicator" data-status="test1"></div>
-    </div>
-  </section>
-
-  <!-- Test 2: Insufficient slides WITH explicit loop mode (true loop with extra clones) -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">2. Insufficient Slides + Loop Mode (True Loop)</h2>
-        <p class="test-description">3 slides with loop explicitly enabled. Uses loopAdditionalSlides to create proper infinite loop.</p>
-      </div>
-      <span class="badge badge-success">True Loop</span>
-    </div>
-    
-    <div class="config-display">
-      <code>data-loop-mode="true"</code> <code>data-autoplay="false"</code>
-    </div>
-
-    <div class="slider-main_component" id="test2" data-loop-mode="true" data-autoplay="false">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Slide 1</div>
-          <div class="swiper-slide">Slide 2</div>
-          <div class="swiper-slide">Slide 3</div>
+        <div class="example-code">
+          <code>data-centered-slides="true"</code>
+          <code>data-slides-per-view="3"</code>
+          <code>+ JS position classes</code>
         </div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="status-indicator" data-status="test2"></div>
-    </div>
-  </section>
+        <div class="example-body">
+          <div class="slider-main_component slider-scale" id="scale-slider" data-centered-slides="true" data-slides-per-view="3" data-space-between="30" data-autoplay="false">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">1</span><span class="slide-label">Scale</span></div>
+                <div class="swiper-slide slide-gradient-2"><span class="slide-number">2</span><span class="slide-label">Scale</span></div>
+                <div class="swiper-slide slide-gradient-3"><span class="slide-number">3</span><span class="slide-label">Scale</span></div>
+                <div class="swiper-slide slide-gradient-4"><span class="slide-number">4</span><span class="slide-label">Scale</span></div>
+                <div class="swiper-slide slide-gradient-5"><span class="slide-number">5</span><span class="slide-label">Scale</span></div>
+              </div>
+            </div>
+            <div class="swiper-controls">
+              <button class="swiper-prev"></button>
+              <div class="swiper-bullet-wrapper"></div>
+              <button class="swiper-next"></button>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+              <span onclick="switchTab(this, 'css')">CSS</span>
+              <span onclick="switchTab(this, 'js')">JS</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="comment">&lt;!-- Add slider-scale class and an ID --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component slider-scale"</span>
+     <span class="attr">id</span>=<span class="value">"scale-slider"</span>
+     <span class="attr">data-centered-slides</span>=<span class="value">"true"</span>
+     <span class="attr">data-slides-per-view</span>=<span class="value">"3"</span>
+     <span class="attr">data-space-between</span>=<span class="value">"30"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide"</span><span class="tag">&gt;</span>1<span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide"</span><span class="tag">&gt;</span>2<span class="tag">&lt;/div&gt;</span>
+      <span class="comment">&lt;!-- more slides --&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-controls"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+            <div class="xray-code-tab" data-tab="css">
+              <pre><span class="comment">/* Container needs visible overflow */</span>
+.<span class="property">slider-scale</span> .<span class="property">swiper</span> {
+  <span class="attr">padding</span>: <span class="number">3rem</span> <span class="number">0</span>;
+  <span class="attr">overflow</span>: <span class="value">visible</span>;
+}
 
-  <!-- Test 3: Sufficient slides WITH loop mode (true loop) -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">3. Sufficient Slides + Loop Mode (True Loop)</h2>
-        <p class="test-description">6 slides with loop enabled. True infinite loop should work smoothly.</p>
-      </div>
-      <span class="badge badge-success">True Loop</span>
-    </div>
+.<span class="property">slider-scale</span> .<span class="property">swiper-wrapper</span> {
+  <span class="attr">align-items</span>: <span class="value">center</span>;
+}
+
+<span class="comment">/* Base: all slides small and faded */</span>
+.<span class="property">slider-scale</span> .<span class="property">swiper-slide</span> {
+  <span class="attr">width</span>: <span class="number">280px</span>;
+  <span class="attr">height</span>: <span class="number">200px</span>;
+  <span class="attr">opacity</span>: <span class="number">0.4</span>;
+  <span class="attr">transform</span>: <span class="function">scale</span>(<span class="number">0.75</span>);
+  <span class="attr">filter</span>: <span class="function">blur</span>(<span class="number">2px</span>);
+  <span class="attr">transition</span>: <span class="value">all 0.4s cubic-bezier(0.4, 0, 0.2, 1)</span>;
+}
+
+<span class="comment">/* Position classes added by JS */</span>
+.<span class="property">slider-scale</span> .<span class="property">swiper-slide</span>.<span class="property">pos-prev-1</span>,
+.<span class="property">slider-scale</span> .<span class="property">swiper-slide</span>.<span class="property">pos-next-1</span> {
+  <span class="attr">opacity</span>: <span class="number">0.7</span>;
+  <span class="attr">transform</span>: <span class="function">scale</span>(<span class="number">0.85</span>);
+  <span class="attr">filter</span>: <span class="function">blur</span>(<span class="number">0</span>);
+}
+
+<span class="comment">/* Active slide: large and focused */</span>
+.<span class="property">slider-scale</span> .<span class="property">swiper-slide</span>.<span class="property">pos-active</span> {
+  <span class="attr">opacity</span>: <span class="number">1</span>;
+  <span class="attr">transform</span>: <span class="function">scale</span>(<span class="number">1.1</span>);
+  <span class="attr">filter</span>: <span class="function">blur</span>(<span class="number">0</span>);
+  <span class="attr">z-index</span>: <span class="number">10</span>;
+  <span class="attr">box-shadow</span>: <span class="number">0</span> <span class="number">25px</span> <span class="number">50px</span> <span class="function">rgba</span>(<span class="number">139, 92, 246, 0.4</span>);
+}</pre>
+            </div>
+            <div class="xray-code-tab" data-tab="js">
+              <pre><span class="comment">// Hook into the Swiper instance after init</span>
+<span class="keyword">document</span>.<span class="function">addEventListener</span>(<span class="string">'DOMContentLoaded'</span>, () => {
+  <span class="comment">// Wait for Swiper Starter to initialize</span>
+  <span class="keyword">setTimeout</span>(() => {
+    <span class="keyword">const</span> container = <span class="keyword">document</span>.<span class="function">querySelector</span>(<span class="string">'#scale-slider'</span>);
+    <span class="keyword">const</span> swiper = container.<span class="property">_swiperInstance</span>;
     
-    <div class="config-display">
-      <code>data-loop-mode="true"</code> <code>data-autoplay="3000"</code>
-    </div>
-
-    <div class="slider-main_component" id="test3" data-loop-mode="true" data-autoplay="3000">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Slide 1</div>
-          <div class="swiper-slide">Slide 2</div>
-          <div class="swiper-slide">Slide 3</div>
-          <div class="swiper-slide">Slide 4</div>
-          <div class="swiper-slide">Slide 5</div>
-          <div class="swiper-slide">Slide 6</div>
-        </div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="swiper-drag-wrapper"></div>
-      <div class="status-indicator" data-status="test3"></div>
-    </div>
-  </section>
-
-  <!-- Test 4: Single slide -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">4. Single Slide</h2>
-        <p class="test-description">Only 1 slide. All interaction should be disabled.</p>
-      </div>
-      <span class="badge badge-danger">Fully Disabled</span>
-    </div>
+    <span class="keyword">if</span> (!swiper) <span class="keyword">return</span>;
     
-    <div class="config-display">
-      <code>data-autoplay="false"</code> — Single slide scenario
-    </div>
-
-    <div class="slider-main_component" id="test4" data-autoplay="false">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Only Slide</div>
-        </div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="status-indicator" data-status="test4"></div>
-    </div>
-  </section>
-
-  <!-- Test 5: Custom slidesPerView with loop -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">5. Custom slidesPerView (1) with Loop</h2>
-        <p class="test-description">3 slides with slidesPerView=1 and loop. Should be true loop (3 > 1).</p>
-      </div>
-      <span class="badge badge-success">True Loop</span>
-    </div>
+    <span class="comment">// Function to update position classes</span>
+    <span class="keyword">function</span> <span class="function">updatePositionClasses</span>() {
+      <span class="keyword">const</span> slides = container.<span class="function">querySelectorAll</span>(<span class="string">'.swiper-slide'</span>);
+      <span class="keyword">const</span> activeIndex = swiper.<span class="property">activeIndex</span>;
+      
+      slides.<span class="function">forEach</span>((slide, i) => {
+        <span class="comment">// Remove all position classes</span>
+        slide.classList.<span class="function">remove</span>(
+          <span class="string">'pos-active'</span>, <span class="string">'pos-prev-1'</span>, <span class="string">'pos-prev-2'</span>,
+          <span class="string">'pos-next-1'</span>, <span class="string">'pos-next-2'</span>
+        );
+        
+        <span class="comment">// Add class based on distance from active</span>
+        <span class="keyword">const</span> diff = i - activeIndex;
+        <span class="keyword">if</span> (diff === <span class="number">0</span>) slide.classList.<span class="function">add</span>(<span class="string">'pos-active'</span>);
+        <span class="keyword">else if</span> (diff === <span class="number">-1</span>) slide.classList.<span class="function">add</span>(<span class="string">'pos-prev-1'</span>);
+        <span class="keyword">else if</span> (diff === <span class="number">1</span>) slide.classList.<span class="function">add</span>(<span class="string">'pos-next-1'</span>);
+        <span class="keyword">else if</span> (diff === <span class="number">-2</span>) slide.classList.<span class="function">add</span>(<span class="string">'pos-prev-2'</span>);
+        <span class="keyword">else if</span> (diff === <span class="number">2</span>) slide.classList.<span class="function">add</span>(<span class="string">'pos-next-2'</span>);
+      });
+    }
     
-    <div class="config-display">
-      <code>data-loop-mode="true"</code> <code>data-slides-per-view="1"</code> <code>data-autoplay="false"</code>
-    </div>
-
-    <div class="slider-main_component" id="test5" data-loop-mode="true" data-slides-per-view="1" data-autoplay="false">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Slide 1</div>
-          <div class="swiper-slide">Slide 2</div>
-          <div class="swiper-slide">Slide 3</div>
+    <span class="comment">// Run on init and slide change</span>
+    <span class="function">updatePositionClasses</span>();
+    swiper.<span class="function">on</span>(<span class="string">'slideChange'</span>, updatePositionClasses);
+  }, <span class="number">100</span>);
+});</pre>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="status-indicator" data-status="test5"></div>
-    </div>
-  </section>
+      </article>
 
-  <!-- Test 6: Free mode with insufficient slides -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">6. Free Mode + Insufficient Slides</h2>
-        <p class="test-description">3 slides with free mode. Touch disabled due to insufficient slides.</p>
-      </div>
-      <span class="badge badge-warning">Touch Disabled</span>
-    </div>
-    
-    <div class="config-display">
-      <code>data-free-mode="true"</code> <code>data-autoplay="false"</code>
-    </div>
-
-    <div class="slider-main_component" id="test6" data-free-mode="true" data-autoplay="false">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Slide 1</div>
-          <div class="swiper-slide">Slide 2</div>
-          <div class="swiper-slide">Slide 3</div>
+      <!-- Creative: Variable Width Grid -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Variable Width Grid</h3>
+            <p class="example-description">Mix slide widths using CSS classes. Free mode allows natural scrolling without snap.</p>
+          </div>
+          <div class="example-header-right">
+            <div class="example-badges">
+              <span class="badge badge-success">Free Mode</span>
+              <span class="badge badge-accent">CSS Widths</span>
+            </div>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="status-indicator" data-status="test6"></div>
-    </div>
-  </section>
-
-  <!-- Test 7: Autoplay with progress bar -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">7. Autoplay with Progress Bar</h2>
-        <p class="test-description">6 slides with autoplay and top-level progress bar.</p>
-      </div>
-      <span class="badge badge-success">Autoplay Active</span>
-    </div>
-    
-    <div class="config-display">
-      <code>data-autoplay="4000"</code> <code>data-progress-bar="true"</code> <code>data-loop-mode="true"</code>
-    </div>
-
-    <div class="slider-main_component" id="test7" data-autoplay="4000" data-progress-bar="true" data-loop-mode="true">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Slide 1</div>
-          <div class="swiper-slide">Slide 2</div>
-          <div class="swiper-slide">Slide 3</div>
-          <div class="swiper-slide">Slide 4</div>
-          <div class="swiper-slide">Slide 5</div>
-          <div class="swiper-slide">Slide 6</div>
+        <div class="example-code">
+          <code>data-slides-per-view="auto"</code>
+          <code>data-free-mode="true"</code>
         </div>
-      </div>
-      <div class="swiper-progress-bar-wrapper">
-        <div class="swiper-progress-bar"></div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="status-indicator" data-status="test7"></div>
-    </div>
-  </section>
+        <div class="example-body">
+          <div class="slider-main_component slider-grid" data-slides-per-view="auto" data-space-between="16" data-autoplay="false" data-free-mode="true">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-wide slide-gradient-1"><span class="slide-number">Wide</span><span class="slide-label">400px</span></div>
+                <div class="swiper-slide slide-medium slide-gradient-2"><span class="slide-number">Med</span><span class="slide-label">250px</span></div>
+                <div class="swiper-slide slide-narrow slide-gradient-3"><span class="slide-number">Sm</span><span class="slide-label">180px</span></div>
+                <div class="swiper-slide slide-medium slide-gradient-4"><span class="slide-number">Med</span><span class="slide-label">250px</span></div>
+                <div class="swiper-slide slide-wide slide-gradient-5"><span class="slide-number">Wide</span><span class="slide-label">400px</span></div>
+                <div class="swiper-slide slide-narrow slide-gradient-6"><span class="slide-number">Sm</span><span class="slide-label">180px</span></div>
+              </div>
+            </div>
+            <div class="swiper-drag-wrapper"></div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+              <span onclick="switchTab(this, 'css')">CSS</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="comment">&lt;!-- Add width classes to individual slides --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component slider-grid"</span>
+     <span class="attr">data-slides-per-view</span>=<span class="value">"auto"</span>
+     <span class="attr">data-space-between</span>=<span class="value">"16"</span>
+     <span class="attr">data-free-mode</span>=<span class="value">"true"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide slide-wide"</span><span class="tag">&gt;</span>Wide<span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide slide-medium"</span><span class="tag">&gt;</span>Medium<span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide slide-narrow"</span><span class="tag">&gt;</span>Small<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-drag-wrapper"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+            <div class="xray-code-tab" data-tab="css">
+              <pre><span class="comment">/* Width classes for different slide sizes */</span>
+.<span class="property">slider-grid</span> .<span class="property">swiper-slide</span> {
+  <span class="attr">height</span>: <span class="number">220px</span>;
+}
 
-  <!-- Test 8: Touch disabled but mousewheel enabled -->
-  <section class="test-section">
-    <div class="test-header">
-      <div>
-        <h2 class="test-title">8. Touch Disabled, Mousewheel Enabled</h2>
-        <p class="test-description">6 slides with touch disabled but mousewheel/trackpad should still work.</p>
-      </div>
-      <span class="badge badge-info">Mousewheel Only</span>
-    </div>
-    
-    <div class="config-display">
-      <code>data-disable-touch="true"</code> <code>data-autoplay="false"</code>
-    </div>
+.<span class="property">slider-grid</span> .<span class="property">swiper-slide</span>.<span class="property">slide-wide</span> {
+  <span class="attr">width</span>: <span class="number">400px</span> <span class="value">!important</span>;
+}
 
-    <div class="slider-main_component" id="test8" data-disable-touch="true" data-autoplay="false">
-      <div class="swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">Slide 1</div>
-          <div class="swiper-slide">Slide 2</div>
-          <div class="swiper-slide">Slide 3</div>
-          <div class="swiper-slide">Slide 4</div>
-          <div class="swiper-slide">Slide 5</div>
-          <div class="swiper-slide">Slide 6</div>
+.<span class="property">slider-grid</span> .<span class="property">swiper-slide</span>.<span class="property">slide-medium</span> {
+  <span class="attr">width</span>: <span class="number">250px</span> <span class="value">!important</span>;
+}
+
+.<span class="property">slider-grid</span> .<span class="property">swiper-slide</span>.<span class="property">slide-narrow</span> {
+  <span class="attr">width</span>: <span class="number">180px</span> <span class="value">!important</span>;
+}
+
+<span class="comment">/* Responsive */</span>
+<span class="keyword">@media</span> (<span class="attr">max-width</span>: <span class="number">768px</span>) {
+  .<span class="property">slider-grid</span> .<span class="property">slide-wide</span> { <span class="attr">width</span>: <span class="number">280px</span> <span class="value">!important</span>; }
+  .<span class="property">slider-grid</span> .<span class="property">slide-medium</span> { <span class="attr">width</span>: <span class="number">200px</span> <span class="value">!important</span>; }
+  .<span class="property">slider-grid</span> .<span class="property">slide-narrow</span> { <span class="attr">width</span>: <span class="number">150px</span> <span class="value">!important</span>; }
+}</pre>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="swiper-controls">
-        <button class="swiper-prev"></button>
-        <div class="swiper-bullet-wrapper"></div>
-        <button class="swiper-next"></button>
-      </div>
-      <div class="status-indicator" data-status="test8"></div>
-    </div>
-  </section>
+      </article>
 
-  <!-- Debug Panel -->
-  <div class="debug-panel" id="debugPanel">
-    <div class="debug-title">🔧 Debug Mode</div>
-    <div class="debug-content">
-      <label>
-        <input type="checkbox" id="debugToggle"> Enable console logs
-      </label>
     </div>
-  </div>
+
+    <!-- SECTION: Basic Examples -->
+    <section class="section-header">
+      <h2 class="section-title">Basic Examples</h2>
+      <p class="section-description">Core slider configurations with common use cases.</p>
+    </section>
+
+    <div class="examples-grid">
+
+      <!-- Example 1: Default Slider -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Default Slider</h3>
+            <p class="example-description">Responsive breakpoints, navigation, and pagination out of the box.</p>
+          </div>
+          <div class="example-header-right">
+            <span class="badge badge-accent">Responsive</span>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-autoplay="false"</code>
+        </div>
+        <div class="example-body">
+          <div class="slider-main_component" data-autoplay="false">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide"><span class="slide-number">1</span><span class="slide-label">Slide</span></div>
+                <div class="swiper-slide"><span class="slide-number">2</span><span class="slide-label">Slide</span></div>
+                <div class="swiper-slide"><span class="slide-number">3</span><span class="slide-label">Slide</span></div>
+                <div class="swiper-slide"><span class="slide-number">4</span><span class="slide-label">Slide</span></div>
+                <div class="swiper-slide"><span class="slide-number">5</span><span class="slide-label">Slide</span></div>
+                <div class="swiper-slide"><span class="slide-number">6</span><span class="slide-label">Slide</span></div>
+              </div>
+            </div>
+            <div class="swiper-controls">
+              <button class="swiper-prev"></button>
+              <div class="swiper-bullet-wrapper"></div>
+              <button class="swiper-next"></button>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span> <span class="attr">data-autoplay</span>=<span class="value">"false"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide"</span><span class="tag">&gt;</span>Slide 1<span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide"</span><span class="tag">&gt;</span>Slide 2<span class="tag">&lt;/div&gt;</span>
+      <span class="comment">&lt;!-- more slides --&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-controls"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="value">"swiper-prev"</span><span class="tag">&gt;&lt;/button&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-bullet-wrapper"</span><span class="tag">&gt;&lt;/div&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="value">"swiper-next"</span><span class="tag">&gt;&lt;/button&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Example 2: Loop Mode -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Infinite Loop</h3>
+            <p class="example-description">Continuous loop mode. Auto-clones slides when needed.</p>
+          </div>
+          <div class="example-header-right">
+            <span class="badge badge-success">Loop</span>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-loop-mode="true"</code>
+        </div>
+        <div class="example-body">
+          <div class="slider-main_component" data-loop-mode="true" data-autoplay="false">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">1</span><span class="slide-label">Loop</span></div>
+                <div class="swiper-slide slide-gradient-2"><span class="slide-number">2</span><span class="slide-label">Loop</span></div>
+                <div class="swiper-slide slide-gradient-3"><span class="slide-number">3</span><span class="slide-label">Loop</span></div>
+                <div class="swiper-slide slide-gradient-4"><span class="slide-number">4</span><span class="slide-label">Loop</span></div>
+                <div class="swiper-slide slide-gradient-5"><span class="slide-number">5</span><span class="slide-label">Loop</span></div>
+                <div class="swiper-slide slide-gradient-6"><span class="slide-number">6</span><span class="slide-label">Loop</span></div>
+              </div>
+            </div>
+            <div class="swiper-controls">
+              <button class="swiper-prev"></button>
+              <div class="swiper-bullet-wrapper"></div>
+              <button class="swiper-next"></button>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span>
+     <span class="attr">data-loop-mode</span>=<span class="value">"true"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Slides are automatically cloned as needed --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Example 3: Autoplay with Progress -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Autoplay with Progress Bar</h3>
+            <p class="example-description">Automatic advancement with visual progress indicator.</p>
+          </div>
+          <div class="example-header-right">
+            <div class="example-badges">
+              <span class="badge badge-info">Autoplay</span>
+              <span class="badge badge-accent">Progress</span>
+            </div>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-autoplay="4000"</code>
+          <code>data-progress-bar="true"</code>
+          <code>data-loop-mode="true"</code>
+        </div>
+        <div class="example-body">
+          <div class="slider-main_component" data-autoplay="4000" data-progress-bar="true" data-loop-mode="true">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide"><span class="slide-number">1</span><span class="slide-label">4s delay</span></div>
+                <div class="swiper-slide"><span class="slide-number">2</span><span class="slide-label">4s delay</span></div>
+                <div class="swiper-slide"><span class="slide-number">3</span><span class="slide-label">4s delay</span></div>
+                <div class="swiper-slide"><span class="slide-number">4</span><span class="slide-label">4s delay</span></div>
+                <div class="swiper-slide"><span class="slide-number">5</span><span class="slide-label">4s delay</span></div>
+              </div>
+            </div>
+            <div class="swiper-progress-bar-wrapper">
+              <div class="swiper-progress-bar"></div>
+            </div>
+            <div class="swiper-controls">
+              <button class="swiper-prev"></button>
+              <div class="swiper-bullet-wrapper"></div>
+              <button class="swiper-next"></button>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+              <span onclick="switchTab(this, 'css')">CSS</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span>
+     <span class="attr">data-autoplay</span>=<span class="value">"4000"</span>
+     <span class="attr">data-progress-bar</span>=<span class="value">"true"</span>
+     <span class="attr">data-loop-mode</span>=<span class="value">"true"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+  <span class="comment">&lt;!-- Progress bar container --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-progress-bar-wrapper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-progress-bar"</span><span class="tag">&gt;&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+            <div class="xray-code-tab" data-tab="css">
+              <pre><span class="comment">/* Progress bar styling */</span>
+.<span class="property">swiper-progress-bar-wrapper</span> {
+  <span class="attr">height</span>: <span class="number">3px</span>;
+  <span class="attr">background</span>: <span class="value">var(--border)</span>;
+  <span class="attr">border-radius</span>: <span class="number">3px</span>;
+  <span class="attr">overflow</span>: <span class="value">hidden</span>;
+  <span class="attr">margin-top</span>: <span class="number">1.25rem</span>;
+}
+
+.<span class="property">swiper-progress-bar</span> {
+  <span class="attr">height</span>: <span class="number">100%</span>;
+  <span class="attr">background</span>: <span class="value">var(--accent)</span>;
+}
+
+<span class="comment">/* Animation is applied automatically by the script */</span>
+<span class="keyword">@keyframes</span> swiper-progress-bar-animation {
+  <span class="keyword">from</span> { <span class="attr">width</span>: <span class="number">0%</span>; }
+  <span class="keyword">to</span> { <span class="attr">width</span>: <span class="number">100%</span>; }
+}</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Example: Custom Range Slider -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Custom Range Slider</h3>
+            <p class="example-description">Draggable range input for slide navigation with custom color.</p>
+          </div>
+          <div class="example-header-right">
+            <span class="badge badge-success">Custom Control</span>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-custom-slider="true"</code>
+          <code>data-slider-color="#10b981"</code>
+        </div>
+        <div class="example-body">
+          <div class="slider-main_component" data-custom-slider="true" data-slider-color="#10b981" data-autoplay="false" data-single-slide="true">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide"><span class="slide-number">1</span><span class="slide-label">Drag the slider</span></div>
+                <div class="swiper-slide"><span class="slide-number">2</span><span class="slide-label">Drag the slider</span></div>
+                <div class="swiper-slide"><span class="slide-number">3</span><span class="slide-label">Drag the slider</span></div>
+                <div class="swiper-slide"><span class="slide-number">4</span><span class="slide-label">Drag the slider</span></div>
+                <div class="swiper-slide"><span class="slide-number">5</span><span class="slide-label">Drag the slider</span></div>
+              </div>
+            </div>
+            <div class="custom-slider-wrapper">
+              <input type="range" class="custom-slider">
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span>
+     <span class="attr">data-custom-slider</span>=<span class="value">"true"</span>
+     <span class="attr">data-slider-color</span>=<span class="value">"#10b981"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+  <span class="comment">&lt;!-- Range input container --&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"custom-slider-wrapper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"range"</span> <span class="attr">class</span>=<span class="value">"custom-slider"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Fade Effect -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Fade Effect</h3>
+            <p class="example-description">Smooth crossfade transition between slides.</p>
+          </div>
+          <div class="example-header-right">
+            <span class="badge badge-accent">Fade</span>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-effect="fade"</code>
+          <code>data-crossfade="true"</code>
+          <code>data-single-slide="true"</code>
+        </div>
+        <div class="example-body">
+          <div class="slider-main_component" data-effect="fade" data-crossfade="true" data-single-slide="true" data-loop-mode="true" data-autoplay="3000">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">Fade 1</span></div>
+                <div class="swiper-slide slide-gradient-3"><span class="slide-number">Fade 2</span></div>
+                <div class="swiper-slide slide-gradient-5"><span class="slide-number">Fade 3</span></div>
+              </div>
+            </div>
+            <div class="swiper-controls">
+              <button class="swiper-prev"></button>
+              <div class="swiper-bullet-wrapper"></div>
+              <button class="swiper-next"></button>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span>
+     <span class="attr">data-effect</span>=<span class="value">"fade"</span>
+     <span class="attr">data-crossfade</span>=<span class="value">"true"</span>
+     <span class="attr">data-single-slide</span>=<span class="value">"true"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Swiper structure... --&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Autoplay Only In View -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Autoplay Only In Viewport</h3>
+            <p class="example-description">Autoplay starts when visible, stops when scrolled out of view. Uses IntersectionObserver.</p>
+          </div>
+          <div class="example-header-right">
+            <span class="badge badge-info">IntersectionObserver</span>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-autoplay="2500"</code>
+          <code>data-autoplay-inview="true"</code>
+        </div>
+        <div class="example-body">
+          <div class="slider-main_component" data-autoplay="2500" data-autoplay-inview="true" data-loop-mode="true">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-gradient-2"><span class="slide-number">1</span><span class="slide-label">Scroll to see</span></div>
+                <div class="swiper-slide slide-gradient-4"><span class="slide-number">2</span><span class="slide-label">Scroll to see</span></div>
+                <div class="swiper-slide slide-gradient-6"><span class="slide-number">3</span><span class="slide-label">Scroll to see</span></div>
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">4</span><span class="slide-label">Scroll to see</span></div>
+                <div class="swiper-slide slide-gradient-3"><span class="slide-number">5</span><span class="slide-label">Scroll to see</span></div>
+              </div>
+            </div>
+            <div class="swiper-controls">
+              <button class="swiper-prev"></button>
+              <div class="swiper-bullet-wrapper"></div>
+              <button class="swiper-next"></button>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span>
+     <span class="attr">data-autoplay</span>=<span class="value">"2500"</span>
+     <span class="attr">data-autoplay-inview</span>=<span class="value">"true"</span>
+     <span class="attr">data-loop-mode</span>=<span class="value">"true"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Autoplay starts when 20% visible --&gt;</span>
+  <span class="comment">&lt;!-- Use data-intersection-threshold="0.5" for 50% --&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- SECTION: Attribute Reference -->
+    <section class="section-header">
+      <h2 class="section-title">All Data Attributes</h2>
+      <p class="section-description">Complete reference of available configuration options.</p>
+    </section>
+
+    <div class="attribute-grid">
+      <div class="attribute-card">
+        <div class="attribute-name">data-loop-mode="true"</div>
+        <div class="attribute-desc">Enable infinite loop mode</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-autoplay="3000"</div>
+        <div class="attribute-desc">Autoplay delay in ms, or "false" to disable</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-slider-duration="500"</div>
+        <div class="attribute-desc">Transition speed in ms</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-effect="fade"</div>
+        <div class="attribute-desc">Transition effect (slide, fade)</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-crossfade="true"</div>
+        <div class="attribute-desc">Enable crossfade for fade effect</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-slides-per-view="3"</div>
+        <div class="attribute-desc">Slides visible, or "auto"</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-space-between="16"</div>
+        <div class="attribute-desc">Gap between slides in px</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-single-slide="true"</div>
+        <div class="attribute-desc">Force 1 slide, disable breakpoints</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-breakpoints="{...}"</div>
+        <div class="attribute-desc">Custom responsive breakpoints (JSON)</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-progress-bar="true"</div>
+        <div class="attribute-desc">Top-level progress bar</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-bullet-progress="true"</div>
+        <div class="attribute-desc">Progress fill within bullets</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-custom-slider="true"</div>
+        <div class="attribute-desc">Enable range input navigation</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-slider-color="#hex"</div>
+        <div class="attribute-desc">Custom color for progress/slider</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-centered-slides="true"</div>
+        <div class="attribute-desc">Center active slide</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-free-mode="true"</div>
+        <div class="attribute-desc">Free scrolling without snap</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-slides-per-group="2"</div>
+        <div class="attribute-desc">Slides to advance per nav click</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-autoplay-inview="true"</div>
+        <div class="attribute-desc">Autoplay only when visible</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-disable-navigation="true"</div>
+        <div class="attribute-desc">Hide prev/next arrows</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-disable-pagination="true"</div>
+        <div class="attribute-desc">Hide pagination bullets</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-disable-touch="true"</div>
+        <div class="attribute-desc">Disable drag/swipe (wheel works)</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-full-height="true"</div>
+        <div class="attribute-desc">Slides fill container height</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-observer="true"</div>
+        <div class="attribute-desc">Watch for DOM mutations</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-disable-below="768"</div>
+        <div class="attribute-desc">Disable slider below viewport width</div>
+      </div>
+      <div class="attribute-card">
+        <div class="attribute-name">data-disable-above="991"</div>
+        <div class="attribute-desc">Disable slider above viewport width</div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>
+      <strong>Swiper Starter Kit v2</strong> · 
+      Built with <a href="https://swiperjs.com" target="_blank">Swiper 11</a> · 
+      <a href="https://github.com/SimonKefas/swiper-starter" target="_blank">GitHub</a>
+    </p>
+  </footer>
 
   <!-- Swiper core JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   
-  <!-- Debug mode toggle -->
-  <script>
-    document.getElementById('debugToggle').addEventListener('change', function(e) {
-      window.SWIPER_STARTER_DEBUG = e.target.checked;
-      if (e.target.checked) {
-        console.log('[Swiper Starter] Debug mode enabled. Reload to see init logs.');
-      }
-    });
-  </script>
-  
   <!-- Swiper Starter Kit -->
   <script src="js/script.js"></script>
-  
-  <!-- Status display script -->
+
+  <!-- Code Toggle + 3D Scale JS API Example -->
   <script>
+    // Code toggle functionality
+    function toggleCode(btn) {
+      const card = btn.closest('.example-card');
+      const codeBlock = card.querySelector('.xray-code');
+      
+      btn.classList.toggle('active');
+      codeBlock.classList.toggle('show');
+    }
+
+    function switchTab(tabBtn, tabName) {
+      const codeBlock = tabBtn.closest('.xray-code');
+      
+      // Update tab buttons
+      codeBlock.querySelectorAll('.xray-code-header span').forEach(span => {
+        span.classList.remove('active');
+      });
+      tabBtn.classList.add('active');
+      
+      // Update tab content
+      codeBlock.querySelectorAll('.xray-code-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      codeBlock.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    }
+
+    // 3D Scale Effect - JS API Example
     document.addEventListener('DOMContentLoaded', function() {
-      // Wait a bit for Swiper to initialize
+      // Wait for Swiper Starter to initialize
       setTimeout(function() {
-        document.querySelectorAll('.slider-main_component').forEach(function(container) {
-          const statusEl = document.querySelector('[data-status="' + container.id + '"]');
-          if (!statusEl) return;
+        const container = document.querySelector('#scale-slider');
+        if (!container) return;
+        
+        const swiper = container._swiperInstance;
+        if (!swiper) return;
+        
+        // Function to update position classes relative to active slide
+        function updatePositionClasses() {
+          const slides = container.querySelectorAll('.swiper-slide');
+          const activeIndex = swiper.activeIndex;
           
-          const config = container._swiperConfig || {};
-          const swiper = container._swiperInstance;
-          
-          const slideCount = container.querySelectorAll('.swiper-slide').length;
-          const items = [
-            { label: 'loop', value: config.loop },
-            { label: 'totalSlides', value: slideCount },
-            { label: 'allowTouchMove', value: config.allowTouchMove },
-            { label: 'resistanceRatio', value: config.resistanceRatio },
-          ];
-          
-          statusEl.innerHTML = items.map(function(item) {
-            const valueClass = item.value === true ? 'true' : (item.value === false ? 'false' : '');
-            const displayValue = item.value === undefined ? 'undefined' : String(item.value);
-            return '<div class="status-item">' +
-              '<span class="status-label">' + item.label + ':</span>' +
-              '<span class="status-value ' + valueClass + '">' + displayValue + '</span>' +
-            '</div>';
-          }).join('');
-        });
+          slides.forEach(function(slide, i) {
+            // Remove all position classes
+            slide.classList.remove(
+              'pos-active', 'pos-prev-1', 'pos-prev-2',
+              'pos-next-1', 'pos-next-2'
+            );
+            
+            // Add class based on distance from active
+            const diff = i - activeIndex;
+            if (diff === 0) slide.classList.add('pos-active');
+            else if (diff === -1) slide.classList.add('pos-prev-1');
+            else if (diff === 1) slide.classList.add('pos-next-1');
+            else if (diff === -2) slide.classList.add('pos-prev-2');
+            else if (diff === 2) slide.classList.add('pos-next-2');
+          });
+        }
+        
+        // Run on init and slide change
+        updatePositionClasses();
+        swiper.on('slideChange', updatePositionClasses);
+        
       }, 100);
     });
   </script>
+
 </body>
 </html>
-
