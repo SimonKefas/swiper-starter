@@ -584,6 +584,14 @@
     record.swiper = null;
     container._swiperInstance = null;
     container.setAttribute("data-swiper-disabled", "");
+
+    if (container.hasAttribute("data-swiper-full-height-auto")) {
+      container.style.height = "";
+      container.removeAttribute("data-swiper-full-height-auto");
+    }
+    container.querySelectorAll(".swiper-slide").forEach((slide) => {
+      slide.style.height = "";
+    });
   }
 
   /** Walk all registered sliders and destroy them. Optionally filter by selector. */
@@ -644,7 +652,32 @@
     swiper.slides.forEach((s) => (s.style.height = `${maxH}px`));
   }
   function setSlidesFullHeight(swiper) {
-    swiper.slides.forEach((s) => (s.style.height = "100%"));
+    const slides = Array.from(swiper.slides);
+    if (!slides.length) return;
+
+    const container = swiper.el;
+    const computed = window.getComputedStyle(container);
+    let containerHeight = container.clientHeight;
+    const containerAutoHeight = computed.height === "auto" || containerHeight === 0;
+
+    if (containerAutoHeight) {
+      const maxSlideHeight = Math.max(
+        ...slides.map((s) => s.scrollHeight || s.offsetHeight || 0)
+      );
+      if (maxSlideHeight > 0) {
+        containerHeight = maxSlideHeight;
+        container.style.height = `${maxSlideHeight}px`;
+        container.setAttribute("data-swiper-full-height-auto", "true");
+      }
+    }
+
+    const targetHeight =
+      containerHeight ||
+      Math.max(...slides.map((s) => s.scrollHeight || s.offsetHeight || 0)) ||
+      0;
+
+    if (!targetHeight) return;
+    slides.forEach((s) => (s.style.height = `${targetHeight}px`));
   }
   function adjustSlidesZIndex(swiper) {
     swiper.slides.forEach((slide, i) => {
