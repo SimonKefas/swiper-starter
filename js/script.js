@@ -71,6 +71,65 @@
     };
   }
 
+  /**
+   * Resolve a CSS length (including CSS variables / calc) to a pixel number.
+   * Allows attributes like data-space-between="var(--gutter)" or "16px".
+   * Returns null if it cannot be resolved.
+   */
+  function resolveCssLength(value, container) {
+    if (!value) return null;
+    const trimmed = String(value).trim();
+
+    // Plain numeric value (e.g. "16" or 16)
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+      return parseFloat(trimmed);
+    }
+
+    // Value with px unit (e.g. "16px")
+    if (/^-?\d+(\.\d+)?px$/i.test(trimmed)) {
+      return parseFloat(trimmed);
+    }
+
+    // Browser / DOM safety check
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return null;
+    }
+
+    // Use a temporary element to let the browser resolve var()/calc()
+    // We try multiple host contexts to ensure CSS variable inheritance works
+    const probe = document.createElement("div");
+    probe.style.cssText = "position:absolute;visibility:hidden;height:0;pointer-events:none;";
+    probe.style.marginLeft = trimmed;
+
+    // Try resolving from document.body first (global CSS variables)
+    let px = null;
+    const hosts = [document.body];
+    
+    // Also try container and its parent chain for locally scoped variables
+    if (container && container !== document.body) {
+      hosts.unshift(container);
+      if (container.parentElement) {
+        hosts.unshift(container.parentElement);
+      }
+    }
+
+    for (const host of hosts) {
+      try {
+        host.appendChild(probe);
+        const computed = window.getComputedStyle(probe).marginLeft;
+        host.removeChild(probe);
+        px = parseFloat(computed || "");
+        if (!Number.isNaN(px) && px !== 0) {
+          return px;
+        }
+      } catch (e) {
+        // If appendChild fails, try next host
+      }
+    }
+
+    return Number.isNaN(px) ? null : px;
+  }
+
   /* =============================================================
    * 1) Default Swiper configuration
    * ============================================================= */
@@ -210,7 +269,10 @@
       else o.slidesPerView = parseInt(d.slidesPerView, 10);
       if (!d.breakpoints) o.breakpoints = null; // user overrides completely
     }
-    if (d.spaceBetween) o.spaceBetween = parseInt(d.spaceBetween, 10);
+    if (d.spaceBetween) {
+      const resolvedSpace = resolveCssLength(d.spaceBetween, container);
+      if (resolvedSpace !== null) o.spaceBetween = resolvedSpace;
+    }
     if (d.breakpoints) {
       try {
         o.breakpoints = JSON.parse(d.breakpoints.replace(/'/g, '"'));

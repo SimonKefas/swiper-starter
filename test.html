@@ -33,6 +33,8 @@
       --info: #3b82f6;
       --border: #3f3f46;
       --border-light: #52525b;
+      /* Demo gutter var to mirror Webflow-style calc() examples */
+      --_ui---page--gutter: 16px;
     }
 
     * {
@@ -476,6 +478,41 @@
       .slider-grid .swiper-slide.slide-wide { width: 280px !important; }
       .slider-grid .swiper-slide.slide-medium { width: 200px !important; }
       .slider-grid .swiper-slide.slide-narrow { width: 150px !important; }
+    }
+
+    /* =============================================
+     * CREATIVE SLIDER: Webflow-style 12-col widths
+     * Uses slidesPerView="auto" + CSS calc() widths
+     * ============================================= */
+    .slider-grid-webflow .swiper {
+      padding: 1rem 0;
+    }
+
+    .slider-grid-webflow .swiper-slide {
+      height: 220px;
+      /* critical so Swiper respects our custom width */
+      flex: 0 0 auto;
+    }
+
+    .slider-grid-webflow .swiper-slide.slide-3col {
+      width: calc(
+        ((100% - (11 * var(--_ui---page--gutter))) / 12 * 3) +
+        (2 * var(--_ui---page--gutter))
+      );
+    }
+
+    .slider-grid-webflow .swiper-slide.slide-4col {
+      width: calc(
+        ((100% - (11 * var(--_ui---page--gutter))) / 12 * 4) +
+        (3 * var(--_ui---page--gutter))
+      );
+    }
+
+    .slider-grid-webflow .swiper-slide.slide-5col {
+      width: calc(
+        ((100% - (11 * var(--_ui---page--gutter))) / 12 * 5) +
+        (4 * var(--_ui---page--gutter))
+      );
     }
 
     /* Controls */
@@ -925,6 +962,207 @@
   .<span class="property">slider-grid</span> .<span class="property">slide-medium</span> { <span class="attr">width</span>: <span class="number">200px</span> <span class="value">!important</span>; }
   .<span class="property">slider-grid</span> .<span class="property">slide-narrow</span> { <span class="attr">width</span>: <span class="number">150px</span> <span class="value">!important</span>; }
 }</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Creative: Webflow-style Column Widths (slidesPerView='auto') -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Webflow-style Column Widths</h3>
+            <p class="example-description">
+              Uses <code>data-slides-per-view="auto"</code> and CSS <code>calc()</code> with a gutter variable to mimic 12‑column layout widths.
+            </p>
+          </div>
+          <div class="example-header-right">
+            <div class="example-badges">
+              <span class="badge badge-success">slidesPerView="auto"</span>
+              <span class="badge badge-accent">CSS calc()</span>
+            </div>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-slides-per-view="auto"</code>
+          <code>--_ui---page--gutter: 16px</code>
+          <code>.slide-3col / .slide-4col / .slide-5col</code>
+        </div>
+        <div class="example-body">
+          <div
+            class="slider-main_component slider-grid-webflow"
+            data-slides-per-view="auto"
+            data-space-between="16"
+            data-autoplay="false"
+          >
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-3col slide-gradient-1">
+                  <span class="slide-number">3 col</span>
+                  <span class="slide-label">calc() width</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-2">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">calc() width</span>
+                </div>
+                <div class="swiper-slide slide-5col slide-gradient-3">
+                  <span class="slide-number">5 col</span>
+                  <span class="slide-label">calc() width</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-4">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">calc() width</span>
+                </div>
+                <div class="swiper-slide slide-3col slide-gradient-5">
+                  <span class="slide-number">3 col</span>
+                  <span class="slide-label">calc() width</span>
+                </div>
+              </div>
+            </div>
+            <div class="swiper-drag-wrapper"></div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+              <span onclick="switchTab(this, 'css')">CSS</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="comment">&lt;!-- 12‑column style widths controlled by CSS --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component slider-grid-webflow"</span>
+     <span class="attr">data-slides-per-view</span>=<span class="value">"auto"</span>
+     <span class="attr">data-space-between</span>=<span class="value">"16"</span>
+     <span class="attr">data-autoplay</span>=<span class="value">"false"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide slide-3col"</span><span class="tag">&gt;</span>3 col<span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide slide-4col"</span><span class="tag">&gt;</span>4 col<span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide slide-5col"</span><span class="tag">&gt;</span>5 col<span class="tag">&lt;/div&gt;</span>
+      <span class="comment">&lt;!-- more slides ... --&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-drag-wrapper"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+            <div class="xray-code-tab" data-tab="css">
+              <pre><span class="comment">/* Gutter variable for calc() */</span>
+<span class="tag">:root</span> {
+  <span class="attr">--_ui---page--gutter</span>: <span class="number">16px</span>;
+}
+
+.<span class="property">slider-grid-webflow</span> .<span class="property">swiper</span> {
+  <span class="attr">padding</span>: <span class="number">1rem</span> <span class="number">0</span>;
+}
+
+.<span class="property">slider-grid-webflow</span> .<span class="property">swiper-slide</span> {
+  <span class="attr">height</span>: <span class="number">220px</span>;
+  <span class="attr">flex</span>: <span class="value">0 0 auto</span>;
+}
+
+.<span class="property">slider-grid-webflow</span> .<span class="property">swiper-slide</span>.<span class="property">slide-3col</span> {
+  <span class="attr">width</span>: <span class="function">calc</span>(
+    (<span class="string">(100% - (11 * var(--_ui---page--gutter)))</span> / <span class="number">12</span> * <span class="number">3</span>) +
+    (<span class="number">2</span> * var(--_ui---page--gutter))
+  );
+}
+
+.<span class="property">slider-grid-webflow</span> .<span class="property">swiper-slide</span>.<span class="property">slide-4col</span> {
+  <span class="attr">width</span>: <span class="function">calc</span>(
+    (<span class="string">(100% - (11 * var(--_ui---page--gutter)))</span> / <span class="number">12</span> * <span class="number">4</span>) +
+    (<span class="number">3</span> * var(--_ui---page--gutter))
+  );
+}
+
+.<span class="property">slider-grid-webflow</span> .<span class="property">swiper-slide</span>.<span class="property">slide-5col</span> {
+  <span class="attr">width</span>: <span class="function">calc</span>(
+    (<span class="string">(100% - (11 * var(--_ui---page--gutter)))</span> / <span class="number">12</span> * <span class="number">5</span>) +
+    (<span class="number">4</span> * var(--_ui---page--gutter))
+  );
+}</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Webflow CSS Variable Spacing -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">CSS Variable Spacing (Webflow)</h3>
+            <p class="example-description">Uses CSS variable for space-between: <code>data-space-between="var(--_ui---page--gutter)"</code></p>
+          </div>
+          <div class="example-header-right">
+            <div class="example-badges">
+              <span class="badge badge-warning">CSS Var</span>
+              <span class="badge badge-accent">Auto Width</span>
+            </div>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-slides-per-view="auto"</code>
+          <code>data-space-between="var(--_ui---page--gutter)"</code>
+        </div>
+        <div class="example-body">
+          <div class="slider-main_component slider-grid-webflow" data-slides-per-view="auto" data-space-between="var(--_ui---page--gutter)" data-autoplay="false">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-4col slide-gradient-1">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">var() spacing</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-2">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">var() spacing</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-3">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">var() spacing</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-4">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">var() spacing</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-5">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">var() spacing</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-6">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">var() spacing</span>
+                </div>
+                <div class="swiper-slide slide-4col slide-gradient-1">
+                  <span class="slide-number">4 col</span>
+                  <span class="slide-label">var() spacing</span>
+                </div>
+              </div>
+            </div>
+            <div class="swiper-drag-wrapper"></div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="comment">&lt;!-- CSS variable for spacing --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component slider-grid-webflow"</span>
+     <span class="attr">data-slides-per-view</span>=<span class="value">"auto"</span>
+     <span class="attr">data-space-between</span>=<span class="value">"var(--_ui---page--gutter)"</span>
+     <span class="attr">data-autoplay</span>=<span class="value">"false"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide slide-4col"</span><span class="tag">&gt;</span>4 col<span class="tag">&lt;/div&gt;</span>
+      <span class="comment">&lt;!-- more slides ... --&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-drag-wrapper"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
             </div>
           </div>
         </div>
