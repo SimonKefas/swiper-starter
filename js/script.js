@@ -338,6 +338,13 @@
       debugLog("Auto-disabled touch: insufficient slides for viewport", { slidesCount, maxSpv });
     }
 
+    // For slidesPerView="auto", keep touch enabled (except single-slide cases)
+    // so CSS-driven variable-width layouts remain draggable even when loop
+    // was automatically disabled by the heuristic above.
+    if (swiperConfig.slidesPerView === "auto" && slidesCount > 1) {
+      swiperConfig.allowTouchMove = true;
+    }
+
     // Handle user-defined loop mode with insufficient slides
     // Swiper 11 requires slidesCount > slidesPerView for loop to work properly.
     // When that condition isn't met, we need to clone slides in the DOM before Swiper initializes.
