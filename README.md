@@ -43,6 +43,7 @@
 | **Custom‑slider repaint throttle**            | Smoother range‑slider scrubbing via `requestAnimationFrame`.                                                                                                                                |
 | **Smart loop cloning** *(v2.2)*               | Loop mode now auto-clones slides when there aren't enough for the viewport, ensuring smooth infinite scroll.                                                                                |
 | **Debug mode & resilient init**               | Optional `SWIPER_STARTER_DEBUG` flag logs broken sliders; invalid ones are skipped so others still run.                                                                                     |
+| **Static slider toggle** *(v2.3)*             | `data-static-slider="true"` disables all interaction/controls in one flag—ideal for marquee or hero strips.                                                                                |
 
 **No breaking changes** – existing sliders continue to work unless you add the new attributes.
 
@@ -63,6 +64,7 @@
 * Destroy / recalc helpers
 * **JS API** for custom effects and behaviors
 * Optional console debugging via `SWIPER_STARTER_DEBUG`
+* **Static slider toggle** (`data-static-slider`) for non-interactive marquee strips
 
 ---
 
@@ -180,6 +182,7 @@ Override once per page:
 | `data-free-mode`                      | `"true"`                            | Enable free‑scroll.                           |
 | `data-watch-overflow`                 | `"true"`                            | Hide nav when not scrollable.                 |
 | `data-resistance-ratio`               | `0.85`                              | Drag resistance.                              |
+| `data-static-slider`                  | `"true"`                            | Disable touch/nav/pagination/mousewheel/keyboard in one flag. |
 | **Progress UI**                       |                                     |                                               |
 | `data-progress-bar`                   | `"true"`                            | Top‑level progress bar.                       |
 | `data-bullet-progress`                | `"true"`                            | Timed fills in bullets.                       |
@@ -411,6 +414,35 @@ See **[test.html](test.html)** for interactive examples of all features.
 </div>
 ```
 
+### Continuous, non-interactive marquee with random tilt
+
+```html
+<div
+  class="slider-main_component slider-gallery"
+  data-slides-per-view="auto"
+  data-space-between="22"
+  data-loop-mode="true"
+  data-autoplay="1"
+  data-slider-duration="14000"
+  data-free-mode="true"
+  data-resistance-ratio="0"
+  data-static-slider="true"
+>
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide"><img src="..." alt="Gallery 1"></div>
+      <div class="swiper-slide"><img src="..." alt="Gallery 2"></div>
+      <!-- more slides -->
+    </div>
+  </div>
+</div>
+```
+
+Notes:
+- `data-static-slider="true"` switches off touch, nav, pagination, mousewheel, and keyboard.
+- Use `data-slider-duration` + `data-autoplay="1"` for steady marquee pace; add `transition-timing-function: linear` to the wrapper if you want perfectly uniform motion.
+- The example in `test.html` also randomises a per-card `--tilt` / `--lift` for a polaroid wall vibe.
+
 ---
 
 ## CSS snippets
@@ -441,6 +473,12 @@ CSS from v1 still applies. (see CSS file)  Additions:
 ---
 
 ## Changelog
+
+### 2.3.0 – 2025‑12‑11
+
+* **Static slider toggle** – `data-static-slider="true"` disables all interaction/controls in one flag for marquee/hero strips.
+* **Continuous gallery example** – Added a marquee-style demo with linear motion and random per-card rotation (`test.html`).
+* **Linear marquee** – Gallery wrapper now uses a linear timing function for constant speed, plus zero resistance for smoother movement.
 
 ### 2.2.0 – 2025‑05‑25
 

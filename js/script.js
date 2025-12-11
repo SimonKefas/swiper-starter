@@ -298,6 +298,14 @@
     if (d.disableNavigation === "true") o.navigation = false;
     if (d.disablePagination === "true") o.pagination = false;
     if (d.disableTouch === "true") o.allowTouchMove = false;
+    if (d.staticSlider === "true") {
+      o.allowTouchMove = false;
+      o.navigation = false;
+      o.pagination = false;
+      o.scrollbar = false;
+      o.mousewheel = false;
+      o.keyboard = { enabled: false };
+    }
     if (d.observer === "true") {
       o.observer = true;
       o.observeParents = true;
