@@ -300,6 +300,8 @@
     if (d.disableTouch === "true") o.allowTouchMove = false;
     if (d.staticSlider === "true") {
       o.allowTouchMove = false;
+      o.simulateTouch = false;
+      o.followFinger = false;
       o.navigation = false;
       o.pagination = false;
       o.scrollbar = false;
@@ -473,6 +475,21 @@
     }
 
     adjustSelectors(swiperConfig, container);
+
+    // Enforce static slider settings after all heuristics
+    if (swiperConfig.customSlider === undefined) swiperConfig.customSlider = instanceOptions.customSlider;
+    if (instanceOptions.staticSlider) {
+      swiperConfig.allowTouchMove = false;
+      swiperConfig.simulateTouch = false;
+      swiperConfig.followFinger = false;
+      swiperConfig.freeModeMomentum = false;
+      swiperConfig.freeModeMomentumBounce = false;
+      swiperConfig.mousewheel = false;
+      swiperConfig.keyboard = { enabled: false };
+      swiperConfig.navigation = false;
+      swiperConfig.pagination = false;
+      swiperConfig.scrollbar = false;
+    }
 
     // expose some custom parameters for later helpers
     swiperConfig.customSlider = instanceOptions.customSlider;
