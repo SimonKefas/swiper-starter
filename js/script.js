@@ -373,7 +373,14 @@
       return null;
     }
 
+    // Get disable thresholds to filter relevant breakpoints
+    const disableAbove = container.getAttribute("data-disable-above");
+    const disableBelow = container.getAttribute("data-disable-below");
+    const maxActiveWidth = disableAbove ? parseInt(disableAbove, 10) : Infinity;
+    const minActiveWidth = disableBelow ? parseInt(disableBelow, 10) : 0;
+
     // determine max slidesPerView to decide auto loop off (resolved merge)
+    // Only consider breakpoints that are within the active viewport range
     const spvCandidates = [];
     let usedAutoSlidesPerView = false;
 
@@ -389,8 +396,12 @@
     registerSlidesPerView(swiperConfig.slidesPerView);
 
     if (swiperConfig.breakpoints) {
-      Object.values(swiperConfig.breakpoints).forEach((bp) => {
-        registerSlidesPerView(bp?.slidesPerView);
+      Object.entries(swiperConfig.breakpoints).forEach(([breakpoint, bp]) => {
+        const bpValue = parseInt(breakpoint, 10);
+        // Only consider breakpoints within the slider's active viewport range
+        if (bpValue >= minActiveWidth && bpValue <= maxActiveWidth) {
+          registerSlidesPerView(bp?.slidesPerView);
+        }
       });
     }
 

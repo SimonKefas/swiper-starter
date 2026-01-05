@@ -1919,6 +1919,22 @@
           slide.style.setProperty('--lift', `${lift}px`);
         });
 
+        // Normalize speed by distance so variable-width slides move at ~60px/s
+        const PX_PER_SEC = 60;
+        const MIN_MS = 300;
+        const setNextSpeed = () => {
+          const from = swiper.activeIndex;
+          const to = from + 1;
+          const grid = swiper.slidesGrid;
+          const dist = Math.abs((grid[to] ?? grid[from]) - grid[from]);
+          const speed = Math.max(MIN_MS, (dist / PX_PER_SEC) * 1000);
+          swiper.params.speed = speed;
+        };
+
+        setNextSpeed();
+        swiper.on('slideChangeTransitionStart', setNextSpeed);
+        swiper.on('loopFix', setNextSpeed);
+
         if (swiper.autoplay) swiper.autoplay.start();
       }, 100);
     });
