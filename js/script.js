@@ -170,7 +170,7 @@
       snapOnRelease: true,
     },
     keyboard: { enabled: true, onlyInViewport: false },
-    mousewheel: { forceToAxis: true },
+    mousewheel: { forceToAxis: true, thresholdDelta: 6, thresholdTime: 500 },
     observer: false,
     observeParents: false,
     slideActiveClass: "is-active",
@@ -299,6 +299,7 @@
     if (d.disablePagination === "true") o.pagination = false;
     if (d.disableTouch === "true") o.allowTouchMove = false;
     if (d.staticSlider === "true") {
+      o.staticSlider = true;
       o.allowTouchMove = false;
       o.simulateTouch = false;
       o.followFinger = false;
@@ -482,7 +483,7 @@
 
     // keep mouse-wheel even when touch disabled
     if (swiperConfig.allowTouchMove === false) {
-      swiperConfig.mousewheel = swiperConfig.mousewheel || { forceToAxis: true };
+      swiperConfig.mousewheel = swiperConfig.mousewheel || { forceToAxis: true, thresholdDelta: 6, thresholdTime: 500 };
     }
 
     adjustSelectors(swiperConfig, container);

@@ -474,6 +474,11 @@ CSS from v1 still applies. (see CSS file)  Additions:
 
 ## Changelog
 
+### 2.3.2 – 2026‑02‑24
+
+* **Fix static slider trackpad bypass** – `data-static-slider="true"` now correctly blocks two-finger trackpad / mousewheel navigation. Previously the mousewheel-fallback logic re-enabled it.
+* **Reduced trackpad sensitivity** – Added `mousewheel.thresholdDelta` (6) and `mousewheel.thresholdTime` (500 ms) defaults to prevent accidental multi-slide scrolling from trackpad gestures.
+
 ### 2.3.0 – 2025‑12‑11
 
 * **Static slider toggle** – `data-static-slider="true"` disables all interaction/controls in one flag for marquee/hero strips.
