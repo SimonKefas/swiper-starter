@@ -24,6 +24,9 @@
 (function () {
   "use strict";
 
+  const VERSION = "2.3.3";
+  window.SwiperStarterKit = Object.freeze({ version: VERSION });
+
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
   function debugLog(...args) {
     if (DEBUG) console.warn("[Swiper Starter]", ...args);
@@ -170,7 +173,7 @@
       snapOnRelease: true,
     },
     keyboard: { enabled: true, onlyInViewport: false },
-    mousewheel: { forceToAxis: true, thresholdDelta: 6, thresholdTime: 500 },
+    mousewheel: { forceToAxis: true, thresholdDelta: 10, thresholdTime: 500 },
     observer: false,
     observeParents: false,
     slideActiveClass: "is-active",
@@ -298,6 +301,7 @@
     if (d.disableNavigation === "true") o.navigation = false;
     if (d.disablePagination === "true") o.pagination = false;
     if (d.disableTouch === "true") o.allowTouchMove = false;
+    if (d.disableMousewheel === "true") o.mousewheel = false;
     if (d.staticSlider === "true") {
       o.staticSlider = true;
       o.allowTouchMove = false;
@@ -481,9 +485,9 @@
       if (swiperConfig.keyboard) swiperConfig.keyboard.enabled = false;
     }
 
-    // keep mouse-wheel even when touch disabled
-    if (swiperConfig.allowTouchMove === false) {
-      swiperConfig.mousewheel = swiperConfig.mousewheel || { forceToAxis: true, thresholdDelta: 6, thresholdTime: 500 };
+    // keep mouse-wheel even when touch disabled, unless explicitly disabled
+    if (swiperConfig.allowTouchMove === false && swiperConfig.mousewheel !== false) {
+      swiperConfig.mousewheel = swiperConfig.mousewheel || { forceToAxis: true, thresholdDelta: 10, thresholdTime: 500 };
     }
 
     adjustSelectors(swiperConfig, container);

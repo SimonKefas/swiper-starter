@@ -197,6 +197,7 @@ Override once per page:
 | `data-disable-navigation`             | `"true"`                            | Hide next/prev arrows in this slider.         |
 | `data-disable-pagination`             | `"true"`                            | Hide bullet pagination.                       |
 | `data-disable-touch`                  | `"true"`                            | Disable drag / swipe (wheel remains).         |
+| `data-disable-mousewheel`            | `"true"`                            | Disable trackpad / mousewheel navigation.     |
 | **Break‑point disabling**             |                                     |                                               |
 | `data-disable-below`                  | `768`                               | Don't instantiate when `viewport < 768 px`.   |
 | `data-disable-above`                  | `991`                               | Don't instantiate when `viewport > 991 px`.   |
@@ -312,6 +313,12 @@ swiper.update();  // if you added slides dynamically
 window.initSwipers();    // (re)calculate which sliders should run now
 window.recalcSwipers();  // alias of the line above
 window.destroySwipers(); // clean‑up everything
+```
+
+### Version check
+
+```js
+console.log(SwiperStarterKit.version); // "2.3.3"
 ```
 
 ---
@@ -474,10 +481,12 @@ CSS from v1 still applies. (see CSS file)  Additions:
 
 ## Changelog
 
-### 2.3.2 – 2026‑02‑24
+### 2.3.3 – 2026‑02‑24
 
-* **Fix static slider trackpad bypass** – `data-static-slider="true"` now correctly blocks two-finger trackpad / mousewheel navigation. Previously the mousewheel-fallback logic re-enabled it.
-* **Reduced trackpad sensitivity** – Added `mousewheel.thresholdDelta` (6) and `mousewheel.thresholdTime` (500 ms) defaults to prevent accidental multi-slide scrolling from trackpad gestures.
+* **Fix static slider trackpad bypass** – `data-static-slider="true"` now correctly blocks two-finger trackpad / mousewheel navigation. The mousewheel-fallback logic no longer overrides an explicit `mousewheel: false`.
+* **Reduced trackpad sensitivity** – Added `mousewheel.thresholdDelta` (10) and `mousewheel.thresholdTime` (500 ms) defaults to prevent accidental multi-slide scrolling from trackpad gestures.
+* **New `data-disable-mousewheel`** – Disables trackpad / mousewheel navigation while keeping touch drag enabled.
+* **Version API** – `SwiperStarterKit.version` exposes the current kit version at runtime.
 
 ### 2.3.0 – 2025‑12‑11
 
