@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.7";
+  const VERSION = "2.4.8";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -146,14 +146,20 @@
   function applyAllSlidesActive(swiper) {
     if (!swiper || !swiper.slides || swiper.slides.length <= 1) return;
 
-    // 1. Lock snapGrid to always equal slidesGrid
-    Object.defineProperty(swiper, "snapGrid", {
-      get: function () { return this.slidesGrid || []; },
-      set: function () { /* prevent Swiper from filtering the grid */ },
-      configurable: true,
-    });
+    // Wrap updateSlides so Swiper calculates grids/margins normally,
+    // then we patch snapGrid = slidesGrid afterwards. This makes every
+    // slide a valid snap target without breaking spacing calculations
+    // (the old Object.defineProperty getter returned stale data during
+    // updateSlides, causing wrong margin-right values).
+    var origUpdateSlides = swiper.updateSlides.bind(swiper);
+    swiper.updateSlides = function () {
+      origUpdateSlides();
+      if (swiper.slidesGrid && swiper.slidesGrid.length) {
+        swiper.snapGrid = swiper.slidesGrid.slice();
+      }
+    };
 
-    // 2. Calculate and apply trailing offset
+    // Calculate trailing offset so the last slide can reach the left edge
     var recalcOffset = function () {
       var el = swiper.el;
       if (!el || !swiper.slides || swiper.slides.length <= 1) return;
@@ -168,9 +174,12 @@
         swiper.update();
       }
     };
+
+    // Initial patch: apply snapGrid fix, then calculate offset
+    swiper.updateSlides();
     recalcOffset();
 
-    // 3. Re-apply on resize
+    // Re-apply on resize
     swiper.on("resize", recalcOffset);
   }
 
@@ -661,10 +670,9 @@
       return null;
     }
 
-    // -- all-slides-active: lock snapGrid so every slide is a valid
-    //    snap target, and add trailing offset so the last slide can
-    //    scroll to the left edge. Uses Object.defineProperty to make
-    //    snapGrid immune to Swiper's internal overwrites.
+    // -- all-slides-active: patch snapGrid after each updateSlides()
+    //    so every slide is a valid snap target (including drag), and
+    //    add trailing offset so the last slide can reach the left edge.
     if (swiperConfig.allSlidesActive && swiperInstance && !swiperConfig.loop) {
       applyAllSlidesActive(swiperInstance);
     }
