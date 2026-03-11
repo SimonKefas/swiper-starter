@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.1";
+  const VERSION = "2.4.2";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -134,21 +134,33 @@
   }
 
   /**
-   * Explicitly sync the slideActiveClass (is-active) with Swiper's activeIndex.
-   * Swiper's built-in slideActiveClass management can miss drag-triggered changes
-   * in certain configurations (e.g. slidesPerView:"auto"). This function acts as
-   * a reliable fallback that works for all triggers: drag, arrows, autoplay.
+   * Explicitly sync the custom active class (is-active) with Swiper's actual
+   * active slide. Swiper may ignore slideActiveClass in certain configurations
+   * (e.g. slidesPerView:"auto") and fall back to its default "swiper-slide-active".
+   * This function detects which class Swiper is actually managing and mirrors it
+   * with our custom class, ensuring is-active is always on the correct slide
+   * regardless of trigger (drag, arrows, autoplay).
    */
   function syncActiveSlideClass(swiper) {
     var cls = swiper.params.slideActiveClass || "is-active";
-    var idx = swiper.activeIndex;
     if (!swiper.slides || !swiper.slides.length) return;
+
+    // Swiper may ignore our slideActiveClass and use its default instead.
+    // Check if Swiper's default "swiper-slide-active" exists in the DOM —
+    // if so, mirror it rather than relying on activeIndex (more reliable).
+    var hasDefaultActive = false;
     for (var i = 0; i < swiper.slides.length; i++) {
-      if (i === idx) {
-        swiper.slides[i].classList.add(cls);
-      } else {
-        swiper.slides[i].classList.remove(cls);
+      if (swiper.slides[i].classList.contains("swiper-slide-active")) {
+        hasDefaultActive = true;
+        break;
       }
+    }
+
+    for (var j = 0; j < swiper.slides.length; j++) {
+      var shouldBeActive = hasDefaultActive
+        ? swiper.slides[j].classList.contains("swiper-slide-active")
+        : j === swiper.activeIndex;
+      swiper.slides[j].classList.toggle(cls, shouldBeActive);
     }
   }
 
@@ -620,8 +632,8 @@
           // add cleanup to registry record later
         }
 
-        // Explicit active-class sync to cover drag and edge cases
-        syncActiveSlideClass(swiper);
+        // Explicit active-class sync — delay to run after Swiper's own DOM updates
+        requestAnimationFrame(function () { syncActiveSlideClass(swiper); });
 
         // all-slides-active: recalculate offset on resize so it stays
         // correct when the container or slide widths change
@@ -647,7 +659,15 @@
       },
 
       slideChange() {
-        syncActiveSlideClass(this);
+        var s = this;
+        requestAnimationFrame(function () { syncActiveSlideClass(s); });
+      },
+
+      // Backup sync after drag release — slideChange can fire before
+      // Swiper finishes updating its DOM classes during drag
+      touchEnd() {
+        var s = this;
+        requestAnimationFrame(function () { syncActiveSlideClass(s); });
       },
 
       slideChangeTransitionStart() {
@@ -656,6 +676,11 @@
         if (swiper.params.progressBar && swiper.params.autoplay && swiper.topLevelProgressBar) startTopLevelProgress(swiper);
         startBulletProgress(swiper, container);
         syncCustomSlider(swiper, container);
+      },
+
+      slideChangeTransitionEnd() {
+        // Final sync after transition settles — catches any edge cases
+        syncActiveSlideClass(this);
       },
 
       autoplayStop() {

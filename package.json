@@ -1,6 +1,6 @@
 {
   "name": "swiper-starter",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "A zero-config, attribute-driven wrapper around Swiper 11+ for easy slider setup",
   "main": "js/script.js",
   "keywords": [
