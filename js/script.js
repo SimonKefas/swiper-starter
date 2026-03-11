@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.2";
+  const VERSION = "2.4.3";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -656,6 +656,28 @@
           startTopLevelProgress(swiper);
         }
         startBulletProgress(swiper, container);
+
+        // ---- MutationObserver: mirror swiper-slide-active → is-active ----
+        // Swiper may ignore slideActiveClass in certain configs and manage
+        // only its default "swiper-slide-active". This observer watches for
+        // that class on each slide and mirrors it to our custom class,
+        // guaranteeing sync regardless of trigger (drag, arrows, autoplay).
+        var cls = swiper.params.slideActiveClass || "is-active";
+        if (cls !== "swiper-slide-active" && swiper.slides && swiper.slides.length) {
+          var mo = new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+              var slide = mutations[i].target;
+              if (slide && slide.classList) {
+                slide.classList.toggle(cls, slide.classList.contains("swiper-slide-active"));
+              }
+            }
+          });
+          for (var si = 0; si < swiper.slides.length; si++) {
+            mo.observe(swiper.slides[si], { attributes: true, attributeFilter: ["class"] });
+          }
+          // Disconnect on destroy
+          swiper.on("beforeDestroy", function () { mo.disconnect(); });
+        }
       },
 
       slideChange() {
