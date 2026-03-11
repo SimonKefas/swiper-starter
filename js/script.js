@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.4";
+  const VERSION = "2.4.5";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -736,20 +736,23 @@
       return null;
     }
 
-    // -- all-slides-active: patch snap grid so every slide is a snap target --
-    // Swiper's snapGrid only includes positions up to where a full "page" of
-    // slides fits, even with slidesOffsetAfter. We expand it to match
-    // slidesGrid (which has a position for every slide) so each slide can
-    // become the active (leftmost) slide when navigated to.
+    // -- all-slides-active: override updateSlides so snapGrid always
+    //    includes every slide position. Swiper internally recalculates
+    //    snapGrid during touches/transitions (without emitting "update"),
+    //    so event-based patching is insufficient. Wrapping updateSlides
+    //    guarantees the patch runs after every recalculation.
     if (swiperConfig.allSlidesActive && swiperInstance && !swiperConfig.loop) {
-      var patchSnapGrid = function () {
-        if (swiperInstance.slidesGrid && swiperInstance.slidesGrid.length) {
-          swiperInstance.snapGrid = swiperInstance.slidesGrid.slice();
+      var origUpdateSlides = swiperInstance.updateSlides;
+      swiperInstance.updateSlides = function () {
+        origUpdateSlides.call(this);
+        if (this.slidesGrid && this.slidesGrid.length) {
+          this.snapGrid = this.slidesGrid.slice();
         }
       };
-      patchSnapGrid();
-      swiperInstance.on("update", patchSnapGrid);
-      swiperInstance.on("resize", patchSnapGrid);
+      // Patch current state (init already ran updateSlides before we wrapped it)
+      if (swiperInstance.slidesGrid && swiperInstance.slidesGrid.length) {
+        swiperInstance.snapGrid = swiperInstance.slidesGrid.slice();
+      }
     }
 
     // attach references
