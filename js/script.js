@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.3";
+  const VERSION = "2.4.4";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -734,6 +734,22 @@
       debugLog("Swiper instantiation failed", err);
       container.setAttribute("data-swiper-disabled", "");
       return null;
+    }
+
+    // -- all-slides-active: patch snap grid so every slide is a snap target --
+    // Swiper's snapGrid only includes positions up to where a full "page" of
+    // slides fits, even with slidesOffsetAfter. We expand it to match
+    // slidesGrid (which has a position for every slide) so each slide can
+    // become the active (leftmost) slide when navigated to.
+    if (swiperConfig.allSlidesActive && swiperInstance && !swiperConfig.loop) {
+      var patchSnapGrid = function () {
+        if (swiperInstance.slidesGrid && swiperInstance.slidesGrid.length) {
+          swiperInstance.snapGrid = swiperInstance.slidesGrid.slice();
+        }
+      };
+      patchSnapGrid();
+      swiperInstance.on("update", patchSnapGrid);
+      swiperInstance.on("resize", patchSnapGrid);
     }
 
     // attach references
