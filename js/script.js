@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.0";
+  const VERSION = "2.4.1";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -131,6 +131,25 @@
     }
 
     return Number.isNaN(px) ? null : px;
+  }
+
+  /**
+   * Explicitly sync the slideActiveClass (is-active) with Swiper's activeIndex.
+   * Swiper's built-in slideActiveClass management can miss drag-triggered changes
+   * in certain configurations (e.g. slidesPerView:"auto"). This function acts as
+   * a reliable fallback that works for all triggers: drag, arrows, autoplay.
+   */
+  function syncActiveSlideClass(swiper) {
+    var cls = swiper.params.slideActiveClass || "is-active";
+    var idx = swiper.activeIndex;
+    if (!swiper.slides || !swiper.slides.length) return;
+    for (var i = 0; i < swiper.slides.length; i++) {
+      if (i === idx) {
+        swiper.slides[i].classList.add(cls);
+      } else {
+        swiper.slides[i].classList.remove(cls);
+      }
+    }
   }
 
   /**
@@ -601,6 +620,9 @@
           // add cleanup to registry record later
         }
 
+        // Explicit active-class sync to cover drag and edge cases
+        syncActiveSlideClass(swiper);
+
         // all-slides-active: recalculate offset on resize so it stays
         // correct when the container or slide widths change
         if (swiper.params.allSlidesActive && !swiper.params.loop) {
@@ -622,6 +644,10 @@
           startTopLevelProgress(swiper);
         }
         startBulletProgress(swiper, container);
+      },
+
+      slideChange() {
+        syncActiveSlideClass(this);
       },
 
       slideChangeTransitionStart() {
