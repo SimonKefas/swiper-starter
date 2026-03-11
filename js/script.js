@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.3.3";
+  const VERSION = "2.4.0";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -131,6 +131,37 @@
     }
 
     return Number.isNaN(px) ? null : px;
+  }
+
+  /**
+   * Calculate the slidesOffsetAfter needed so every slide can become the
+   * leftmost (active) slide. Returns 0 when no extra offset is needed.
+   */
+  function calcAllSlidesActiveOffset(swiperEl, wrapperEl, config) {
+    const containerWidth = swiperEl.offsetWidth;
+    if (containerWidth <= 0) return 0;
+
+    const space = typeof config.spaceBetween === "number" ? config.spaceBetween : 0;
+    const slides = wrapperEl
+      ? wrapperEl.querySelectorAll(".swiper-slide")
+      : swiperEl.querySelectorAll(".swiper-slide");
+
+    if (!slides.length || slides.length <= 1) return 0;
+
+    let slideWidth;
+    if (config.slidesPerView === "auto") {
+      // CSS-driven widths – use the last slide (the one that needs most offset)
+      slideWidth = slides[slides.length - 1].offsetWidth;
+    } else if (typeof config.slidesPerView === "number" && config.slidesPerView >= 1) {
+      // Numeric SPV – calculate expected Swiper-computed width
+      const spv = config.slidesPerView;
+      slideWidth = (containerWidth - (spv - 1) * space) / spv;
+    }
+
+    if (slideWidth && slideWidth < containerWidth) {
+      return Math.max(0, Math.ceil(containerWidth - slideWidth - space));
+    }
+    return 0;
   }
 
   /* =============================================================
@@ -295,6 +326,15 @@
     if (d.resistanceRatio) o.resistanceRatio = parseFloat(d.resistanceRatio);
     if (d.centerInsufficientSlides) o.centerInsufficientSlides = d.centerInsufficientSlides === "true";
     if (d.freeMode) o.freeMode = d.freeMode === "true";
+    if (d.allSlidesActive) o.allSlidesActive = d.allSlidesActive === "true";
+    if (d.slidesOffsetAfter) {
+      const val = resolveCssLength(d.slidesOffsetAfter, container);
+      if (val !== null) o.slidesOffsetAfter = val;
+    }
+    if (d.slidesOffsetBefore) {
+      const val = resolveCssLength(d.slidesOffsetBefore, container);
+      if (val !== null) o.slidesOffsetBefore = val;
+    }
     if (d.sliderColor) o.sliderColor = d.sliderColor;
     if (d.autoplayInview) o.autoplayInView = d.autoplayInview === "true";
     if (d.intersectionThreshold) o.intersectionThreshold = parseFloat(d.intersectionThreshold);
@@ -512,6 +552,16 @@
     swiperConfig.sliderColor = instanceOptions.sliderColor;
     swiperConfig.autoplayInView = instanceOptions.autoplayInView;
     swiperConfig.bulletProgress = instanceOptions.bulletProgress;
+    swiperConfig.allSlidesActive = instanceOptions.allSlidesActive;
+
+    // -- all-slides-active: dynamic slidesOffsetAfter -------------------------
+    // Calculates how much trailing space is needed so every slide can become
+    // the active (leftmost) slide while keeping the slider left-aligned and
+    // non-looping. Works with slidesPerView:"auto" and numeric values.
+    if (swiperConfig.allSlidesActive && !swiperConfig.loop) {
+      const offset = calcAllSlidesActiveOffset(swiperEl, wrapperEl, swiperConfig);
+      if (offset > 0) swiperConfig.slidesOffsetAfter = offset;
+    }
 
     // --------------------- Event handlers ---------------------
     swiperConfig.on = {
@@ -549,6 +599,21 @@
           const t = swiper.params.intersectionThreshold || 0.2;
           getSharedObserver(t).observe(container);
           // add cleanup to registry record later
+        }
+
+        // all-slides-active: recalculate offset on resize so it stays
+        // correct when the container or slide widths change
+        if (swiper.params.allSlidesActive && !swiper.params.loop) {
+          swiper.on("resize", function () {
+            var sEl = swiper.el;
+            var wEl = sEl.querySelector(".swiper-wrapper");
+            if (!wEl) return;
+            var newOffset = calcAllSlidesActiveOffset(sEl, wEl, swiper.params);
+            if (newOffset !== swiper.params.slidesOffsetAfter) {
+              swiper.params.slidesOffsetAfter = newOffset;
+              swiper.update();
+            }
+          });
         }
       },
 
