@@ -1,4 +1,4 @@
-# Swiper Starter Kit v2 – Complete Documentation
+# Swiper Starter Kit v2.4 – Complete Documentation
 
 > A zero‑config, attribute‑driven wrapper around [Swiper 11+](https://swiperjs.com/), rebuilt for performance, scalability, and modern workflow needs.
 
@@ -44,6 +44,8 @@
 | **Smart loop cloning** *(v2.2)*               | Loop mode now auto-clones slides when there aren't enough for the viewport, ensuring smooth infinite scroll.                                                                                |
 | **Debug mode & resilient init**               | Optional `SWIPER_STARTER_DEBUG` flag logs broken sliders; invalid ones are skipped so others still run.                                                                                     |
 | **Static slider toggle** *(v2.3)*             | `data-static-slider="true"` disables all interaction/controls in one flag—ideal for marquee or hero strips.                                                                                |
+| **All slides active** *(v2.4)*                | `data-all-slides-active="true"` dynamically calculates trailing offset so every slide—including the last—can become the active (leftmost) slide. Works with `auto` and numeric `slidesPerView`. |
+| **Manual offset attributes** *(v2.4)*         | `data-slides-offset-after` / `data-slides-offset-before` for manual pixel offsets when you need precise control.                                                                            |
 
 **No breaking changes** – existing sliders continue to work unless you add the new attributes.
 
@@ -65,6 +67,8 @@
 * **JS API** for custom effects and behaviors
 * Optional console debugging via `SWIPER_STARTER_DEBUG`
 * **Static slider toggle** (`data-static-slider`) for non-interactive marquee strips
+* **All slides active** (`data-all-slides-active`) – dynamic offset so every slide can be leftmost/active
+* **Manual offset** (`data-slides-offset-after` / `data-slides-offset-before`) for fine-tuned control
 
 ---
 
@@ -198,6 +202,10 @@ Override once per page:
 | `data-disable-pagination`             | `"true"`                            | Hide bullet pagination.                       |
 | `data-disable-touch`                  | `"true"`                            | Disable drag / swipe (wheel remains).         |
 | `data-disable-mousewheel`            | `"true"`                            | Disable trackpad / mousewheel navigation.     |
+| **Slide offset & active control**     |                                     |                                               |
+| `data-all-slides-active`             | `"true"`                            | Dynamic trailing offset so every slide can become active (leftmost). |
+| `data-slides-offset-after`           | `200` (px)                          | Manual trailing space after last slide.       |
+| `data-slides-offset-before`          | `200` (px)                          | Manual leading space before first slide.      |
 | **Break‑point disabling**             |                                     |                                               |
 | `data-disable-below`                  | `768`                               | Don't instantiate when `viewport < 768 px`.   |
 | `data-disable-above`                  | `991`                               | Don't instantiate when `viewport > 991 px`.   |
@@ -318,7 +326,7 @@ window.destroySwipers(); // clean‑up everything
 ### Version check
 
 ```js
-console.log(SwiperStarterKit.version); // "2.3.3"
+console.log(SwiperStarterKit.version); // "2.4.0"
 ```
 
 ---
@@ -421,6 +429,35 @@ See **[test.html](test.html)** for interactive examples of all features.
 </div>
 ```
 
+### Timeline / history slider where every slide can be active
+
+```html
+<div
+  class="slider-main_component"
+  data-slides-per-view="auto"
+  data-space-between="40"
+  data-all-slides-active="true"
+  data-autoplay="false"
+>
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide" style="width: 30%">2005</div>
+      <div class="swiper-slide" style="width: 30%">2010</div>
+      <div class="swiper-slide" style="width: 30%">2015</div>
+      <div class="swiper-slide" style="width: 30%">2020</div>
+      <div class="swiper-slide" style="width: 30%">2025</div>
+    </div>
+  </div>
+  <button class="swiper-prev"></button>
+  <button class="swiper-next"></button>
+</div>
+```
+
+Notes:
+- The offset is calculated dynamically from the container width, last slide width, and gap — no hardcoded values needed.
+- Recalculates automatically on resize.
+- Works with both `slidesPerView: "auto"` (CSS-driven widths) and numeric values like `3` or `4`.
+
 ### Continuous, non-interactive marquee with random tilt
 
 ```html
@@ -480,6 +517,11 @@ CSS from v1 still applies. (see CSS file)  Additions:
 ---
 
 ## Changelog
+
+### 2.4.0 – 2026‑03‑11
+
+* **All slides active** – New `data-all-slides-active="true"` attribute dynamically calculates `slidesOffsetAfter` based on container width, slide width, and gap so every slide (including the last) can become the active (leftmost) slide. Recalculates on resize. Works with `slidesPerView: "auto"` and numeric values.
+* **Manual offset attributes** – `data-slides-offset-after` and `data-slides-offset-before` for precise manual control of trailing/leading space (supports px values and CSS variables).
 
 ### 2.3.3 – 2026‑02‑24
 
