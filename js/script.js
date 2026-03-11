@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.6";
+  const VERSION = "2.4.7";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -131,37 +131,6 @@
     }
 
     return Number.isNaN(px) ? null : px;
-  }
-
-  /**
-   * Explicitly sync the custom active class (is-active) with Swiper's actual
-   * active slide. Swiper may ignore slideActiveClass in certain configurations
-   * (e.g. slidesPerView:"auto") and fall back to its default "swiper-slide-active".
-   * This function detects which class Swiper is actually managing and mirrors it
-   * with our custom class, ensuring is-active is always on the correct slide
-   * regardless of trigger (drag, arrows, autoplay).
-   */
-  function syncActiveSlideClass(swiper) {
-    var cls = swiper.params.slideActiveClass || "is-active";
-    if (!swiper.slides || !swiper.slides.length) return;
-
-    // Swiper may ignore our slideActiveClass and use its default instead.
-    // Check if Swiper's default "swiper-slide-active" exists in the DOM —
-    // if so, mirror it rather than relying on activeIndex (more reliable).
-    var hasDefaultActive = false;
-    for (var i = 0; i < swiper.slides.length; i++) {
-      if (swiper.slides[i].classList.contains("swiper-slide-active")) {
-        hasDefaultActive = true;
-        break;
-      }
-    }
-
-    for (var j = 0; j < swiper.slides.length; j++) {
-      var shouldBeActive = hasDefaultActive
-        ? swiper.slides[j].classList.contains("swiper-slide-active")
-        : j === swiper.activeIndex;
-      swiper.slides[j].classList.toggle(cls, shouldBeActive);
-    }
   }
 
   /**
@@ -633,9 +602,6 @@
           // add cleanup to registry record later
         }
 
-        // Explicit active-class sync — delay to run after Swiper's own DOM updates
-        requestAnimationFrame(function () { syncActiveSlideClass(swiper); });
-
       },
 
       afterInit(swiper) {
@@ -644,39 +610,15 @@
         }
         startBulletProgress(swiper, container);
 
-        // ---- MutationObserver: mirror swiper-slide-active → is-active ----
-        // Swiper may ignore slideActiveClass in certain configs and manage
-        // only its default "swiper-slide-active". This observer watches for
-        // that class on each slide and mirrors it to our custom class,
-        // guaranteeing sync regardless of trigger (drag, arrows, autoplay).
-        var cls = swiper.params.slideActiveClass || "is-active";
-        if (cls !== "swiper-slide-active" && swiper.slides && swiper.slides.length) {
-          var mo = new MutationObserver(function (mutations) {
-            for (var i = 0; i < mutations.length; i++) {
-              var slide = mutations[i].target;
-              if (slide && slide.classList) {
-                slide.classList.toggle(cls, slide.classList.contains("swiper-slide-active"));
-              }
-            }
-          });
+        // Strip any stale "swiper-slide-active" left from Swiper's init.
+        // Our config uses slideActiveClass:"is-active", so Swiper manages
+        // "is-active" directly. Any leftover "swiper-slide-active" is an
+        // orphan that would confuse CSS selectors / user code.
+        if (swiper.params.slideActiveClass !== "swiper-slide-active" && swiper.slides) {
           for (var si = 0; si < swiper.slides.length; si++) {
-            mo.observe(swiper.slides[si], { attributes: true, attributeFilter: ["class"] });
+            swiper.slides[si].classList.remove("swiper-slide-active");
           }
-          // Disconnect on destroy
-          swiper.on("beforeDestroy", function () { mo.disconnect(); });
         }
-      },
-
-      slideChange() {
-        var s = this;
-        requestAnimationFrame(function () { syncActiveSlideClass(s); });
-      },
-
-      // Backup sync after drag release — slideChange can fire before
-      // Swiper finishes updating its DOM classes during drag
-      touchEnd() {
-        var s = this;
-        requestAnimationFrame(function () { syncActiveSlideClass(s); });
       },
 
       slideChangeTransitionStart() {
@@ -687,10 +629,6 @@
         syncCustomSlider(swiper, container);
       },
 
-      slideChangeTransitionEnd() {
-        // Final sync after transition settles — catches any edge cases
-        syncActiveSlideClass(this);
-      },
 
       autoplayStop() {
         const swiper = this;
