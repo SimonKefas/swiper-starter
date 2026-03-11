@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.5";
+  const VERSION = "2.4.6";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -165,34 +165,44 @@
   }
 
   /**
-   * Calculate the slidesOffsetAfter needed so every slide can become the
-   * leftmost (active) slide. Returns 0 when no extra offset is needed.
+   * Set up "all slides active" on a live Swiper instance.
+   *
+   * 1. Uses Object.defineProperty to make snapGrid always return slidesGrid,
+   *    so every slide is a valid snap target. Swiper's internal writes to
+   *    snapGrid are silently ignored.
+   * 2. Calculates slidesOffsetAfter from actual Swiper measurements so the
+   *    last slide can physically scroll to the left edge.
+   * 3. Re-applies on resize to stay correct when dimensions change.
    */
-  function calcAllSlidesActiveOffset(swiperEl, wrapperEl, config) {
-    const containerWidth = swiperEl.offsetWidth;
-    if (containerWidth <= 0) return 0;
+  function applyAllSlidesActive(swiper) {
+    if (!swiper || !swiper.slides || swiper.slides.length <= 1) return;
 
-    const space = typeof config.spaceBetween === "number" ? config.spaceBetween : 0;
-    const slides = wrapperEl
-      ? wrapperEl.querySelectorAll(".swiper-slide")
-      : swiperEl.querySelectorAll(".swiper-slide");
+    // 1. Lock snapGrid to always equal slidesGrid
+    Object.defineProperty(swiper, "snapGrid", {
+      get: function () { return this.slidesGrid || []; },
+      set: function () { /* prevent Swiper from filtering the grid */ },
+      configurable: true,
+    });
 
-    if (!slides.length || slides.length <= 1) return 0;
+    // 2. Calculate and apply trailing offset
+    var recalcOffset = function () {
+      var el = swiper.el;
+      if (!el || !swiper.slides || swiper.slides.length <= 1) return;
+      var containerW = el.offsetWidth;
+      var lastSlide = swiper.slides[swiper.slides.length - 1];
+      var lastW = lastSlide ? lastSlide.offsetWidth : 0;
+      var needed = lastW && lastW < containerW
+        ? Math.max(0, Math.ceil(containerW - lastW))
+        : 0;
+      if (swiper.params.slidesOffsetAfter !== needed) {
+        swiper.params.slidesOffsetAfter = needed;
+        swiper.update();
+      }
+    };
+    recalcOffset();
 
-    let slideWidth;
-    if (config.slidesPerView === "auto") {
-      // CSS-driven widths – use the last slide (the one that needs most offset)
-      slideWidth = slides[slides.length - 1].offsetWidth;
-    } else if (typeof config.slidesPerView === "number" && config.slidesPerView >= 1) {
-      // Numeric SPV – calculate expected Swiper-computed width
-      const spv = config.slidesPerView;
-      slideWidth = (containerWidth - (spv - 1) * space) / spv;
-    }
-
-    if (slideWidth && slideWidth < containerWidth) {
-      return Math.max(0, Math.ceil(containerWidth - slideWidth - space));
-    }
-    return 0;
+    // 3. Re-apply on resize
+    swiper.on("resize", recalcOffset);
   }
 
   /* =============================================================
@@ -585,15 +595,6 @@
     swiperConfig.bulletProgress = instanceOptions.bulletProgress;
     swiperConfig.allSlidesActive = instanceOptions.allSlidesActive;
 
-    // -- all-slides-active: dynamic slidesOffsetAfter -------------------------
-    // Calculates how much trailing space is needed so every slide can become
-    // the active (leftmost) slide while keeping the slider left-aligned and
-    // non-looping. Works with slidesPerView:"auto" and numeric values.
-    if (swiperConfig.allSlidesActive && !swiperConfig.loop) {
-      const offset = calcAllSlidesActiveOffset(swiperEl, wrapperEl, swiperConfig);
-      if (offset > 0) swiperConfig.slidesOffsetAfter = offset;
-    }
-
     // --------------------- Event handlers ---------------------
     swiperConfig.on = {
       init() {
@@ -635,20 +636,6 @@
         // Explicit active-class sync — delay to run after Swiper's own DOM updates
         requestAnimationFrame(function () { syncActiveSlideClass(swiper); });
 
-        // all-slides-active: recalculate offset on resize so it stays
-        // correct when the container or slide widths change
-        if (swiper.params.allSlidesActive && !swiper.params.loop) {
-          swiper.on("resize", function () {
-            var sEl = swiper.el;
-            var wEl = sEl.querySelector(".swiper-wrapper");
-            if (!wEl) return;
-            var newOffset = calcAllSlidesActiveOffset(sEl, wEl, swiper.params);
-            if (newOffset !== swiper.params.slidesOffsetAfter) {
-              swiper.params.slidesOffsetAfter = newOffset;
-              swiper.update();
-            }
-          });
-        }
       },
 
       afterInit(swiper) {
@@ -736,23 +723,12 @@
       return null;
     }
 
-    // -- all-slides-active: override updateSlides so snapGrid always
-    //    includes every slide position. Swiper internally recalculates
-    //    snapGrid during touches/transitions (without emitting "update"),
-    //    so event-based patching is insufficient. Wrapping updateSlides
-    //    guarantees the patch runs after every recalculation.
+    // -- all-slides-active: lock snapGrid so every slide is a valid
+    //    snap target, and add trailing offset so the last slide can
+    //    scroll to the left edge. Uses Object.defineProperty to make
+    //    snapGrid immune to Swiper's internal overwrites.
     if (swiperConfig.allSlidesActive && swiperInstance && !swiperConfig.loop) {
-      var origUpdateSlides = swiperInstance.updateSlides;
-      swiperInstance.updateSlides = function () {
-        origUpdateSlides.call(this);
-        if (this.slidesGrid && this.slidesGrid.length) {
-          this.snapGrid = this.slidesGrid.slice();
-        }
-      };
-      // Patch current state (init already ran updateSlides before we wrapped it)
-      if (swiperInstance.slidesGrid && swiperInstance.slidesGrid.length) {
-        swiperInstance.snapGrid = swiperInstance.slidesGrid.slice();
-      }
+      applyAllSlidesActive(swiperInstance);
     }
 
     // attach references
