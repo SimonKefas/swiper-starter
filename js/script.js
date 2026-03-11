@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.8";
+  const VERSION = "2.4.9";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -429,7 +429,23 @@
       return null;
     }
 
-    const wrapperEl = swiperEl.querySelector(".swiper-wrapper");
+    // Auto-detect Webflow CMS wrapper / items and add required Swiper classes
+    let wrapperEl = swiperEl.querySelector(".swiper-wrapper");
+    if (!wrapperEl) {
+      const dynList = swiperEl.querySelector(".w-dyn-items");
+      if (dynList) { dynList.classList.add("swiper-wrapper"); wrapperEl = dynList; }
+    }
+    if (wrapperEl) {
+      const hasSlides = wrapperEl.querySelector(".swiper-slide");
+      if (!hasSlides) {
+        Array.from(wrapperEl.children).forEach(function (child) {
+          if (child.tagName !== "SCRIPT" && !child.classList.contains("w-dyn-empty")) {
+            child.classList.add("swiper-slide");
+          }
+        });
+      }
+    }
+
     const slidesCount = wrapperEl ? wrapperEl.querySelectorAll(".swiper-slide").length : 0;
     if (!wrapperEl || slidesCount === 0) {
       debugLog("no slides found", container);
