@@ -492,6 +492,7 @@ Videos automatically pause when navigating away from their slide. Optionally, vi
 Notes:
 - **Pause is enabled by default** – videos pause when leaving a slide.
 - **Auto-play is opt-in** – add `data-video-autoplay="true"` on the container.
+- **Slider autoplay pauses while video plays** – when `data-video-autoplay` is enabled, the slider won't advance while a video is playing. It resumes when the video pauses or ends.
 - Add `data-video-autoplay` on individual slides to enable auto-play only for specific slides.
 - Add `data-video-persist` on slides to keep their videos playing when navigating away.
 - YouTube embeds require `enablejsapi=1` in the URL for play/pause commands to work.
@@ -557,6 +558,11 @@ CSS from v1 still applies. (see CSS file)  Additions:
 
 ## Changelog
 
+### 2.5.2 – 2026‑03‑12
+
+* **Slider pauses for video playback** – When `data-video-autoplay` is enabled, slider autoplay automatically pauses while a video is playing and resumes when the video pauses or ends.
+* Works with native `<video>`, YouTube iframes, and Vimeo iframes.
+
 ### 2.5.1 – 2026‑03‑12
 
 * **Video auto-play** – New `data-video-autoplay="true"` attribute to auto-play videos when their slide becomes active.
@@ -564,7 +570,7 @@ CSS from v1 still applies. (see CSS file)  Additions:
 * Works with native `<video>`, YouTube, Vimeo, and Webflow background videos.
 * Note: Browser policies may require videos to be muted for auto-play to work.
 
-### 2.5.0 – 2026‑03‑12
+### 2.5.0
 
 * **Video auto-pause** – Videos on inactive slides are automatically paused when navigating. Supports native HTML5 `<video>`, YouTube iframes, Vimeo iframes, and Webflow background videos.
 * Enabled by default; opt-out globally with `data-video-pause="false"` on the container.

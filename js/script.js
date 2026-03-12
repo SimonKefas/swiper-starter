@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.5.1";
+  const VERSION = "2.5.2";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -305,6 +305,117 @@
 
     if (containerAutoplay || slideAutoplay) {
       playSlideVideos(activeSlide);
+    }
+  }
+
+  /**
+   * Set up event listeners on videos to pause/resume slider autoplay.
+   * When a video plays, slider autoplay stops. When it pauses/ends, autoplay resumes.
+   * Only active when data-video-autoplay is enabled.
+   */
+  function setupVideoAutoplayListeners(swiper, container) {
+    if (!swiper || !container) return;
+
+    const record = sliderRegistry.get(container);
+    if (!record) return;
+    record.videoCleanupFns = record.videoCleanupFns || [];
+
+    // Handler to stop slider autoplay when video plays
+    const onVideoPlay = () => {
+      if (swiper.autoplay && swiper.autoplay.running) {
+        swiper.autoplay.stop();
+        debugLog("Slider autoplay paused: video playing");
+      }
+    };
+
+    // Handler to resume slider autoplay when video pauses/ends
+    const onVideoPauseOrEnd = () => {
+      if (swiper.autoplay && !swiper.autoplay.running && swiper.params.autoplay) {
+        swiper.autoplay.start();
+        debugLog("Slider autoplay resumed: video paused/ended");
+      }
+    };
+
+    // Set up listeners for native video elements
+    container.querySelectorAll("video").forEach((video) => {
+      video.addEventListener("play", onVideoPlay);
+      video.addEventListener("pause", onVideoPauseOrEnd);
+      video.addEventListener("ended", onVideoPauseOrEnd);
+
+      record.videoCleanupFns.push(() => {
+        video.removeEventListener("play", onVideoPlay);
+        video.removeEventListener("pause", onVideoPauseOrEnd);
+        video.removeEventListener("ended", onVideoPauseOrEnd);
+      });
+    });
+
+    // Set up message listener for YouTube and Vimeo iframes
+    const onIframeMessage = (event) => {
+      let data;
+      try {
+        data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+      } catch (e) {
+        return; // Not JSON, ignore
+      }
+
+      // YouTube state changes: 1 = playing, 2 = paused, 0 = ended
+      if (data.event === "onStateChange" || data.info?.playerState !== undefined) {
+        const state = data.info?.playerState ?? data.info;
+        if (state === 1) {
+          onVideoPlay();
+        } else if (state === 2 || state === 0) {
+          onVideoPauseOrEnd();
+        }
+      }
+
+      // Vimeo events
+      if (data.event === "play") {
+        onVideoPlay();
+      } else if (data.event === "pause" || data.event === "ended") {
+        onVideoPauseOrEnd();
+      }
+    };
+
+    // Only add message listener if there are YouTube or Vimeo iframes
+    const hasYouTube = container.querySelector('iframe[src*="youtube.com"], iframe[src*="youtube-nocookie.com"]');
+    const hasVimeo = container.querySelector('iframe[src*="vimeo.com"]');
+
+    if (hasYouTube || hasVimeo) {
+      window.addEventListener("message", onIframeMessage);
+      record.videoCleanupFns.push(() => {
+        window.removeEventListener("message", onIframeMessage);
+      });
+
+      // Enable YouTube JS API event listening
+      container.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtube-nocookie.com"]').forEach((iframe) => {
+        try {
+          iframe.contentWindow.postMessage(JSON.stringify({ event: "listening" }), "*");
+        } catch (e) {
+          debugLog("YouTube listening setup failed", e);
+        }
+      });
+
+      // Enable Vimeo event listening
+      container.querySelectorAll('iframe[src*="vimeo.com"]').forEach((iframe) => {
+        try {
+          iframe.contentWindow.postMessage(JSON.stringify({ method: "addEventListener", value: "play" }), "*");
+          iframe.contentWindow.postMessage(JSON.stringify({ method: "addEventListener", value: "pause" }), "*");
+          iframe.contentWindow.postMessage(JSON.stringify({ method: "addEventListener", value: "ended" }), "*");
+        } catch (e) {
+          debugLog("Vimeo listening setup failed", e);
+        }
+      });
+    }
+  }
+
+  /**
+   * Clean up video event listeners for a container.
+   */
+  function cleanupVideoListeners(container) {
+    const record = sliderRegistry.get(container);
+    if (record && record.videoCleanupFns) {
+      record.videoCleanupFns.forEach((fn) => fn());
+      record.videoCleanupFns = [];
     }
   }
 
@@ -782,6 +893,11 @@
             swiper.slides[si].classList.remove("swiper-slide-active");
           }
         }
+
+        // Set up video listeners to pause slider autoplay when video plays
+        if (swiper.params.videoAutoplay && swiper.params.autoplay) {
+          setupVideoAutoplayListeners(swiper, container);
+        }
       },
 
       slideChangeTransitionStart() {
@@ -854,6 +970,9 @@
 
     // stop observing autoplay-in-view
     if (sharedIO) sharedIO.unobserve(container);
+
+    // clean up video event listeners
+    cleanupVideoListeners(container);
 
     // clean up custom slider events (they were anonymous lambdas, easiest is to clone node ↓)
     const range = container.querySelector(".custom-slider");
