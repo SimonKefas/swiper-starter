@@ -1,4 +1,4 @@
-# Swiper Starter Kit v2.4 – Complete Documentation
+# Swiper Starter Kit v2.5 – Complete Documentation
 
 > A zero‑config, attribute‑driven wrapper around [Swiper 11+](https://swiperjs.com/), rebuilt for performance, scalability, and modern workflow needs.
 
@@ -46,8 +46,9 @@
 | **Static slider toggle** *(v2.3)*             | `data-static-slider="true"` disables all interaction/controls in one flag—ideal for marquee or hero strips.                                                                                |
 | **All slides active** *(v2.4)*                | `data-all-slides-active="true"` dynamically calculates trailing offset so every slide—including the last—can become the active (leftmost) slide. Works with `auto` and numeric `slidesPerView`. |
 | **Manual offset attributes** *(v2.4)*         | `data-slides-offset-after` / `data-slides-offset-before` for manual pixel offsets when you need precise control.                                                                            |
+| **Video auto-pause** *(v2.5)*                 | Videos automatically pause when their slide becomes inactive. Supports native `<video>`, YouTube, Vimeo, and Webflow background videos. Enabled by default; opt-out with `data-video-pause="false"`. |
 
-**No breaking changes** – existing sliders continue to work unless you add the new attributes.
+**No breaking changes**
 
 ---
 
@@ -69,6 +70,7 @@
 * **Static slider toggle** (`data-static-slider`) for non-interactive marquee strips
 * **All slides active** (`data-all-slides-active`) – dynamic offset so every slide can be leftmost/active
 * **Manual offset** (`data-slides-offset-after` / `data-slides-offset-before`) for fine-tuned control
+* **Video auto-pause** – automatically pauses videos on inactive slides (native video, YouTube, Vimeo, Webflow)
 
 ---
 
@@ -209,6 +211,9 @@ Override once per page:
 | **Break‑point disabling**             |                                     |                                               |
 | `data-disable-below`                  | `768`                               | Don't instantiate when `viewport < 768 px`.   |
 | `data-disable-above`                  | `991`                               | Don't instantiate when `viewport > 991 px`.   |
+| **Video control**                     |                                     |                                               |
+| `data-video-pause`                    | `"true"` (default) / `"false"`      | Pause videos on inactive slides. Enabled by default. |
+| `data-video-persist` *(on slide)*     | attribute presence                  | Keep video playing when this specific slide becomes inactive. |
 
 *(Put multiple attributes together as needed; the script merges them with global defaults.)*
 
@@ -458,6 +463,36 @@ Notes:
 - Recalculates automatically on resize.
 - Works with both `slidesPerView: "auto"` (CSS-driven widths) and numeric values like `3` or `4`.
 
+### Video slider with auto-pause
+
+Videos automatically pause when navigating away from their slide. Works with native `<video>`, YouTube embeds, Vimeo embeds, and Webflow background videos.
+
+```html
+<div class="slider-main_component" data-autoplay="false">
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <video src="video1.mp4" controls></video>
+      </div>
+      <div class="swiper-slide">
+        <iframe src="https://www.youtube.com/embed/VIDEO_ID?enablejsapi=1"></iframe>
+      </div>
+      <div class="swiper-slide">
+        <iframe src="https://player.vimeo.com/video/VIDEO_ID"></iframe>
+      </div>
+    </div>
+  </div>
+  <button class="swiper-prev"></button>
+  <button class="swiper-next"></button>
+</div>
+```
+
+Notes:
+- **Enabled by default** – no attribute needed.
+- Add `data-video-pause="false"` on the container to disable globally.
+- Add `data-video-persist` on individual slides to exempt them from auto-pause.
+- YouTube embeds require `enablejsapi=1` in the URL for the pause command to work.
+
 ### Continuous, non-interactive marquee with random tilt
 
 ```html
@@ -517,6 +552,12 @@ CSS from v1 still applies. (see CSS file)  Additions:
 ---
 
 ## Changelog
+
+### 2.5.0 – 2026‑03‑12
+
+* **Video auto-pause** – Videos on inactive slides are automatically paused when navigating. Supports native HTML5 `<video>`, YouTube iframes, Vimeo iframes, and Webflow background videos.
+* Enabled by default; opt-out globally with `data-video-pause="false"` on the container.
+* Exempt individual slides with `data-video-persist` attribute.
 
 ### 2.4.0 – 2026‑03‑11
 

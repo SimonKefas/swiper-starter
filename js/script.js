@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.4.9";
+  const VERSION = "2.5.0";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -184,7 +184,68 @@
   }
 
   /* =============================================================
-   * 1) Default Swiper configuration
+   * 1a) Video pause helpers
+   * ============================================================= */
+
+  /**
+   * Pause all videos within a slide element.
+   * Handles: native <video>, YouTube iframes, Vimeo iframes, Webflow background videos.
+   */
+  function pauseSlideVideos(slide) {
+    if (!slide) return;
+
+    // Native HTML5 video elements
+    slide.querySelectorAll("video").forEach((video) => {
+      if (!video.paused) {
+        video.pause();
+      }
+    });
+
+    // Webflow background videos (.w-background-video)
+    slide.querySelectorAll(".w-background-video video").forEach((video) => {
+      if (!video.paused) {
+        video.pause();
+      }
+    });
+
+    // YouTube iframes (postMessage API)
+    slide.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtube-nocookie.com"]').forEach((iframe) => {
+      try {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "pauseVideo", args: [] }), "*");
+      } catch (e) {
+        debugLog("YouTube pause failed", e);
+      }
+    });
+
+    // Vimeo iframes (postMessage API)
+    slide.querySelectorAll('iframe[src*="vimeo.com"]').forEach((iframe) => {
+      try {
+        iframe.contentWindow.postMessage(JSON.stringify({ method: "pause" }), "*");
+      } catch (e) {
+        debugLog("Vimeo pause failed", e);
+      }
+    });
+  }
+
+  /**
+   * Pause videos on all slides except the currently active one.
+   * Respects data-video-persist on individual slides to opt-out.
+   */
+  function pauseInactiveSlideVideos(swiper, container) {
+    if (!swiper || !swiper.slides) return;
+
+    const activeIndex = swiper.activeIndex;
+    swiper.slides.forEach((slide, index) => {
+      // Skip active slide
+      if (index === activeIndex) return;
+      // Skip slides with data-video-persist
+      if (slide.hasAttribute("data-video-persist")) return;
+      pauseSlideVideos(slide);
+    });
+  }
+
+  /* =============================================================
+   * 1b) Default Swiper configuration
    * ============================================================= */
   let defaultSwiperOptions = {
     loop: false,
@@ -238,6 +299,7 @@
 
     // custom extensions
     intersectionThreshold: 0.2,
+    videoPause: true, // pause videos on inactive slides by default
   };
 
   /* -------------------------------------------------------------
@@ -375,6 +437,11 @@
     if (d.observer === "true") {
       o.observer = true;
       o.observeParents = true;
+    }
+
+    // Video pause control – enabled by default, set to "false" to opt-out
+    if (d.videoPause !== undefined) {
+      o.videoPause = d.videoPause !== "false";
     }
 
     return o;
@@ -588,6 +655,7 @@
     swiperConfig.autoplayInView = instanceOptions.autoplayInView;
     swiperConfig.bulletProgress = instanceOptions.bulletProgress;
     swiperConfig.allSlidesActive = instanceOptions.allSlidesActive;
+    swiperConfig.videoPause = swiperConfig.videoPause !== false; // default true
 
     // --------------------- Event handlers ---------------------
     swiperConfig.on = {
@@ -652,6 +720,10 @@
         if (swiper.params.progressBar && swiper.params.autoplay && swiper.topLevelProgressBar) startTopLevelProgress(swiper);
         startBulletProgress(swiper, container);
         syncCustomSlider(swiper, container);
+        // Pause videos on inactive slides
+        if (swiper.params.videoPause) {
+          pauseInactiveSlideVideos(swiper, container);
+        }
       },
 
 
