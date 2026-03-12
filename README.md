@@ -213,7 +213,9 @@ Override once per page:
 | `data-disable-above`                  | `991`                               | Don't instantiate when `viewport > 991 px`.   |
 | **Video control**                     |                                     |                                               |
 | `data-video-pause`                    | `"true"` (default) / `"false"`      | Pause videos on inactive slides. Enabled by default. |
+| `data-video-autoplay`                 | `"true"` / `"false"` (default)      | Auto-play videos when their slide becomes active. Disabled by default. |
 | `data-video-persist` *(on slide)*     | attribute presence                  | Keep video playing when this specific slide becomes inactive. |
+| `data-video-autoplay` *(on slide)*    | attribute presence                  | Auto-play video on this specific slide when it becomes active. |
 
 *(Put multiple attributes together as needed; the script merges them with global defaults.)*
 
@@ -463,16 +465,16 @@ Notes:
 - Recalculates automatically on resize.
 - Works with both `slidesPerView: "auto"` (CSS-driven widths) and numeric values like `3` or `4`.
 
-### Video slider with auto-pause
+### Video slider with auto-pause and auto-play
 
-Videos automatically pause when navigating away from their slide. Works with native `<video>`, YouTube embeds, Vimeo embeds, and Webflow background videos.
+Videos automatically pause when navigating away from their slide. Optionally, videos can auto-play when their slide becomes active.
 
 ```html
-<div class="slider-main_component" data-autoplay="false">
+<div class="slider-main_component" data-autoplay="false" data-video-autoplay="true">
   <div class="swiper">
     <div class="swiper-wrapper">
       <div class="swiper-slide">
-        <video src="video1.mp4" controls></video>
+        <video src="video1.mp4" controls muted></video>
       </div>
       <div class="swiper-slide">
         <iframe src="https://www.youtube.com/embed/VIDEO_ID?enablejsapi=1"></iframe>
@@ -488,10 +490,12 @@ Videos automatically pause when navigating away from their slide. Works with nat
 ```
 
 Notes:
-- **Enabled by default** – no attribute needed.
-- Add `data-video-pause="false"` on the container to disable globally.
-- Add `data-video-persist` on individual slides to exempt them from auto-pause.
-- YouTube embeds require `enablejsapi=1` in the URL for the pause command to work.
+- **Pause is enabled by default** – videos pause when leaving a slide.
+- **Auto-play is opt-in** – add `data-video-autoplay="true"` on the container.
+- Add `data-video-autoplay` on individual slides to enable auto-play only for specific slides.
+- Add `data-video-persist` on slides to keep their videos playing when navigating away.
+- YouTube embeds require `enablejsapi=1` in the URL for play/pause commands to work.
+- Native videos should have `muted` attribute for auto-play to work reliably (browser policy).
 
 ### Continuous, non-interactive marquee with random tilt
 
@@ -553,13 +557,20 @@ CSS from v1 still applies. (see CSS file)  Additions:
 
 ## Changelog
 
+### 2.5.1 – 2026‑03‑12
+
+* **Video auto-play** – New `data-video-autoplay="true"` attribute to auto-play videos when their slide becomes active.
+* Can be set on container (all slides) or individual slides.
+* Works with native `<video>`, YouTube, Vimeo, and Webflow background videos.
+* Note: Browser policies may require videos to be muted for auto-play to work.
+
 ### 2.5.0 – 2026‑03‑12
 
 * **Video auto-pause** – Videos on inactive slides are automatically paused when navigating. Supports native HTML5 `<video>`, YouTube iframes, Vimeo iframes, and Webflow background videos.
 * Enabled by default; opt-out globally with `data-video-pause="false"` on the container.
 * Exempt individual slides with `data-video-persist` attribute.
 
-### 2.4.0 – 2026‑03‑11
+### 2.4.0
 
 * **All slides active** – New `data-all-slides-active="true"` attribute dynamically calculates `slidesOffsetAfter` based on container width, slide width, and gap so every slide (including the last) can become the active (leftmost) slide. Recalculates on resize. Works with `slidesPerView: "auto"` and numeric values.
 * **Manual offset attributes** – `data-slides-offset-after` and `data-slides-offset-before` for precise manual control of trailing/leading space (supports px values and CSS variables).

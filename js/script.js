@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.5.0";
+  const VERSION = "2.5.1";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -228,6 +228,51 @@
   }
 
   /**
+   * Play all videos within a slide element.
+   * Handles: native <video>, YouTube iframes, Vimeo iframes, Webflow background videos.
+   * Note: Browser autoplay policies may block playback until user interaction.
+   */
+  function playSlideVideos(slide) {
+    if (!slide) return;
+
+    // Native HTML5 video elements
+    slide.querySelectorAll("video").forEach((video) => {
+      if (video.paused) {
+        video.play().catch((e) => {
+          debugLog("Video autoplay blocked by browser", e);
+        });
+      }
+    });
+
+    // Webflow background videos (.w-background-video)
+    slide.querySelectorAll(".w-background-video video").forEach((video) => {
+      if (video.paused) {
+        video.play().catch((e) => {
+          debugLog("Webflow video autoplay blocked", e);
+        });
+      }
+    });
+
+    // YouTube iframes (postMessage API)
+    slide.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtube-nocookie.com"]').forEach((iframe) => {
+      try {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
+      } catch (e) {
+        debugLog("YouTube play failed", e);
+      }
+    });
+
+    // Vimeo iframes (postMessage API)
+    slide.querySelectorAll('iframe[src*="vimeo.com"]').forEach((iframe) => {
+      try {
+        iframe.contentWindow.postMessage(JSON.stringify({ method: "play" }), "*");
+      } catch (e) {
+        debugLog("Vimeo play failed", e);
+      }
+    });
+  }
+
+  /**
    * Pause videos on all slides except the currently active one.
    * Respects data-video-persist on individual slides to opt-out.
    */
@@ -242,6 +287,25 @@
       if (slide.hasAttribute("data-video-persist")) return;
       pauseSlideVideos(slide);
     });
+  }
+
+  /**
+   * Play videos on the active slide if video autoplay is enabled.
+   * Checks both container-level and slide-level data-video-autoplay.
+   */
+  function playActiveSlideVideos(swiper, container) {
+    if (!swiper || !swiper.slides) return;
+
+    const activeSlide = swiper.slides[swiper.activeIndex];
+    if (!activeSlide) return;
+
+    // Check if autoplay is enabled (container or slide level)
+    const containerAutoplay = container.hasAttribute("data-video-autoplay");
+    const slideAutoplay = activeSlide.hasAttribute("data-video-autoplay");
+
+    if (containerAutoplay || slideAutoplay) {
+      playSlideVideos(activeSlide);
+    }
   }
 
   /* =============================================================
@@ -442,6 +506,11 @@
     // Video pause control – enabled by default, set to "false" to opt-out
     if (d.videoPause !== undefined) {
       o.videoPause = d.videoPause !== "false";
+    }
+
+    // Video autoplay control – disabled by default, set to "true" to opt-in
+    if (d.videoAutoplay !== undefined) {
+      o.videoAutoplay = d.videoAutoplay === "true";
     }
 
     return o;
@@ -656,6 +725,7 @@
     swiperConfig.bulletProgress = instanceOptions.bulletProgress;
     swiperConfig.allSlidesActive = instanceOptions.allSlidesActive;
     swiperConfig.videoPause = swiperConfig.videoPause !== false; // default true
+    swiperConfig.videoAutoplay = !!swiperConfig.videoAutoplay; // default false
 
     // --------------------- Event handlers ---------------------
     swiperConfig.on = {
@@ -723,6 +793,10 @@
         // Pause videos on inactive slides
         if (swiper.params.videoPause) {
           pauseInactiveSlideVideos(swiper, container);
+        }
+        // Play videos on active slide if autoplay enabled
+        if (swiper.params.videoAutoplay) {
+          playActiveSlideVideos(swiper, container);
         }
       },
 
