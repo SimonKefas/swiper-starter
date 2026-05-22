@@ -159,6 +159,9 @@ Override once per page:
 | `data-effect`                 | `"slide"`, `"fade"`, etc. | Swiper effect module.                  |
 | `data-crossfade`              | `"true"`                  | Only for `data-effect="fade"`.         |
 | `data-slides-per-view`        | number \| `"auto"`        |                                        |
+| `data-slide-min-width`        | CSS length (e.g. `"280px"`) | Auto-fit: integer SPV from track width; slides stretch, no peek. |
+| `data-slide-width`            | CSS length (e.g. `"280px"`) | Auto-fill: fractional SPV at fixed width; next slide peeks. |
+| `data-slide-group-auto`       | `"true"`                    | Peek mode only: nav arrows page by `floor(SPV)`. |
 | `data-space-between`          | number (px)               |                                        |
 | `data-breakpoints`            | JSON string               | Full Swiper breakpoint object.         |
 | `data-progress-bar`           | `"true"`                  | Top‑level progress fill.               |
@@ -177,6 +180,9 @@ Override once per page:
 | `data-slides-per-view`                | `3` \| `"auto"`                     | Swiper's `slidesPerView`.                     |
 | `data-space-between`                  | `16`                                | Gap between slides (px).                      |
 | `data-breakpoints`                    | `{ "768": { "slidesPerView": 2 } }` | Full breakpoint JSON.                         |
+| `data-slide-min-width`                | `"280px"` \| `"16rem"` \| `"var(--card)"` | **Auto-fit / stretch.** Integer `slidesPerView` computed from track width; slides grow to fill leftover space, no peek. Overrides `data-slides-per-view` and `data-breakpoints`. Recomputes on resize via ResizeObserver. |
+| `data-slide-width`                    | `"280px"` \| `"calc(...)"`         | **Auto-fill / peek.** Fractional `slidesPerView` at fixed target width; the next slide peeks. Same override rules as above. |
+| `data-slide-group-auto`               | `"true"`                            | Peek mode only: sets `slidesPerGroup = floor(SPV)` so nav arrows advance by whole "pages" of visible slides. |
 | `data-centered-slides`                | `"true"`                            | Enable Swiper's centred mode.                 |
 | `data-center-insufficient-slides`     | `"true"`                            | Centre when slide count < visible count.      |
 | **Navigation & interaction**          |                                     |                                               |

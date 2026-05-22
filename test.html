@@ -1346,6 +1346,147 @@
         </div>
       </article>
 
+      <!-- Creative: Auto-fit (stretch) – integer SPV from min slide width -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Auto-fit (Stretch) — <code>data-slide-min-width</code></h3>
+            <p class="example-description">
+              CSS-grid <code>auto-fit</code> analog. Slide count is computed from the track width and grows responsively; slides stretch to fill leftover space, no peek. Resize the window to see the count change.
+            </p>
+          </div>
+          <div class="example-header-right">
+            <div class="example-badges">
+              <span class="badge badge-success">Stretch</span>
+              <span class="badge badge-accent">ResizeObserver</span>
+            </div>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-slide-min-width="280px"</code>
+          <code>data-space-between="16"</code>
+        </div>
+        <div class="example-body">
+          <div
+            class="slider-main_component"
+            data-slide-min-width="280px"
+            data-space-between="16"
+            data-autoplay="false"
+          >
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">1</span><span class="slide-label">Auto-fit</span></div>
+                <div class="swiper-slide slide-gradient-2"><span class="slide-number">2</span><span class="slide-label">Auto-fit</span></div>
+                <div class="swiper-slide slide-gradient-3"><span class="slide-number">3</span><span class="slide-label">Auto-fit</span></div>
+                <div class="swiper-slide slide-gradient-4"><span class="slide-number">4</span><span class="slide-label">Auto-fit</span></div>
+                <div class="swiper-slide slide-gradient-5"><span class="slide-number">5</span><span class="slide-label">Auto-fit</span></div>
+                <div class="swiper-slide slide-gradient-6"><span class="slide-number">6</span><span class="slide-label">Auto-fit</span></div>
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">7</span><span class="slide-label">Auto-fit</span></div>
+                <div class="swiper-slide slide-gradient-2"><span class="slide-number">8</span><span class="slide-label">Auto-fit</span></div>
+              </div>
+            </div>
+            <div class="swiper-controls">
+              <div class="swiper-prev">‹</div>
+              <div class="swiper-bullet-wrapper"></div>
+              <div class="swiper-next">›</div>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="comment">&lt;!-- Slides never go below 280px; integer count, no peek --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span>
+     <span class="attr">data-slide-min-width</span>=<span class="value">"280px"</span>
+     <span class="attr">data-space-between</span>=<span class="value">"16"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Creative: Auto-fill (peek) – fractional SPV at fixed slide width -->
+      <article class="example-card">
+        <div class="example-header">
+          <div>
+            <h3 class="example-title">Auto-fill (Peek) — <code>data-slide-width</code></h3>
+            <p class="example-description">
+              CSS-grid <code>auto-fill</code> analog. Slides stay at the target width and the next slide peeks. Add <code>data-slide-group-auto="true"</code> to make nav arrows advance by whole pages.
+            </p>
+          </div>
+          <div class="example-header-right">
+            <div class="example-badges">
+              <span class="badge badge-accent">Peek</span>
+              <span class="badge badge-success">Group-auto</span>
+            </div>
+            <button class="code-toggle" onclick="toggleCode(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              Code
+            </button>
+          </div>
+        </div>
+        <div class="example-code">
+          <code>data-slide-width="280px"</code>
+          <code>data-slide-group-auto="true"</code>
+          <code>data-space-between="16"</code>
+        </div>
+        <div class="example-body">
+          <div
+            class="slider-main_component"
+            data-slide-width="280px"
+            data-slide-group-auto="true"
+            data-space-between="16"
+            data-autoplay="false"
+          >
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">1</span><span class="slide-label">Peek</span></div>
+                <div class="swiper-slide slide-gradient-2"><span class="slide-number">2</span><span class="slide-label">Peek</span></div>
+                <div class="swiper-slide slide-gradient-3"><span class="slide-number">3</span><span class="slide-label">Peek</span></div>
+                <div class="swiper-slide slide-gradient-4"><span class="slide-number">4</span><span class="slide-label">Peek</span></div>
+                <div class="swiper-slide slide-gradient-5"><span class="slide-number">5</span><span class="slide-label">Peek</span></div>
+                <div class="swiper-slide slide-gradient-6"><span class="slide-number">6</span><span class="slide-label">Peek</span></div>
+                <div class="swiper-slide slide-gradient-1"><span class="slide-number">7</span><span class="slide-label">Peek</span></div>
+                <div class="swiper-slide slide-gradient-2"><span class="slide-number">8</span><span class="slide-label">Peek</span></div>
+              </div>
+            </div>
+            <div class="swiper-controls">
+              <div class="swiper-prev">‹</div>
+              <div class="swiper-bullet-wrapper"></div>
+              <div class="swiper-next">›</div>
+            </div>
+          </div>
+          <div class="xray-code">
+            <div class="xray-code-header">
+              <span class="active" onclick="switchTab(this, 'html')">HTML</span>
+            </div>
+            <div class="xray-code-tab active" data-tab="html">
+              <pre><span class="comment">&lt;!-- Slides stay 280px wide; next slide peeks; arrows page-by-page --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"slider-main_component"</span>
+     <span class="attr">data-slide-width</span>=<span class="value">"280px"</span>
+     <span class="attr">data-slide-group-auto</span>=<span class="value">"true"</span>
+     <span class="attr">data-space-between</span>=<span class="value">"16"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-wrapper"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"swiper-slide"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
     </div>
 
     <!-- SECTION: Basic Examples -->

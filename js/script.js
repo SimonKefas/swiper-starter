@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.5.2";
+  const VERSION = "2.6.0";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -131,6 +131,26 @@
     }
 
     return Number.isNaN(px) ? null : px;
+  }
+
+  /**
+   * Compute a CSS-grid-like slidesPerView based on a target slide width and the
+   * current track width. `mode` is either "stretch" (auto-fit analog: integer
+   * SPV, slides grow to fill) or "peek" (auto-fill analog: fractional SPV,
+   * slides stay at target width and the next slide peeks).
+   *
+   * Returns a positive number (clamped to >= 1) or null if the inputs are not
+   * yet resolvable (e.g. 0-width track).
+   */
+  function computeAutoSlidesPerView(trackEl, targetPx, gapPx, mode) {
+    if (!trackEl || !targetPx || targetPx <= 0) return null;
+    const containerW = trackEl.clientWidth;
+    if (!containerW) return null;
+    const gap = gapPx > 0 ? gapPx : 0;
+    const raw = (containerW + gap) / (targetPx + gap);
+    if (!isFinite(raw) || raw <= 0) return null;
+    const spv = mode === "stretch" ? Math.floor(raw) : raw;
+    return Math.max(1, spv);
   }
 
   /**
@@ -559,6 +579,37 @@
       else o.slidesPerView = parseInt(d.slidesPerView, 10);
       if (!d.breakpoints) o.breakpoints = null; // user overrides completely
     }
+
+    // Auto-fit / auto-fill style sizing. Both attributes override
+    // data-slides-per-view and data-breakpoints when present.
+    if (d.slideMinWidth || d.slideWidth) {
+      const stretchTarget = d.slideMinWidth
+        ? resolveCssLength(d.slideMinWidth, container)
+        : null;
+      const peekTarget = d.slideWidth
+        ? resolveCssLength(d.slideWidth, container)
+        : null;
+      // Peek wins if both are set; warn so authors notice the conflict.
+      if (stretchTarget !== null && peekTarget !== null) {
+        debugLog("data-slide-min-width and data-slide-width both set; using data-slide-width (peek mode)", container);
+      }
+      if (peekTarget !== null && peekTarget > 0) {
+        o._autoSpvMode = "peek";
+        o._autoSpvTarget = peekTarget;
+      } else if (stretchTarget !== null && stretchTarget > 0) {
+        o._autoSpvMode = "stretch";
+        o._autoSpvTarget = stretchTarget;
+      }
+      if (o._autoSpvMode) {
+        if (d.slidesPerView) {
+          debugLog("data-slide-min-width/data-slide-width overrides data-slides-per-view", container);
+        }
+        delete o.slidesPerView;
+        o.breakpoints = null; // breakpoints would fight dynamic SPV
+        o._slideGroupAuto = d.slideGroupAuto === "true";
+      }
+    }
+
     if (d.spaceBetween) {
       const resolvedSpace = resolveCssLength(d.spaceBetween, container);
       if (resolvedSpace !== null) o.spaceBetween = resolvedSpace;
@@ -573,6 +624,10 @@
     if (d.singleSlide === "true") {
       o.slidesPerView = 1;
       o.breakpoints = null;
+      // single-slide is the ultimate override; abandon any auto-SPV markers.
+      delete o._autoSpvMode;
+      delete o._autoSpvTarget;
+      delete o._slideGroupAuto;
     }
     o.customSlider = d.customSlider === "true";
 
@@ -698,6 +753,28 @@
       debugLog("no slides found", container);
       container.setAttribute("data-swiper-disabled", "");
       return null;
+    }
+
+    // Resolve initial slidesPerView for auto-fit / auto-fill sizing. We do
+    // this before the loop-clone / maxSpv heuristics so they see a numeric
+    // SPV and produce correct clone counts. The ResizeObserver wired up
+    // after init keeps the value in sync with the track width.
+    const autoSpvMode = instanceOptions._autoSpvMode || null;
+    const autoSpvTarget = instanceOptions._autoSpvTarget || 0;
+    const slideGroupAuto = !!instanceOptions._slideGroupAuto;
+    if (autoSpvMode) {
+      const gapPx = typeof swiperConfig.spaceBetween === "number" ? swiperConfig.spaceBetween : 0;
+      const initialSpv = computeAutoSlidesPerView(swiperEl, autoSpvTarget, gapPx, autoSpvMode);
+      if (initialSpv) {
+        swiperConfig.slidesPerView = initialSpv;
+        if (autoSpvMode === "peek" && slideGroupAuto) {
+          swiperConfig.slidesPerGroup = Math.max(1, Math.floor(initialSpv));
+        }
+      } else {
+        // Track not measurable yet (display:none?). Fall back to 1 so Swiper
+        // can still init; the ResizeObserver will recompute on first resize.
+        swiperConfig.slidesPerView = 1;
+      }
     }
 
     // Get disable thresholds to filter relevant breakpoints
@@ -955,6 +1032,37 @@
       applyAllSlidesActive(swiperInstance);
     }
 
+    // -- auto-fit / auto-fill: keep slidesPerView in sync with track width.
+    //    Observe the .swiper element (the track) because that's what Swiper
+    //    actually measures internally — observing the outer container would
+    //    miss padding/border changes between container and track.
+    if (autoSpvMode && swiperInstance && typeof ResizeObserver !== "undefined") {
+      const record = sliderRegistry.get(container);
+      if (record) {
+        record.destroyFns = record.destroyFns || [];
+        let lastSpv = swiperInstance.params.slidesPerView;
+        const recalc = debounce(function () {
+          if (!swiperInstance || swiperInstance.destroyed) return;
+          const gapPx = typeof swiperInstance.params.spaceBetween === "number"
+            ? swiperInstance.params.spaceBetween
+            : 0;
+          const spv = computeAutoSlidesPerView(swiperEl, autoSpvTarget, gapPx, autoSpvMode);
+          if (!spv) return;
+          if (spv === lastSpv) return;
+          lastSpv = spv;
+          swiperInstance.params.slidesPerView = spv;
+          if (autoSpvMode === "peek" && slideGroupAuto) {
+            swiperInstance.params.slidesPerGroup = Math.max(1, Math.floor(spv));
+          }
+          swiperInstance.update();
+          debugLog("auto SPV updated", { mode: autoSpvMode, spv });
+        }, 100);
+        const ro = new ResizeObserver(recalc);
+        ro.observe(swiperEl);
+        record.destroyFns.push(function () { ro.disconnect(); });
+      }
+    }
+
     // attach references
     container._swiperInstance = swiperInstance;
     container._swiperConfig = Object.freeze(deepMerge({}, swiperConfig));
@@ -970,6 +1078,15 @@
 
     // stop observing autoplay-in-view
     if (sharedIO) sharedIO.unobserve(container);
+
+    // run any registered teardown callbacks (ResizeObserver disconnect,
+    // custom-slider input listener removal, etc.)
+    if (record.destroyFns && record.destroyFns.length) {
+      record.destroyFns.forEach(function (fn) {
+        try { fn(); } catch (e) { debugLog("destroyFn threw", e); }
+      });
+      record.destroyFns = [];
+    }
 
     // clean up video event listeners
     cleanupVideoListeners(container);
