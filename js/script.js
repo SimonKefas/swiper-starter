@@ -24,12 +24,98 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.6.0";
+  const VERSION = "2.8.0";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
   function debugLog(...args) {
     if (DEBUG) console.warn("[Swiper Starter]", ...args);
+  }
+
+  /* =============================================================
+   * 0a) Swiper CDN auto-injection (fallback safety net)
+   * -------------------------------------------------------------
+   * If Swiper is already on the page (the recommended setup: static
+   * <link> + <script> tags in <head>), this does nothing and there is
+   * zero overhead. If Swiper is missing, we inject the bundle (CSS + JS)
+   * from jsDelivr so a page only needs the single starter <script> tag.
+   *
+   * Config (all optional):
+   *   • data-swiper-version="12"  on the starter's own <script> tag
+   *   • window.SwiperStarterConfig = {
+   *       autoInject: true,        // set false to opt out entirely
+   *       swiperVersion: "12",     // CDN major/exact version
+   *       cdnBase: "https://cdn.jsdelivr.net/npm"
+   *     }
+   *
+   * Trade-off: when it activates it injects late, so there can be a brief
+   * unstyled flash and a slightly later first paint. For production, the
+   * static-tag setup remains the recommended path.
+   * ============================================================= */
+
+  const STARTER_SCRIPT = document.currentScript;
+  const STARTER_CONFIG = window.SwiperStarterConfig || {};
+
+  const AUTO_INJECT = STARTER_CONFIG.autoInject !== false; // default: enabled
+  const CDN_BASE = STARTER_CONFIG.cdnBase || "https://cdn.jsdelivr.net/npm";
+  const SWIPER_VERSION =
+    (STARTER_SCRIPT && STARTER_SCRIPT.getAttribute("data-swiper-version")) ||
+    STARTER_CONFIG.swiperVersion ||
+    "12";
+
+  /**
+   * Ensure window.Swiper exists, then run `callback`. When Swiper is already
+   * present the callback fires synchronously. Otherwise the bundle is injected
+   * and the callback fires on load. Injection is idempotent (a second call
+   * while the script is still loading just queues the callback).
+   */
+  function ensureSwiper(callback) {
+    if (typeof window.Swiper !== "undefined") {
+      callback();
+      return;
+    }
+
+    if (!AUTO_INJECT) {
+      console.error(
+        "[Swiper Starter] Swiper is not loaded and auto-inject is disabled. " +
+          "Add the Swiper <script> tag, or remove autoInject:false."
+      );
+      return;
+    }
+
+    // Inject the bundle CSS unless a Swiper stylesheet is already present.
+    if (!document.querySelector('link[href*="swiper"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = `${CDN_BASE}/swiper@${SWIPER_VERSION}/swiper-bundle.min.css`;
+      link.setAttribute("data-swiper-starter-injected", "css");
+      document.head.appendChild(link);
+    }
+
+    // Inject the bundle JS. If a previous call already started this, just
+    // attach our callback to the in-flight script (no duplicate download).
+    const existing = document.querySelector(
+      'script[data-swiper-starter-injected="js"]'
+    );
+    if (existing) {
+      existing.addEventListener("load", callback);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `${CDN_BASE}/swiper@${SWIPER_VERSION}/swiper-bundle.min.js`;
+    script.setAttribute("data-swiper-starter-injected", "js");
+    script.addEventListener("load", () => {
+      debugLog(`auto-injected Swiper ${SWIPER_VERSION} from CDN`);
+      callback();
+    });
+    script.addEventListener("error", () => {
+      console.error(
+        `[Swiper Starter] Failed to load Swiper from ${script.src}. ` +
+          "Check the version/network, or add the Swiper <script> tag manually."
+      );
+    });
+    (document.head || document.documentElement).appendChild(script);
   }
 
   /* =============================================================
@@ -1155,10 +1241,19 @@
   function recalcSwipers() { initSwipers(); }
   window.recalcSwipers = recalcSwipers;
 
-  // run once at doc ready
-  document.addEventListener("DOMContentLoaded", initSwipers);
+  // Bootstrap: make sure Swiper is available (injecting it if needed), then
+  // run the initial pass. Handles both the normal case and a starter script
+  // that runs after the DOM is already parsed (defer / async / late inject).
+  function bootstrap() {
+    ensureSwiper(initSwipers);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrap);
+  } else {
+    bootstrap();
+  }
 
-  // handle responsive (re)activation
+  // handle responsive (re)activation (Swiper is guaranteed loaded by now)
   window.addEventListener("resize", debounce(initSwipers, 250));
   window.addEventListener("orientationchange", debounce(initSwipers, 250));
 

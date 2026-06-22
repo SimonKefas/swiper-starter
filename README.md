@@ -83,6 +83,8 @@
 
 ### Installation
 
+**Recommended setup** — load Swiper statically (best performance, no flash of unstyled content), then the starter:
+
 ```html
 <!-- Swiper core -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"/>
@@ -92,6 +94,33 @@
 ```html
 <!-- Swiper Starter Kit -->
 <script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
+```
+
+**Quick start (single tag)** — since v2.8.0 the starter auto-injects the Swiper bundle when Swiper isn't already on the page, so the core tags above are optional:
+
+```html
+<!-- Starter alone — Swiper (CSS + JS) is injected automatically if missing -->
+<script src="https://cdn.jsdelivr.net/gh/SimonKefas/swiper-starter@latest/js/script.js"></script>
+```
+
+Auto-injection only activates when `window.Swiper` is absent, so the recommended setup above keeps full control with zero overhead. When it activates, Swiper loads slightly later (possible brief unstyled flash) — prefer the static tags for production.
+
+**Configuring auto-injection** (all optional):
+
+```html
+<!-- Pick the Swiper version to inject -->
+<script src="…/swiper-starter@latest/js/script.js" data-swiper-version="12"></script>
+```
+
+```html
+<!-- Or configure via a global before the starter loads -->
+<script>
+  window.SwiperStarterConfig = {
+    autoInject: true,                            // false to opt out entirely
+    swiperVersion: "12",                         // CDN major or exact version
+    cdnBase: "https://cdn.jsdelivr.net/npm"      // override the CDN if needed
+  };
+</script>
 ```
 
 > **Tip:** Pin to a tag (`@v2.2.0`) or commit hash to avoid surprises.
