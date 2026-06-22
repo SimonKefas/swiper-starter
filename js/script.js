@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const VERSION = "2.8.0";
+  const VERSION = "2.8.1";
   window.SwiperStarterKit = Object.freeze({ version: VERSION });
 
   const DEBUG = !!window.SWIPER_STARTER_DEBUG;
@@ -228,14 +228,19 @@
    * Returns a positive number (clamped to >= 1) or null if the inputs are not
    * yet resolvable (e.g. 0-width track).
    */
-  function computeAutoSlidesPerView(trackEl, targetPx, gapPx, mode) {
+  function computeAutoSlidesPerView(trackEl, targetPx, gapPx, mode, maxSpv) {
     if (!trackEl || !targetPx || targetPx <= 0) return null;
     const containerW = trackEl.clientWidth;
     if (!containerW) return null;
     const gap = gapPx > 0 ? gapPx : 0;
     const raw = (containerW + gap) / (targetPx + gap);
     if (!isFinite(raw) || raw <= 0) return null;
-    const spv = mode === "stretch" ? Math.floor(raw) : raw;
+    let spv = mode === "stretch" ? Math.floor(raw) : raw;
+    // CSS auto-fit semantics: never reserve more columns than there are
+    // slides, otherwise the real slides shrink to track/SPV and leave an
+    // empty track on the trailing edge. (In loop mode clones fill the
+    // track, so the caller passes no cap.)
+    if (typeof maxSpv === "number" && maxSpv > 0) spv = Math.min(spv, maxSpv);
     return Math.max(1, spv);
   }
 
@@ -850,7 +855,8 @@
     const slideGroupAuto = !!instanceOptions._slideGroupAuto;
     if (autoSpvMode) {
       const gapPx = typeof swiperConfig.spaceBetween === "number" ? swiperConfig.spaceBetween : 0;
-      const initialSpv = computeAutoSlidesPerView(swiperEl, autoSpvTarget, gapPx, autoSpvMode);
+      const spvCap = swiperConfig.loop ? null : slidesCount;
+      const initialSpv = computeAutoSlidesPerView(swiperEl, autoSpvTarget, gapPx, autoSpvMode, spvCap);
       if (initialSpv) {
         swiperConfig.slidesPerView = initialSpv;
         if (autoSpvMode === "peek" && slideGroupAuto) {
@@ -1132,7 +1138,8 @@
           const gapPx = typeof swiperInstance.params.spaceBetween === "number"
             ? swiperInstance.params.spaceBetween
             : 0;
-          const spv = computeAutoSlidesPerView(swiperEl, autoSpvTarget, gapPx, autoSpvMode);
+          const spvCap = swiperInstance.params.loop ? null : slidesCount;
+          const spv = computeAutoSlidesPerView(swiperEl, autoSpvTarget, gapPx, autoSpvMode, spvCap);
           if (!spv) return;
           if (spv === lastSpv) return;
           lastSpv = spv;
