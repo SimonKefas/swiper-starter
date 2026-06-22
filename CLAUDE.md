@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Swiper Starter Kit (v2.3.0) is a zero-config, attribute-driven wrapper around Swiper 11+ that lets you configure sliders entirely through HTML `data-*` attributes. It's vanilla JavaScript (ES2015+) with no build system, no transpilation, and no dependencies beyond Swiper itself (loaded via CDN). Primary audience is Webflow designers and developers who want sliders without writing JS.
+Swiper Starter Kit (v2.7.0) is a zero-config, attribute-driven wrapper around Swiper 12 (works with 11+) that lets you configure sliders entirely through HTML `data-*` attributes. It's vanilla JavaScript (ES2015+) with no build system, no transpilation, and no dependencies beyond Swiper itself (loaded via CDN). Primary audience is Webflow designers and developers who want sliders without writing JS.
 
 ## Development Workflow
 
